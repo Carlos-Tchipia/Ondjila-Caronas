@@ -757,13 +757,13 @@ in the Software without restriction...
 
 <img src="https://avatars.githubusercontent.com/u/0?v=4" width="120" style="border-radius: 50%;" alt="Avatar"/>
 
-### [Teu Nome Completo]
+### [Carlos Neves Mussagui Tchípia]
 
 *Estudante de Engenharia Informática — ISPTEC*
 
-[![GitHub](https://img.shields.io/badge/GitHub-@seuuser-181717?style=for-the-badge&logo=github)](https://github.com/seuuser)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Teu_Nome-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/seuuser)
-[![Email](https://img.shields.io/badge/Email-teu@email.com-EA4335?style=for-the-badge&logo=gmail)](mailto:teu@email.com)
+[![GitHub](https://img.shields.io/badge/GitHub-@Carlos-Tchipia-181717?style=for-the-badge&logo=github)](https://github.com/seuuser)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Carlos Tchípia-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/seuuser)
+[![Email](https://img.shields.io/badge/Email-nevescarlos930@gmail.com-EA4335?style=for-the-badge&logo=gmail)](mailto:teu@email.com)
 
 <br/>
 
