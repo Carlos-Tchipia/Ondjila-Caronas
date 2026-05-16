@@ -1,0 +1,57 @@
+<section class="hero">
+  <!-- Camada 1: Video realista / 3D ao fundo (preparado) -->
+  <div class="hero__video-bg">
+    <!-- Aqui entrará a tag <video autoplay loop muted> quando gerarmos o asset -->
+  </div>
+
+  <!-- Camada 2: Overlay escuro para legibilidade -->
+  <div class="hero__overlay"></div>
+
+  <!-- Camada 3: Carro em Destaque (direita) -->
+  <div class="hero__car">
+    <!-- Imagem placeholder que será trocada pelo carro realista -->
+    <div class="hero__car-placeholder">
+       🚗 [Espaço para Carro Mercedes 3D/Realista]
+    </div>
+    <div class="hero__car-glow"></div>
+  </div>
+
+  <!-- Camada 4: Navbar glassmorphism -->
+  <app-navbar></app-navbar>
+
+  <!-- Camada 5: Copy e CTA (esquerda) -->
+  <div class="hero__content">
+    <span class="hero__location-label">Luanda · Angola</span>
+    <h1 class="hero__headline">A Tua Carona<br>em Luanda.</h1>
+    <p class="hero__subtitle">Seguro, rápido e sem complicações. Uma experiência premium de mobilidade.</p>
+    <div class="hero__ctas">
+      <button class="btn btn--primary btn--large">Pedir Carona Agora →</button>
+      <button class="btn btn--ghost btn--large">Saber mais</button>
+    </div>
+
+    <!-- Barra de pedido rápido (glassmorphism) -->
+    <div class="hero__quick-search">
+      <div class="quick-search__field">
+        <span class="icon">📍</span>
+        <input placeholder="Ponto de partida" />
+      </div>
+      <div class="quick-search__arrow">→</div>
+      <div class="quick-search__field">
+        <span class="icon">🎯</span>
+        <input placeholder="Destino" />
+      </div>
+      <button class="btn btn--primary">→</button>
+    </div>
+  </div>
+
+  <!-- Camada 6: Stats rodapé hero -->
+  <div class="hero__stats">
+    <div class="stat"><span class="stat__number">12500</span><span>+ Viagens</span></div>
+    <div class="stat__divider"></div>
+    <div class="stat"><span class="stat__number">850</span><span>+ Motoristas</span></div>
+    <div class="stat__divider"></div>
+    <div class="stat"><span class="stat__number">4.9</span><span>★ Avaliação</span></div>
+    <div class="stat__divider"></div>
+    <div class="stat"><span class="stat__number">47</span><span> Bairros</span></div>
+  </div>
+</section>
