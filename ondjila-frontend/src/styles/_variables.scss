@@ -1,0 +1,48 @@
+:root {
+  --color-primary: #006e1c;
+  --color-primary-dark: #003c0b;
+  --color-primary-light: #78dc77;
+  --color-primary-container: #4caf50;
+  
+  --color-bg: #f5fbef;
+  --color-surface: #ffffff;
+  --color-surface-dim: #d6dcd0;
+  --color-card: #FFFFFF;
+  
+  --color-text: #212121;
+  --color-text-muted: #455A64;
+  --color-border: #becab9;
+  
+  --color-pool: #1565C0;
+  
+  --color-success: #4CAF50;
+  --color-danger: #F44336;
+  --color-error: #ba1a1a;
+  
+  --color-glass: rgba(255, 255, 255, 0.15);
+  --color-glass-border: rgba(255, 255, 255, 0.2);
+
+  --font-family-display: 'Geist', sans-serif;
+  --font-family-body: 'DM Sans', sans-serif;
+
+  --rounded-sm: 0.25rem;
+  --rounded-default: 0.5rem;
+  --rounded-md: 0.75rem;
+  --rounded-lg: 1rem;
+  --rounded-xl: 1.5rem;
+  --rounded-full: 9999px;
+
+  --spacing-gutter: 1.5rem;
+}
+
+[data-theme="dark"] {
+  --color-bg: #121212;
+  --color-surface: #1E1E1E;
+  --color-surface-dim: #2A2A2A;
+  --color-card: #252525;
+  --color-text: #EEEEEE;
+  --color-text-muted: #9E9E9E;
+  --color-border: #333333;
+  --color-glass: rgba(18, 18, 18, 0.75);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+}
