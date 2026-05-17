@@ -1,0 +1,103 @@
+.dashboard-layout {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dash-header {
+  position: absolute;
+  top: 24px; left: 24px; right: 24px;
+  height: 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  border-radius: var(--rounded-lg);
+  z-index: 10;
+  
+  .logo {
+    font-family: var(--font-family-display);
+    font-weight: 700;
+    font-size: 24px;
+  }
+}
+
+.request-panel {
+  position: absolute;
+  top: 112px; left: 24px;
+  width: 380px;
+  padding: 24px;
+  border-radius: var(--rounded-xl);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  h3 { margin: 0; font-size: 20px; }
+}
+
+.input-group {
+  display: flex; align-items: center;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--rounded-default);
+  padding: 12px;
+  margin-bottom: 12px;
+
+  .icon {
+    width: 12px; height: 12px; border-radius: 50%; margin-right: 12px;
+    &.origin-icon { background: var(--color-primary); }
+    &.dest-icon { background: white; }
+  }
+
+  input {
+    background: transparent; border: none; color: white; width: 100%; outline: none;
+    font-family: var(--font-family-body);
+  }
+}
+
+.suggestions-list {
+  list-style: none; padding: 0; margin: -8px 0 16px 0;
+  background: var(--color-surface);
+  border-radius: var(--rounded-default);
+  max-height: 200px; overflow-y: auto;
+
+  li {
+    padding: 12px; font-size: 13px; border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+    &:hover { background: rgba(255,255,255,0.05); color: var(--color-primary); }
+  }
+}
+
+.vehicle-options {
+  display: flex; gap: 12px;
+
+  .v-card {
+    flex: 1; padding: 16px; border-radius: var(--rounded-default);
+    background: rgba(0,0,0,0.2); border: 1px solid var(--color-border);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    cursor: pointer; transition: all 0.2s;
+
+    &.selected {
+      border-color: var(--color-primary);
+      background: rgba(0, 209, 80, 0.1);
+    }
+
+    .v-icon { font-size: 24px; }
+    .v-name { font-size: 14px; font-weight: 500; }
+  }
+}
+
+.status-panel {
+  position: absolute;
+  top: 112px; right: 24px;
+  width: 320px; padding: 24px;
+  border-radius: var(--rounded-xl);
+  z-index: 10;
+  border-left: 4px solid var(--color-primary);
+
+  h4 { margin: 0 0 8px 0; }
+  .status-text { color: var(--color-text-muted); font-size: 14px; }
+  .group-id { font-family: monospace; color: var(--color-primary); margin-top: 12px; font-weight: bold;}
+}
