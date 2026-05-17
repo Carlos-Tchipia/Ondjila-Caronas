@@ -1,0 +1,61 @@
+<div class="dashboard-layout">
+  <!-- Mapa de fundo -->
+  <app-map-panel #mapPanel></app-map-panel>
+
+  <header class="dash-header glass-panel">
+    <div class="logo">Ondjila. <span class="badge">Motorista</span></div>
+    <div class="status-toggle">
+      <span class="dot" [class.online]="isOnline"></span>
+      <span>{{ isOnline ? 'Online' : 'Offline' }}</span>
+      <button class="btn btn--ghost" style="padding: 4px 12px; margin-left: 12px;" (click)="isOnline = !isOnline">
+        Trocar
+      </button>
+    </div>
+  </header>
+
+  <aside class="request-panel glass-panel">
+    <h3>Pedidos Perto de Mim</h3>
+    
+    @if (!isOnline) {
+      <div class="empty-state">
+        Fica Online para começares a receber pedidos de carona.
+      </div>
+    } @else {
+      @if (loading) {
+        <div class="empty-state">A procurar pools...</div>
+      }
+      
+      <div class="pools-list">
+        @for (pool of availablePools; track pool.id) {
+          <div class="pool-card">
+            <div class="pool-header">
+              <span class="pool-id">Grupo #{{ pool.id }}</span>
+              <span class="pool-count">{{ pool.current_count }} / {{ pool.max_passengers }} pass.</span>
+            </div>
+            
+            <div class="pool-route">
+              <div class="point origin">
+                <span class="icon"></span>
+                <span>{{ pool.origin_address }}</span>
+              </div>
+              <div class="point dest">
+                <span class="icon"></span>
+                <span>{{ pool.destination_address }}</span>
+              </div>
+            </div>
+
+            <button class="btn btn--primary full-width" (click)="acceptPool(pool)" [disabled]="acceptingId === pool.id">
+              {{ acceptingId === pool.id ? 'A aceitar...' : 'Aceitar e Conduzir' }}
+            </button>
+          </div>
+        }
+
+        @if (!loading && availablePools.length === 0) {
+          <div class="empty-state">
+            Nenhum pedido de momento na tua zona.
+          </div>
+        }
+      </div>
+    }
+  </aside>
+</div>

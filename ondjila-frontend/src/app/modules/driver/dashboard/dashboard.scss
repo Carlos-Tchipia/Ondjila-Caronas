@@ -1,0 +1,73 @@
+@use '../../passenger/dashboard/dashboard.scss'; // Herda o layout base
+
+.badge {
+  font-size: 12px;
+  background: var(--color-primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.status-toggle {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--color-error); // Default offline
+    margin-right: 8px;
+    box-shadow: 0 0 8px var(--color-error);
+
+    &.online {
+      background: var(--color-primary);
+      box-shadow: 0 0 8px var(--color-primary);
+    }
+  }
+}
+
+.pools-list {
+  display: flex; flex-direction: column; gap: 16px;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.pool-card {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--color-border);
+  border-radius: var(--rounded-default);
+  padding: 16px;
+
+  .pool-header {
+    display: flex; justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 13px;
+    
+    .pool-id { color: var(--color-text-muted); }
+    .pool-count { color: var(--color-primary); font-weight: 600; }
+  }
+
+  .pool-route {
+    margin-bottom: 16px;
+    .point {
+      display: flex; align-items: center; margin-bottom: 8px;
+      font-size: 14px;
+      .icon {
+        width: 10px; height: 10px; border-radius: 50%; margin-right: 12px;
+      }
+      &.origin .icon { background: var(--color-primary); }
+      &.dest .icon { background: white; }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  padding: 32px 0;
+}
