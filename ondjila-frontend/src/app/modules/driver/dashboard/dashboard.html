@@ -14,48 +14,85 @@
   </header>
 
   <aside class="request-panel glass-panel">
-    <h3>Pedidos Perto de Mim</h3>
-    
-    @if (!isOnline) {
-      <div class="empty-state">
-        Fica Online para começares a receber pedidos de carona.
+    @if (activeRide) {
+      <h3>Viagem em Curso</h3>
+      <div class="active-ride-card">
+        <div class="pool-header">
+          <span class="pool-id">Grupo #{{ activeRide.id }}</span>
+          <span class="pool-status badge">{{ activeRide.status === 'active' ? 'A Caminho' : 'Em Curso' }}</span>
+        </div>
+        
+        <div class="pool-route">
+          <div class="point origin">
+            <span class="icon"></span>
+            <span>{{ activeRide.origin_address }}</span>
+          </div>
+          <div class="point dest">
+            <span class="icon"></span>
+            <span>{{ activeRide.destination_address }}</span>
+          </div>
+        </div>
+
+        <div class="passengers-info">
+          Passageiros no carro: <strong>{{ activeRide.current_count }}</strong> / {{ activeRide.max_passengers }}
+        </div>
+
+        <div class="action-buttons">
+          @if (activeRide.status === 'active') {
+            <button class="btn btn--primary full-width" (click)="startRide()" [disabled]="processing">
+              Iniciar Viagem
+            </button>
+          } @else if (activeRide.status === 'in_progress') {
+            <button class="btn btn--primary full-width" (click)="completeRide()" [disabled]="processing">
+              Concluir Viagem
+            </button>
+          }
+        </div>
       </div>
     } @else {
-      @if (loading) {
-        <div class="empty-state">A procurar pools...</div>
-      }
+      <h3>Pedidos Perto de Mim</h3>
       
-      <div class="pools-list">
-        @for (pool of availablePools; track pool.id) {
-          <div class="pool-card">
-            <div class="pool-header">
-              <span class="pool-id">Grupo #{{ pool.id }}</span>
-              <span class="pool-count">{{ pool.current_count }} / {{ pool.max_passengers }} pass.</span>
-            </div>
-            
-            <div class="pool-route">
-              <div class="point origin">
-                <span class="icon"></span>
-                <span>{{ pool.origin_address }}</span>
-              </div>
-              <div class="point dest">
-                <span class="icon"></span>
-                <span>{{ pool.destination_address }}</span>
-              </div>
-            </div>
-
-            <button class="btn btn--primary full-width" (click)="acceptPool(pool)" [disabled]="acceptingId === pool.id">
-              {{ acceptingId === pool.id ? 'A aceitar...' : 'Aceitar e Conduzir' }}
-            </button>
-          </div>
+      @if (!isOnline) {
+        <div class="empty-state">
+          Fica Online para começares a receber pedidos de carona.
+        </div>
+      } @else {
+        @if (loading) {
+          <div class="empty-state">A procurar pools...</div>
         }
+        
+        <div class="pools-list">
+          @for (pool of availablePools; track pool.id) {
+            <div class="pool-card">
+              <div class="pool-header">
+                <span class="pool-id">Grupo #{{ pool.id }}</span>
+                <span class="pool-count">{{ pool.current_count }} / {{ pool.max_passengers }} pass.</span>
+              </div>
+              
+              <div class="pool-route">
+                <div class="point origin">
+                  <span class="icon"></span>
+                  <span>{{ pool.origin_address }}</span>
+                </div>
+                <div class="point dest">
+                  <span class="icon"></span>
+                  <span>{{ pool.destination_address }}</span>
+                </div>
+              </div>
 
-        @if (!loading && availablePools.length === 0) {
-          <div class="empty-state">
-            Nenhum pedido de momento na tua zona.
-          </div>
-        }
-      </div>
+              <button class="btn btn--primary full-width" (click)="acceptPool(pool)" [disabled]="acceptingId === pool.id">
+                {{ acceptingId === pool.id ? 'A aceitar...' : 'Aceitar e Conduzir' }}
+              </button>
+            </div>
+          }
+
+          @if (!loading && availablePools.length === 0) {
+            <div class="empty-state">
+              Nenhum pedido de momento na tua zona.
+            </div>
+          }
+        </div>
+      }
     }
   </aside>
 </div>
