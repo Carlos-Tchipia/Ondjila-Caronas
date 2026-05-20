@@ -1,2 +1,5 @@
-/* Reutiliza os mesmos estilos do login para manter consistência */
-@import '../login/login.scss';
+@use '../login/login.scss';
+
+.create-account {
+  margin-top: 16px;
+}

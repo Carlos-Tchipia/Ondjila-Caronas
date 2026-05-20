@@ -1,43 +1,44 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MapPanel } from '../../../shared/components/map-panel/map-panel';
+import { Component, OnDestroy, OnInit, ViewChild, signal } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { DriverRidesApiService } from '../../../core/services/rides/driver-rides-api.service';
 import { DriverRide } from '../../../core/services/rides/ride-api.types';
 import { WalletApiService } from '../../../core/services/wallet/wallet-api.service';
+import { MapPanel } from '../../../shared/components/map-panel/map-panel';
 
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
   imports: [MapPanel, CommonModule],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss'
+  styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit, OnDestroy {
   @ViewChild('mapPanel') mapPanel!: MapPanel;
-  
-  isOnline = false;
-  availablePools: DriverRide[] = [];
-  loading = false;
-  acceptingId: number | null = null;
-  processing = false;
-  
-  activeRide: DriverRide | null = null;
+
+  readonly isOnline = signal(false);
+  readonly availablePools = signal<DriverRide[]>([]);
+  readonly loading = signal(false);
+  readonly acceptingId = signal<number | null>(null);
+  readonly processing = signal(false);
+  readonly activeRide = signal<DriverRide | null>(null);
+  readonly walletBalance = signal(0);
+  readonly notice = signal<{ kind: 'success' | 'error'; text: string } | null>(null);
+
   private pollInterval?: ReturnType<typeof setInterval>;
-  walletBalance: number = 0;
+  private noticeTimeout?: ReturnType<typeof setTimeout>;
 
   constructor(
     private readonly driverRidesApi: DriverRidesApiService,
     private readonly walletApi: WalletApiService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.checkCurrentRide();
     this.fetchWalletBalance();
 
-    // Poll a cada 5 segundos
     this.pollInterval = setInterval(() => {
-      if (this.isOnline && !this.activeRide) {
+      if (this.isOnline() && !this.activeRide()) {
         this.loadPools();
       }
     }, environment.pollingFallbackMs);
@@ -47,94 +48,112 @@ export class Dashboard implements OnInit, OnDestroy {
     if (this.pollInterval) {
       clearInterval(this.pollInterval);
     }
+    if (this.noticeTimeout) {
+      clearTimeout(this.noticeTimeout);
+    }
   }
 
-  fetchWalletBalance() {
-    this.walletApi.getBalance()
-      .subscribe({
-        next: (res) => this.walletBalance = Number(res.data?.balance || 0)
-      });
+  toggleOnline(): void {
+    this.isOnline.update((value) => !value);
   }
 
-  checkCurrentRide() {
-    this.driverRidesApi.getCurrentRide()
-      .subscribe({
-        next: (res) => {
-          this.activeRide = res.data?.ride || null;
-          const activeRide = this.activeRide;
-          if (activeRide) {
-            // Desenhar rota no mapa caso o motorista faça refresh da página
-            setTimeout(() => {
-              this.mapPanel.drawRoute(
-                activeRide.origin_lng, activeRide.origin_lat,
-                activeRide.destination_lng, activeRide.destination_lat
-              );
-            }, 500);
-          }
+  fetchWalletBalance(): void {
+    this.walletApi.getBalance().subscribe({
+      next: (res) => this.walletBalance.set(Number(res.data?.balance || 0)),
+    });
+  }
+
+  checkCurrentRide(): void {
+    this.driverRidesApi.getCurrentRide().subscribe({
+      next: (res) => {
+        const ride = res.data?.ride || null;
+        this.activeRide.set(ride);
+
+        if (ride) {
+          setTimeout(() => {
+            this.mapPanel.drawRoute(
+              ride.origin_lng,
+              ride.origin_lat,
+              ride.destination_lng,
+              ride.destination_lat
+            );
+          }, 500);
         }
-      });
+      },
+    });
   }
 
-  loadPools() {
-    this.loading = true;
-    this.driverRidesApi.getAvailablePools()
-      .subscribe({
-        next: (res) => {
-          this.availablePools = res.data?.pools || [];
-          this.loading = false;
-        },
-        error: () => this.loading = false
-      });
+  loadPools(): void {
+    this.loading.set(true);
+
+    this.driverRidesApi.getAvailablePools().subscribe({
+      next: (res) => {
+        this.availablePools.set(res.data?.pools || []);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
   }
 
-  acceptPool(pool: DriverRide) {
-    this.acceptingId = pool.id;
+  acceptPool(pool: DriverRide): void {
+    this.acceptingId.set(pool.id);
     this.mapPanel.drawRoute(pool.origin_lng, pool.origin_lat, pool.destination_lng, pool.destination_lat);
 
-    this.driverRidesApi.acceptPool(pool.id)
-      .subscribe({
-        next: (res) => {
-          this.acceptingId = null;
-          this.checkCurrentRide(); // Transita o UI para Viagem em Curso
-        },
-        error: (err) => {
-          this.acceptingId = null;
-          alert('Erro ao aceitar viagem: ' + (err.error?.message || 'Tente novamente'));
-        }
-      });
+    this.driverRidesApi.acceptPool(pool.id).subscribe({
+      next: () => {
+        this.acceptingId.set(null);
+        this.checkCurrentRide();
+      },
+      error: (err) => {
+        this.acceptingId.set(null);
+        this.showNotice('error', 'Erro ao aceitar viagem: ' + (err.error?.message || 'Tente novamente'));
+      },
+    });
   }
 
-  startRide() {
-    if (!this.activeRide) return;
-    this.processing = true;
-    this.driverRidesApi.startRide(this.activeRide.id)
-      .subscribe({
-        next: (res) => {
-          this.processing = false;
-          this.checkCurrentRide(); // Atualiza o status para in_progress
-        },
-        error: (err) => {
-          this.processing = false;
-          alert('Erro ao iniciar viagem: ' + (err.error?.message || 'Tente novamente'));
-        }
-      });
+  startRide(): void {
+    const ride = this.activeRide();
+    if (!ride) return;
+
+    this.processing.set(true);
+
+    this.driverRidesApi.startRide(ride.id).subscribe({
+      next: () => {
+        this.processing.set(false);
+        this.checkCurrentRide();
+      },
+      error: (err) => {
+        this.processing.set(false);
+        this.showNotice('error', 'Erro ao iniciar viagem: ' + (err.error?.message || 'Tente novamente'));
+      },
+    });
   }
 
-  completeRide() {
-    if (!this.activeRide) return;
-    this.processing = true;
-    this.driverRidesApi.completeRide(this.activeRide.id)
-      .subscribe({
-        next: (res) => {
-          this.processing = false;
-          this.activeRide = null; // Remove a viagem ativa, volta ao ecrã de pedidos
-          this.availablePools = []; // Limpa cache
-          alert('Viagem concluída! Excelente trabalho.');
-        },
-        error: (err) => {
-          this.processing = false;
-          alert('Erro ao concluir viagem: ' + (err.error?.message || 'Tente novamente'));
-        }
-      });
+  completeRide(): void {
+    const ride = this.activeRide();
+    if (!ride) return;
+
+    this.processing.set(true);
+
+    this.driverRidesApi.completeRide(ride.id).subscribe({
+      next: () => {
+        this.processing.set(false);
+        this.activeRide.set(null);
+        this.availablePools.set([]);
+        this.showNotice('success', 'Viagem concluída. Excelente trabalho.');
+      },
+      error: (err) => {
+        this.processing.set(false);
+        this.showNotice('error', 'Erro ao concluir viagem: ' + (err.error?.message || 'Tente novamente'));
+      },
+    });
+  }
+
+  private showNotice(kind: 'success' | 'error', text: string): void {
+    this.notice.set({ kind, text });
+    if (this.noticeTimeout) {
+      clearTimeout(this.noticeTimeout);
+    }
+    this.noticeTimeout = setTimeout(() => this.notice.set(null), 4200);
   }
 }

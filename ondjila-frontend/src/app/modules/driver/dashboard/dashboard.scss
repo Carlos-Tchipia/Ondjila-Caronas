@@ -13,13 +13,13 @@
 .status-toggle {
   display: flex;
   align-items: center;
+  gap: 8px;
   font-weight: 500;
 
   .dot {
     width: 8px; height: 8px;
     border-radius: 50%;
     background: var(--color-error); // Default offline
-    margin-right: 8px;
     box-shadow: 0 0 8px var(--color-error);
 
     &.online {
@@ -27,6 +27,11 @@
       box-shadow: 0 0 8px var(--color-primary);
     }
   }
+}
+
+.toggle-button {
+  padding: 6px 12px;
+  font-size: 13px;
 }
 
 .pools-list {
@@ -62,6 +67,21 @@
       &.origin .icon { background: var(--color-primary); }
       &.dest .icon { background: white; }
     }
+  }
+}
+
+@media (max-width: 760px) {
+  .driver-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .status-toggle {
+    font-size: 13px;
+  }
+
+  .pools-list {
+    max-height: none;
   }
 }
 

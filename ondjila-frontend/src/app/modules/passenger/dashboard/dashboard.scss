@@ -23,6 +23,47 @@
   }
 }
 
+.user-menu,
+.driver-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.wallet-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--rounded-full);
+  background: rgba(255,255,255,0.1);
+  white-space: nowrap;
+
+  .balance {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.wallet-mark,
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
 .request-panel {
   position: absolute;
   top: 112px; left: 24px;
@@ -35,6 +76,32 @@
   gap: 20px;
 
   h3 { margin: 0; font-size: 20px; }
+}
+
+.toast-stack {
+  position: absolute;
+  top: 104px;
+  right: 24px;
+  z-index: 20;
+  width: min(360px, calc(100vw - 48px));
+}
+
+.toast {
+  padding: 14px 16px;
+  border-radius: var(--rounded-default);
+  border: 1px solid color-mix(in srgb, var(--color-primary), white 25%);
+  background: color-mix(in srgb, var(--color-primary), rgba(0,0,0,0.86) 82%);
+  color: white;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.24);
+  backdrop-filter: blur(18px);
+  font-size: 14px;
+  line-height: 1.45;
+  animation: toast-in 0.24s ease-out;
+
+  &.error {
+    border-color: color-mix(in srgb, var(--color-error), white 25%);
+    background: color-mix(in srgb, var(--color-error), rgba(0,0,0,0.86) 84%);
+  }
 }
 
 .input-group {
@@ -74,17 +141,36 @@
   display: flex; gap: 12px;
 
   .v-card {
+    border: 1px solid var(--color-border);
+    color: inherit;
     flex: 1; padding: 16px; border-radius: var(--rounded-default);
-    background: rgba(0,0,0,0.2); border: 1px solid var(--color-border);
+    background: rgba(0,0,0,0.2);
     display: flex; flex-direction: column; align-items: center; gap: 8px;
-    cursor: pointer; transition: all 0.2s;
+    cursor: pointer; transition: transform 0.2s, border-color 0.2s, background 0.2s;
 
     &.selected {
       border-color: var(--color-primary);
       background: rgba(0, 209, 80, 0.1);
     }
 
-    .v-icon { font-size: 24px; }
+    &:hover {
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--color-primary), white 20%);
+    }
+
+    .vehicle-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.08);
+      color: white;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
     .v-name { font-size: 14px; font-weight: 500; }
   }
 }
@@ -132,3 +218,69 @@
 }
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 760px) {
+  .dash-header {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    height: auto;
+    min-height: 58px;
+    padding: 10px 12px;
+    gap: 12px;
+
+    .logo {
+      font-size: 20px;
+    }
+  }
+
+  .user-menu,
+  .driver-actions {
+    gap: 8px;
+  }
+
+  .wallet-badge {
+    padding: 6px 8px;
+
+    .balance {
+      max-width: 88px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .request-panel {
+    top: auto;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    max-height: 68vh;
+    overflow-y: auto;
+    padding: 18px;
+    border-radius: var(--rounded-lg);
+  }
+
+  .toast-stack {
+    top: 82px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+
+  .vehicle-options {
+    .v-card {
+      padding: 14px 10px;
+    }
+  }
+}

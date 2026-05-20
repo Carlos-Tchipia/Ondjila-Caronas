@@ -1,80 +1,87 @@
 <div class="dashboard-layout">
-  <!-- Mapa de fundo -->
   <app-map-panel #mapPanel></app-map-panel>
 
-  <header class="dash-header glass-panel" style="display: flex; justify-content: space-between; align-items: center;">
+  <header class="dash-header glass-panel">
     <div class="logo">Ondjila. <span class="badge">Motorista</span></div>
-    <div style="display: flex; align-items: center; gap: 24px;">
-      <div class="wallet-badge" style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);">
-        <span class="icon">💳</span>
-        <span class="balance" style="font-weight: bold; font-family: monospace;">{{ walletBalance | number:'1.2-2' }} Kz</span>
+    <div class="driver-actions">
+      <div class="wallet-badge">
+        <span class="wallet-mark">Kz</span>
+        <span class="balance">{{ walletBalance() | number:'1.2-2' }} Kz</span>
       </div>
       <div class="status-toggle">
-        <span class="dot" [class.online]="isOnline"></span>
-        <span>{{ isOnline ? 'Online' : 'Offline' }}</span>
-        <button class="btn btn--ghost" style="padding: 4px 12px; margin-left: 12px;" (click)="isOnline = !isOnline">
+        <span class="dot" [class.online]="isOnline()"></span>
+        <span>{{ isOnline() ? 'Online' : 'Offline' }}</span>
+        <button class="btn btn--ghost toggle-button" (click)="toggleOnline()">
           Trocar
         </button>
       </div>
     </div>
   </header>
 
+  @if (notice(); as currentNotice) {
+    <div class="toast-stack">
+      <div class="toast" [class.error]="currentNotice.kind === 'error'">
+        {{ currentNotice.text }}
+      </div>
+    </div>
+  }
+
   <aside class="request-panel glass-panel">
-    @if (activeRide) {
-      <h3>Viagem em Curso</h3>
+    @if (activeRide(); as ride) {
+      <h3>Viagem em curso</h3>
       <div class="active-ride-card">
         <div class="pool-header">
-          <span class="pool-id">Grupo #{{ activeRide.id }}</span>
-          <span class="pool-status badge">{{ activeRide.status === 'active' ? 'A Caminho' : 'Em Curso' }}</span>
+          <span class="pool-id">Grupo #{{ ride.id }}</span>
+          <span class="pool-status badge">{{ ride.status === 'active' ? 'A caminho' : 'Em curso' }}</span>
         </div>
-        
+
         <div class="pool-route">
           <div class="point origin">
             <span class="icon"></span>
-            <span>{{ activeRide.origin_address }}</span>
+            <span>{{ ride.origin_address }}</span>
           </div>
           <div class="point dest">
             <span class="icon"></span>
-            <span>{{ activeRide.destination_address }}</span>
+            <span>{{ ride.destination_address }}</span>
           </div>
         </div>
 
         <div class="passengers-info">
-          Passageiros no carro: <strong>{{ activeRide.current_count }}</strong> / {{ activeRide.max_passengers }}
+          Passageiros no carro: <strong>{{ ride.current_count }}</strong> / {{ ride.max_passengers }}
         </div>
 
         <div class="action-buttons">
-          @if (activeRide.status === 'active') {
-            <button class="btn btn--primary full-width" (click)="startRide()" [disabled]="processing">
-              Iniciar Viagem
+          @if (ride.status === 'active') {
+            <button class="btn btn--primary full-width" (click)="startRide()" [disabled]="processing()">
+              Iniciar viagem
             </button>
-          } @else if (activeRide.status === 'in_progress') {
-            <button class="btn btn--primary full-width" (click)="completeRide()" [disabled]="processing">
-              Concluir Viagem
+          } @else if (ride.status === 'in_progress') {
+            <button class="btn btn--primary full-width" (click)="completeRide()" [disabled]="processing()">
+              Concluir viagem
             </button>
           }
         </div>
       </div>
     } @else {
-      <h3>Pedidos Perto de Mim</h3>
-      
-      @if (!isOnline) {
+      <h3>Pedidos perto de mim</h3>
+
+      @if (!isOnline()) {
         <div class="empty-state">
-          Fica Online para começares a receber pedidos de carona.
+          Fica online para começares a receber pedidos de carona.
         </div>
       } @else {
-        @if (loading) {
+        @if (loading()) {
           <div class="empty-state">A procurar pools...</div>
         }
-        
+
         <div class="pools-list">
-          @for (pool of availablePools; track pool.id) {
+          @for (pool of availablePools(); track pool.id) {
             <div class="pool-card">
               <div class="pool-header">
                 <span class="pool-id">Grupo #{{ pool.id }}</span>
                 <span class="pool-count">{{ pool.current_count }} / {{ pool.max_passengers }} pass.</span>
               </div>
-              
+
               <div class="pool-route">
                 <div class="point origin">
                   <span class="icon"></span>
@@ -86,13 +93,13 @@
                 </div>
               </div>
 
-              <button class="btn btn--primary full-width" (click)="acceptPool(pool)" [disabled]="acceptingId === pool.id">
-                {{ acceptingId === pool.id ? 'A aceitar...' : 'Aceitar e Conduzir' }}
+              <button class="btn btn--primary full-width" (click)="acceptPool(pool)" [disabled]="acceptingId() === pool.id">
+                {{ acceptingId() === pool.id ? 'A aceitar...' : 'Aceitar e conduzir' }}
               </button>
             </div>
           }
 
-          @if (!loading && availablePools.length === 0) {
+          @if (!loading() && availablePools().length === 0) {
             <div class="empty-state">
               Nenhum pedido de momento na tua zona.
             </div>

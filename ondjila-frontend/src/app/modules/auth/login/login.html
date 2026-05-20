@@ -6,22 +6,34 @@
       <p>Inicia a tua sessão para viajares connosco.</p>
     </div>
 
-    <form class="auth-form">
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="form-alert">{{ errorMessage() }}</div>
+      }
+
       <div class="form-group">
-        <label>Email</label>
-        <input type="email" placeholder="O teu email" />
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" placeholder="O teu email" formControlName="email" autocomplete="email" />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="field-error">Insere um email válido.</span>
+        }
       </div>
 
       <div class="form-group">
-        <label>Password</label>
-        <input type="password" placeholder="A tua senha secreta" />
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" placeholder="A tua senha secreta" formControlName="password" autocomplete="current-password" />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="field-error">A password é obrigatória.</span>
+        }
       </div>
 
       <div class="forgot-password">
         <a href="#">Esqueceste a senha?</a>
       </div>
 
-      <button type="button" class="btn btn--primary btn--large full-width">Entrar</button>
+      <button type="submit" class="btn btn--primary btn--large full-width" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'A entrar...' : 'Entrar' }}
+      </button>
     </form>
 
     <div class="auth-footer">
