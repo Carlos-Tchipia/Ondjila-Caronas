@@ -1,6 +1,7 @@
 import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import * as L from 'leaflet';
 import { MapService } from '../../../core/services/map/map.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-map-panel',
@@ -41,7 +42,7 @@ export class MapPanel implements AfterViewInit {
     // Focado em Luanda
     this.map = L.map('map', { zoomControl: false }).setView([-8.8147, 13.2302], 13);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer(environment.map.tileUrl, {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
       maxZoom: 19
     }).addTo(this.map);

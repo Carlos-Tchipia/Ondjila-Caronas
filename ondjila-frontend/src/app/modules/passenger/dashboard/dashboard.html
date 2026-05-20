@@ -2,66 +2,82 @@
   <!-- Mapa como fundo absoluto -->
   <app-map-panel #mapPanel></app-map-panel>
 
-  <!-- Navbar Específica da Área Logada (Simplificada para o exemplo) -->
+  <!-- Navbar -->
   <header class="dash-header glass-panel">
     <div class="logo">Ondjila.</div>
     <div class="user-menu">
+      <div class="wallet-badge">
+        <span class="icon">💳</span>
+        <span class="balance">{{ walletBalance | number:'1.2-2' }} Kz</span>
+      </div>
       <span class="avatar">👤</span>
     </div>
   </header>
 
   <!-- Painel Lateral de Pedido -->
   <aside class="request-panel glass-panel">
-    <h3>Para onde vamos?</h3>
-    
-    <div class="search-box">
-      <div class="input-group">
-        <span class="icon origin-icon"></span>
-        <input type="text" placeholder="Local de partida (ex: Mutamba)" [value]="originAddress" readonly />
+    @if (activeRide) {
+      <h3>Detalhes da Viagem</h3>
+      <div class="active-ride-card">
+        <div class="status-badge" [class.in-progress]="activeRide.status === 'in_progress'">
+          {{ getStatusText() }}
+        </div>
+
+        @if (activeRide.driver_name) {
+          <div class="driver-info">
+            <div class="driver-avatar">👤</div>
+            <div class="driver-details">
+              <strong>{{ activeRide.driver_name }}</strong>
+              <span>{{ activeRide.vehicle_brand }} {{ activeRide.vehicle_model }}</span>
+              <span class="plate">{{ activeRide.vehicle_plate }}</span>
+            </div>
+          </div>
+        } @else {
+          <div class="waiting-animation">
+            <div class="spinner"></div>
+            <p>A procurar motoristas na sua zona...</p>
+          </div>
+        }
       </div>
+    } @else {
+      <h3>Para onde vamos?</h3>
       
-      <div class="input-group">
-        <span class="icon dest-icon"></span>
-        <input type="text" placeholder="Procurar destino..." (input)="onSearchDest($event)" />
+      <div class="search-box">
+        <div class="input-group">
+          <span class="icon origin-icon"></span>
+          <input type="text" placeholder="Local de partida (ex: Mutamba)" [value]="originAddress" readonly />
+        </div>
+        
+        <div class="input-group">
+          <span class="icon dest-icon"></span>
+          <input type="text" placeholder="Procurar destino..." (input)="onSearchDest($event)" />
+        </div>
+
+        @if (suggestions.length > 0) {
+          <ul class="suggestions-list">
+            @for (sug of suggestions; track sug.place_id) {
+              <li (click)="selectDestination(sug)">
+                {{ sug.display_name }}
+              </li>
+            }
+          </ul>
+        }
       </div>
 
-      <!-- Autocomplete Sugestões -->
-      @if (suggestions.length > 0) {
-        <ul class="suggestions-list">
-          @for (sug of suggestions; track sug.place_id) {
-            <li (click)="selectDestination(sug)">
-              {{ sug.display_name }}
-            </li>
-          }
-        </ul>
-      }
-    </div>
-
-    <!-- Categoria do Veículo -->
-    <div class="vehicle-options">
-      <div class="v-card" [class.selected]="selectedType === 'economy'" (click)="selectedType = 'economy'">
-        <span class="v-icon">🚗</span>
-        <span class="v-name">Economy</span>
+      <div class="vehicle-options">
+        <div class="v-card" [class.selected]="selectedType === 'economy'" (click)="selectedType = 'economy'">
+          <span class="v-icon">🚗</span>
+          <span class="v-name">Economy</span>
+        </div>
+        <div class="v-card" [class.selected]="selectedType === 'comfort'" (click)="selectedType = 'comfort'">
+          <span class="v-icon">🚙</span>
+          <span class="v-name">Comfort</span>
+        </div>
       </div>
-      <div class="v-card" [class.selected]="selectedType === 'comfort'" (click)="selectedType = 'comfort'">
-        <span class="v-icon">🚙</span>
-        <span class="v-name">Comfort</span>
-      </div>
-    </div>
 
-    <button class="btn btn--primary btn--large full-width" (click)="requestPool()" [disabled]="!destLat || isRequesting">
-      {{ isRequesting ? 'A procurar caronas...' : 'Pedir Carona' }}
-    </button>
+      <button class="btn btn--primary btn--large full-width" (click)="requestPool()" [disabled]="!destLat || isRequesting">
+        {{ isRequesting ? 'A pedir...' : 'Pedir Carona' }}
+      </button>
+    }
   </aside>
-
-  <!-- Painel de Estado da Corrida (surge após o pedido) -->
-  @if (matchStatus) {
-    <div class="status-panel glass-panel">
-      <h4>Estado do Pedido</h4>
-      <p class="status-text">{{ matchStatus.message }}</p>
-      @if (matchStatus.pool_group_id) {
-        <p class="group-id">Grupo: #{{ matchStatus.pool_group_id }}</p>
-      }
-    </div>
-  }
 </div>

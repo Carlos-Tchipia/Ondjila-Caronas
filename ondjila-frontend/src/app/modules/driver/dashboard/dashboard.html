@@ -2,14 +2,20 @@
   <!-- Mapa de fundo -->
   <app-map-panel #mapPanel></app-map-panel>
 
-  <header class="dash-header glass-panel">
+  <header class="dash-header glass-panel" style="display: flex; justify-content: space-between; align-items: center;">
     <div class="logo">Ondjila. <span class="badge">Motorista</span></div>
-    <div class="status-toggle">
-      <span class="dot" [class.online]="isOnline"></span>
-      <span>{{ isOnline ? 'Online' : 'Offline' }}</span>
-      <button class="btn btn--ghost" style="padding: 4px 12px; margin-left: 12px;" (click)="isOnline = !isOnline">
-        Trocar
-      </button>
+    <div style="display: flex; align-items: center; gap: 24px;">
+      <div class="wallet-badge" style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);">
+        <span class="icon">💳</span>
+        <span class="balance" style="font-weight: bold; font-family: monospace;">{{ walletBalance | number:'1.2-2' }} Kz</span>
+      </div>
+      <div class="status-toggle">
+        <span class="dot" [class.online]="isOnline"></span>
+        <span>{{ isOnline ? 'Online' : 'Offline' }}</span>
+        <button class="btn btn--ghost" style="padding: 4px 12px; margin-left: 12px;" (click)="isOnline = !isOnline">
+          Trocar
+        </button>
+      </div>
     </div>
   </header>
 

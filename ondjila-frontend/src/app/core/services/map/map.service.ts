@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 export interface RouteResponse {
   distance: number;
@@ -12,8 +13,8 @@ export interface RouteResponse {
   providedIn: 'root'
 })
 export class MapService {
-  private osrmUrl = 'https://router.project-osrm.org/route/v1/driving';
-  private nominatimUrl = 'https://nominatim.openstreetmap.org';
+  private readonly osrmUrl = environment.map.osrmUrl;
+  private readonly nominatimUrl = environment.map.nominatimUrl;
 
   constructor(private http: HttpClient) {}
 

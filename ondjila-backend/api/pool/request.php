@@ -49,10 +49,13 @@ try {
         // MATCH ENCONTRADO - Juntar ao melhor grupo
         $bestMatchId = $matches[0]['id'];
         
+        $fareBase = ($data['vehicle_type'] === 'comfort') ? 3500 : 2500;
+        $fareOriginal = $fareBase + 500; // Como se fosse sem pool
+        
         // Criar a corrida associada ao grupo
         $insertRide = $conn->prepare("
-            INSERT INTO rides (passenger_id, pool_group_id, ride_type, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, vehicle_type, status, pool_status) 
-            VALUES (:pass_id, :pool_id, 'pool', 'Origem Match', :o_lat, :o_lng, 'Destino Match', :d_lat, :d_lng, :v_type, 'accepted', 'matched')
+            INSERT INTO rides (passenger_id, pool_group_id, ride_type, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, vehicle_type, status, pool_status, fare_estimate, fare_final, fare_original) 
+            VALUES (:pass_id, :pool_id, 'pool', 'Origem Match', :o_lat, :o_lng, 'Destino Match', :d_lat, :d_lng, :v_type, 'accepted', 'matched', :fare, :fare, :fare_orig)
         ");
         
         $insertRide->execute([
@@ -62,7 +65,9 @@ try {
             ':o_lng'   => $data['origin_lng'],
             ':d_lat'   => $data['dest_lat'],
             ':d_lng'   => $data['dest_lng'],
-            ':v_type'  => $data['vehicle_type']
+            ':v_type'  => $data['vehicle_type'],
+            ':fare'    => $fareBase,
+            ':fare_orig' => $fareOriginal
         ]);
 
         // Atualizar contagem no grupo
@@ -80,10 +85,13 @@ try {
         $insertGroup->execute([':v_type' => $data['vehicle_type']]);
         $newGroupId = $conn->lastInsertId();
 
+        $fareBase = ($data['vehicle_type'] === 'comfort') ? 3500 : 2500;
+        $fareOriginal = $fareBase + 500;
+
         // Criar a corrida
         $insertRide = $conn->prepare("
-            INSERT INTO rides (passenger_id, pool_group_id, ride_type, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, vehicle_type, status, pool_status) 
-            VALUES (:pass_id, :pool_id, 'pool', 'Origem', :o_lat, :o_lng, 'Destino', :d_lat, :d_lng, :v_type, 'pending', 'waiting_match')
+            INSERT INTO rides (passenger_id, pool_group_id, ride_type, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, vehicle_type, status, pool_status, fare_estimate, fare_final, fare_original) 
+            VALUES (:pass_id, :pool_id, 'pool', 'Origem', :o_lat, :o_lng, 'Destino', :d_lat, :d_lng, :v_type, 'pending', 'waiting_match', :fare, :fare, :fare_orig)
         ");
         
         $insertRide->execute([
@@ -93,7 +101,9 @@ try {
             ':o_lng'   => $data['origin_lng'],
             ':d_lat'   => $data['dest_lat'],
             ':d_lng'   => $data['dest_lng'],
-            ':v_type'  => $data['vehicle_type']
+            ':v_type'  => $data['vehicle_type'],
+            ':fare'    => $fareBase,
+            ':fare_orig' => $fareOriginal
         ]);
 
         $conn->commit();

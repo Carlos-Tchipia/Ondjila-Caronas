@@ -6,7 +6,7 @@ class Database {
     private $host = 'localhost';
     private $db   = 'ondjila';
     private $user = 'root';
-    private $pass = ''; // Altere se tiver senha configurada
+    private $pass = 'admin'; // Altere se tiver senha configurada
     private $charset = 'utf8mb4';
 
     private function __construct() {
