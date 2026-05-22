@@ -6,17 +6,8 @@ require_once '../../helpers/Validator.php';
 require_once '../../helpers/PoolMatchingHelper.php';
 require_once '../../config/jwt.php';
 
-// Idealmente, usaríamos um middleware de Auth, aqui validamos o token básico
-$headers = apache_request_headers();
-if (!isset($headers['Authorization'])) {
-    Response::error('Não autorizado', 401);
-}
-
-$token = str_replace('Bearer ', '', $headers['Authorization']);
-$payload = JwtHelper::decodeToken($token);
-if (!$payload) {
-    Response::error('Token inválido ou expirado', 401);
-}
+require_once '../../helpers/AuthHelper.php';
+$payload = AuthHelper::requireAuth();
 
 $data = json_decode(file_get_contents('php://input'), true);
 
@@ -34,6 +25,15 @@ if (!empty($errors)) {
 
 $conn = Database::getInstance()->getConnection();
 
+$fareBase = ($data['vehicle_type'] === 'comfort') ? 3500 : 2500;
+$stmtBalance = $conn->prepare("SELECT wallet_balance FROM users WHERE id = ?");
+$stmtBalance->execute([$payload->sub]);
+$balance = (float) $stmtBalance->fetchColumn();
+
+if ($balance < $fareBase) {
+    Response::error('Saldo insuficiente na carteira virtual', 402);
+}
+
 // Procurar Matches (Carona partilhada existente)
 $matches = PoolMatchingHelper::findMatches(
     $conn,
@@ -49,13 +49,12 @@ try {
         // MATCH ENCONTRADO - Juntar ao melhor grupo
         $bestMatchId = $matches[0]['id'];
         
-        $fareBase = ($data['vehicle_type'] === 'comfort') ? 3500 : 2500;
         $fareOriginal = $fareBase + 500; // Como se fosse sem pool
         
-        // Criar a corrida associada ao grupo
+        // Criar a corrida associada ao grupo (aguarda motorista mesmo com match de pool)
         $insertRide = $conn->prepare("
             INSERT INTO rides (passenger_id, pool_group_id, ride_type, origin_address, origin_lat, origin_lng, destination_address, destination_lat, destination_lng, vehicle_type, status, pool_status, fare_estimate, fare_final, fare_original) 
-            VALUES (:pass_id, :pool_id, 'pool', 'Origem Match', :o_lat, :o_lng, 'Destino Match', :d_lat, :d_lng, :v_type, 'accepted', 'matched', :fare, :fare, :fare_orig)
+            VALUES (:pass_id, :pool_id, 'pool', 'Origem Match', :o_lat, :o_lng, 'Destino Match', :d_lat, :d_lng, :v_type, 'pending', 'matched', :fare, :fare, :fare_orig)
         ");
         
         $insertRide->execute([
@@ -85,7 +84,6 @@ try {
         $insertGroup->execute([':v_type' => $data['vehicle_type']]);
         $newGroupId = $conn->lastInsertId();
 
-        $fareBase = ($data['vehicle_type'] === 'comfort') ? 3500 : 2500;
         $fareOriginal = $fareBase + 500;
 
         // Criar a corrida

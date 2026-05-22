@@ -16,8 +16,8 @@ INSERT IGNORE INTO users (id, name, email, phone, password_hash, role, wallet_ba
 
 -- Utilizadores que serão motoristas
 INSERT IGNORE INTO users (id, name, email, phone, password_hash, role) VALUES
-(5, 'João Motorista', 'joao.motorista@email.com', '+244923000005', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'passenger'), -- Senha: password
-(6, 'Miguel Santos', 'miguel.santos@email.com', '+244923000006', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'passenger'), -- Senha: password
+(5, 'João Motorista', 'joao.motorista@email.com', '+244923000005', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'driver'), -- Senha: password
+(6, 'Miguel Santos', 'miguel.santos@email.com', '+244923000006', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'driver'), -- Senha: password
 (7, 'Paulo Pendente', 'paulo.pendente@email.com', '+244923000007', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'passenger'); -- Senha: password
 
 -- Motoristas (2 aprovados, 1 pendente)

@@ -28,10 +28,14 @@ if (!$user['is_active']) {
     Response::error('Conta suspensa ou inativa', 403);
 }
 
+$conn = Database::getInstance()->getConnection();
+require_once '../../helpers/AuthHelper.php';
+$effectiveRole = AuthHelper::resolveLoginRole($conn, $user);
+
 // Gerar tokens
 $accessToken = JwtHelper::generateToken([
     'sub'  => $user['id'],
-    'role' => $user['role'],
+    'role' => $effectiveRole,
     'type' => 'access'
 ], 3600); // 1 hora
 
@@ -45,7 +49,7 @@ Response::success([
         'id'    => $user['id'],
         'name'  => $user['name'],
         'email' => $user['email'],
-        'role'  => $user['role'],
+        'role'  => $effectiveRole,
         'avatar_url' => $user['avatar_url']
     ]
 ], 'Login efetuado com sucesso');

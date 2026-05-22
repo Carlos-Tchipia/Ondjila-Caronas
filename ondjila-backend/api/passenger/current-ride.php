@@ -2,17 +2,12 @@
 require_once '../../config/cors.php';
 require_once '../../config/database.php';
 require_once '../../helpers/Response.php';
-require_once '../../config/jwt.php';
+require_once '../../helpers/AuthHelper.php';
 
-$headers = apache_request_headers();
-if (!isset($headers['Authorization'])) Response::error('Não autorizado', 401);
-
-$token = str_replace('Bearer ', '', $headers['Authorization']);
-$payload = JwtHelper::decodeToken($token);
+$payload = AuthHelper::requireAuth();
 
 $conn = Database::getInstance()->getConnection();
 
-// Buscar a viagem ativa do passageiro (pending, accepted, in_progress)
 $query = "
     SELECT r.id, r.status, r.pool_group_id, r.pool_status,
            pg.driver_id, d.vehicle_brand, d.vehicle_model, d.vehicle_plate, d.vehicle_color,

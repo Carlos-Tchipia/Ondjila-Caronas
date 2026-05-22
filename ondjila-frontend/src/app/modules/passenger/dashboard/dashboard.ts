@@ -31,6 +31,7 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly suggestions = signal<AddressSuggestion[]>([]);
   readonly selectedType = signal<'economy' | 'comfort'>('economy');
   readonly isRequesting = signal(false);
+  readonly isCancelling = signal(false);
   readonly activeRide = signal<PassengerRide | null>(null);
   readonly walletBalance = signal(0);
   readonly notice = signal<{ kind: 'success' | 'error'; text: string } | null>(null);
@@ -117,10 +118,16 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   getStatusText(ride: PassengerRide): string {
-    if (ride.status === 'pending') return 'A aguardar motorista...';
+    if (ride.status === 'pending') {
+      return ride.driver_name ? 'Parceiro de pool encontrado — a aguardar motorista...' : 'A aguardar motorista...';
+    }
     if (ride.status === 'accepted') return 'O motorista está a caminho!';
     if (ride.status === 'in_progress') return 'Viagem em curso';
     return 'Estado desconhecido';
+  }
+
+  canCancelRide(ride: PassengerRide): boolean {
+    return ride.status === 'pending' || ride.status === 'accepted';
   }
 
   onSearchDest(event: Event): void {
@@ -162,6 +169,21 @@ export class Dashboard implements OnInit, OnDestroy {
       error: (err) => {
         this.isRequesting.set(false);
         this.showNotice('error', 'Erro ao pedir carona: ' + (err.error?.message || 'Tente novamente'));
+      },
+    });
+  }
+
+  cancelRide(): void {
+    this.isCancelling.set(true);
+    this.passengerRidesApi.cancelPool().subscribe({
+      next: () => {
+        this.isCancelling.set(false);
+        this.activeRide.set(null);
+        this.showNotice('success', 'Carona cancelada.');
+      },
+      error: (err) => {
+        this.isCancelling.set(false);
+        this.showNotice('error', 'Erro ao cancelar: ' + (err.error?.message || 'Tente novamente'));
       },
     });
   }

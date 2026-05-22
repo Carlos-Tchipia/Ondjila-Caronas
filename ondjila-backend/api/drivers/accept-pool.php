@@ -2,15 +2,9 @@
 require_once '../../config/cors.php';
 require_once '../../config/database.php';
 require_once '../../helpers/Response.php';
-require_once '../../config/jwt.php';
+require_once '../../helpers/AuthHelper.php';
 
-$headers = apache_request_headers();
-if (!isset($headers['Authorization'])) {
-    Response::error('Não autorizado', 401);
-}
-
-$token = str_replace('Bearer ', '', $headers['Authorization']);
-$payload = JwtHelper::decodeToken($token);
+$payload = AuthHelper::requireAuth();
 
 $data = json_decode(file_get_contents('php://input'), true);
 if (!isset($data['pool_group_id'])) {
@@ -18,28 +12,19 @@ if (!isset($data['pool_group_id'])) {
 }
 
 $conn = Database::getInstance()->getConnection();
+$driverId = AuthHelper::requireApprovedDriver($conn, $payload);
 
 $conn->beginTransaction();
 
 try {
-    // Buscar id do motorista na tabela drivers
-    $stmtDriver = $conn->prepare("SELECT id FROM drivers WHERE user_id = ?");
-    $stmtDriver->execute([$payload->sub]);
-    $driverRow = $stmtDriver->fetch();
-    
-    // Se não existir, erro
-    if (!$driverRow) {
-        throw new Exception("Conta não está registada como motorista.");
-    }
-
-    $driverId = $driverRow['id'];
-
-    // Atualizar o pool group para ter motorista e mudar status para active
-    $updateGroup = $conn->prepare("UPDATE pool_groups SET driver_id = ?, status = 'active' WHERE id = ?");
+    $updateGroup = $conn->prepare("UPDATE pool_groups SET driver_id = ?, status = 'active' WHERE id = ? AND driver_id IS NULL AND status = 'forming'");
     $updateGroup->execute([$driverId, $data['pool_group_id']]);
 
-    // Atualizar todas as rides daquele pool para indicar que foram aceites
-    $updateRides = $conn->prepare("UPDATE rides SET status = 'accepted', pool_status = 'matched' WHERE pool_group_id = ?");
+    if ($updateGroup->rowCount() === 0) {
+        throw new Exception("Pool já atribuído ou indisponível.");
+    }
+
+    $updateRides = $conn->prepare("UPDATE rides SET status = 'accepted', pool_status = 'matched' WHERE pool_group_id = ? AND status = 'pending'");
     $updateRides->execute([$data['pool_group_id']]);
 
     $conn->commit();

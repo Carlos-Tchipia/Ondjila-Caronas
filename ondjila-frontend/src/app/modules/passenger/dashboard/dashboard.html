@@ -43,6 +43,17 @@
             <p>A procurar motoristas na sua zona...</p>
           </div>
         }
+
+        @if (canCancelRide(ride)) {
+          <button
+            type="button"
+            class="btn btn--ghost btn--large full-width cancel-btn"
+            (click)="cancelRide()"
+            [disabled]="isCancelling()"
+          >
+            {{ isCancelling() ? 'A cancelar...' : 'Cancelar carona' }}
+          </button>
+        }
       </div>
     } @else {
       <h3>Para onde vamos?</h3>

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
   email           VARCHAR(255)    UNIQUE NOT NULL,
   phone           VARCHAR(20)     UNIQUE NOT NULL,
   password_hash   VARCHAR(255)    NOT NULL,
-  role            ENUM('passenger','admin') DEFAULT 'passenger',
+  role            ENUM('passenger','driver','admin') DEFAULT 'passenger',
   avatar_url      VARCHAR(500),
   language        ENUM('pt','en') DEFAULT 'pt',
   theme           ENUM('light','dark','system') DEFAULT 'system',
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS pool_groups (
   id              INT AUTO_INCREMENT PRIMARY KEY,
   driver_id       INT,
   vehicle_type    ENUM('economy','comfort','xl') NOT NULL,
-  status          ENUM('forming','active','completed','cancelled') DEFAULT 'forming',
+  status          ENUM('forming','active','in_progress','completed','cancelled') DEFAULT 'forming',
   max_passengers  TINYINT DEFAULT 2,
   current_count   TINYINT DEFAULT 0,
   origin_zone     VARCHAR(100),      -- zona/bairro de origem (para matching)

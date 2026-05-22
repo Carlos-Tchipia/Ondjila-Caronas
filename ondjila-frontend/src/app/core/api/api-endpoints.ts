@@ -9,6 +9,7 @@ export const ApiEndpoints = {
   passenger: {
     currentRide: '/api/passenger/current-ride.php',
     requestPool: '/api/pool/request.php',
+    cancelPool: '/api/pool/cancel.php',
   },
   driver: {
     currentRide: '/api/drivers/current-ride.php',

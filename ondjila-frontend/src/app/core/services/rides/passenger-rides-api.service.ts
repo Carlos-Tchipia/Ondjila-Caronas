@@ -17,4 +17,8 @@ export class PassengerRidesApiService {
   requestPool(payload: PoolRequest) {
     return this.api.post<ApiResponse<PoolRequestResult>>(ApiEndpoints.passenger.requestPool, payload);
   }
+
+  cancelPool() {
+    return this.api.post<ApiResponse<null>>(ApiEndpoints.passenger.cancelPool, {});
+  }
 }

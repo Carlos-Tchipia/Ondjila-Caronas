@@ -2,28 +2,12 @@
 require_once '../../config/cors.php';
 require_once '../../config/database.php';
 require_once '../../helpers/Response.php';
-require_once '../../config/jwt.php';
+require_once '../../helpers/AuthHelper.php';
 
-$headers = apache_request_headers();
-if (!isset($headers['Authorization'])) {
-    Response::error('Não autorizado', 401);
-}
-
-$token = str_replace('Bearer ', '', $headers['Authorization']);
-$payload = JwtHelper::decodeToken($token);
-
+$payload = AuthHelper::requireAuth();
 $conn = Database::getInstance()->getConnection();
+$driverId = AuthHelper::requireApprovedDriver($conn, $payload);
 
-// Buscar id do motorista
-$stmtDriver = $conn->prepare("SELECT id FROM drivers WHERE user_id = ?");
-$stmtDriver->execute([$payload->sub]);
-$driverRow = $stmtDriver->fetch();
-
-if (!$driverRow) {
-    Response::error("Conta não está registada como motorista.", 403);
-}
-
-// Procurar uma viagem ativa para este motorista (active ou in_progress)
 $stmt = $conn->prepare("
     SELECT pg.id, pg.status, pg.current_count, pg.max_passengers,
            r.origin_address, r.destination_address,
@@ -33,7 +17,7 @@ $stmt = $conn->prepare("
     WHERE pg.driver_id = ? AND pg.status IN ('active', 'in_progress')
     LIMIT 1
 ");
-$stmt->execute([$driverRow['id']]);
+$stmt->execute([$driverId]);
 $currentRide = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($currentRide) {
