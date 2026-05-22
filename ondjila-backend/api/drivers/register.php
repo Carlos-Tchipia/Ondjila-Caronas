@@ -66,6 +66,9 @@ try {
 
     // 2. Upload de Documentos
     $uploadDir = __DIR__ . '/../../uploads/documents';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0775, true);
+    }
     $docPaths = [];
     foreach ($requiredDocs as $doc) {
         $docPaths[$doc] = FileUpload::upload($_FILES[$doc], $uploadDir);
@@ -79,7 +82,7 @@ try {
             doc_license_front, doc_license_back, doc_insurance, doc_id_card, approval_status
         ) VALUES (
             :user_id, :license_number, :brand, :model, :year, :plate, :color, :type, 
-            :is_electric, :pool_enabled, :pool_max, :doc_front, :doc_back, :doc_ins, :doc_id, 'pending'
+            :is_electric, :pool_enabled, :pool_max, :doc_front, :doc_back, :doc_ins, :doc_id, 'approved'
         )
     ");
 
@@ -103,7 +106,7 @@ try {
 
     $conn->commit();
 
-    Response::success(null, 'Conta de motorista criada. Aguarde a aprovação do administrador.', 201);
+    Response::success(null, 'Conta de motorista criada e auto-aprovada para efeitos de MVP.', 201);
 
 } catch (Exception $e) {
     $conn->rollBack();

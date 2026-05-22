@@ -39,8 +39,11 @@ export class MapPanel implements AfterViewInit {
   }
 
   private initMap(): void {
-    // Focado em Luanda
+    // Focado em Luanda por defeito
     this.map = L.map('map', { zoomControl: false }).setView([-8.8147, 13.2302], 13);
+    
+    // Tentar localizar e centrar no utilizador
+    this.map.locate({ setView: true, maxZoom: 16 });
 
     L.tileLayer(environment.map.tileUrl, {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',

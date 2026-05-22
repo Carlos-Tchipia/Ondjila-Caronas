@@ -5,8 +5,15 @@ use \Firebase\JWT\JWT;
 use \Firebase\JWT\Key;
 
 class JwtHelper {
-    private static $secret = 'your_super_secret_key_min_32_chars'; // Deveria vir do .env
+    private static $secret = null;
     private static $algo = 'HS256';
+
+    private static function getSecret(): string {
+        if (!self::$secret) {
+            self::$secret = getenv('JWT_SECRET') ?: 'your_super_secret_key_min_32_chars';
+        }
+        return self::$secret;
+    }
 
     public static function generateToken(array $payload, int $expirySeconds = 3600): string {
         $issuedAt = time();
@@ -17,12 +24,12 @@ class JwtHelper {
             'exp' => $expire
         ], $payload);
 
-        return JWT::encode($tokenPayload, self::$secret, self::$algo);
+        return JWT::encode($tokenPayload, self::getSecret(), self::$algo);
     }
 
     public static function decodeToken(string $token) {
         try {
-            return JWT::decode($token, new Key(self::$secret, self::$algo));
+            return JWT::decode($token, new Key(self::getSecret(), self::$algo));
         } catch (Exception $e) {
             return null;
         }

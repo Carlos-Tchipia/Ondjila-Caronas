@@ -24,9 +24,9 @@ interface AddressSuggestion {
 export class Dashboard implements OnInit, OnDestroy {
   @ViewChild('mapPanel') mapPanel!: MapPanel;
 
-  readonly originLat = -8.8147;
-  readonly originLng = 13.2302;
-  readonly originAddress = 'Mutamba, Luanda';
+  readonly originLat = signal<number>(-8.8147);
+  readonly originLng = signal<number>(13.2302);
+  readonly originAddress = signal<string>('A localizar...');
 
   readonly suggestions = signal<AddressSuggestion[]>([]);
   readonly selectedType = signal<'economy' | 'comfort'>('economy');
@@ -47,9 +47,42 @@ export class Dashboard implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.getLocation();
     this.checkCurrentRide();
     this.fetchWalletBalance();
     this.pollInterval = setInterval(() => this.checkCurrentRide(), environment.pollingFallbackMs);
+  }
+
+  private getLocation(): void {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.originLat.set(position.coords.latitude);
+          this.originLng.set(position.coords.longitude);
+          
+          this.mapService.reverseGeocode(position.coords.latitude, position.coords.longitude).subscribe({
+            next: (res) => {
+              if (res && res.display_name) {
+                const parts = res.display_name.split(',');
+                this.originAddress.set(parts.slice(0, 2).join(', '));
+              } else {
+                this.originAddress.set('Local Atual');
+              }
+            },
+            error: () => this.originAddress.set('Local Atual')
+          });
+        },
+        () => {
+          this.originLat.set(-8.8147);
+          this.originLng.set(13.2302);
+          this.originAddress.set('Mutamba, Luanda');
+        }
+      );
+    } else {
+      this.originLat.set(-8.8147);
+      this.originLng.set(13.2302);
+      this.originAddress.set('Mutamba, Luanda');
+    }
   }
 
   ngOnDestroy(): void {
@@ -75,7 +108,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
         if (previousRide && !newRide && previousRide.status === 'in_progress') {
           this.showNotice('success', 'A sua viagem chegou ao destino. Obrigado por viajar com Ondjila.');
-          this.mapPanel.drawRoute(this.originLng, this.originLat, this.originLng, this.originLat);
+          this.mapPanel.drawRoute(this.originLng(), this.originLat(), this.originLng(), this.originLat());
         }
 
         this.activeRide.set(newRide);
@@ -105,7 +138,7 @@ export class Dashboard implements OnInit, OnDestroy {
     this.destLat = Number.parseFloat(suggestion.lat);
     this.destLng = Number.parseFloat(suggestion.lon);
     this.suggestions.set([]);
-    this.mapPanel.drawRoute(this.originLng, this.originLat, this.destLng, this.destLat);
+    this.mapPanel.drawRoute(this.originLng(), this.originLat(), this.destLng, this.destLat);
   }
 
   requestPool(): void {
@@ -114,8 +147,8 @@ export class Dashboard implements OnInit, OnDestroy {
     this.isRequesting.set(true);
 
     const payload: PoolRequest = {
-      origin_lat: this.originLat,
-      origin_lng: this.originLng,
+      origin_lat: this.originLat(),
+      origin_lng: this.originLng(),
       dest_lat: this.destLat,
       dest_lng: this.destLng,
       vehicle_type: this.selectedType(),

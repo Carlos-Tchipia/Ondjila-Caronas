@@ -25,6 +25,13 @@ export class MapService {
     });
   }
 
+  // Reverse Geocoding
+  reverseGeocode(lat: number, lng: number): Observable<any> {
+    return this.http.get<any>(`${this.nominatimUrl}/reverse`, {
+      params: { lat: lat.toString(), lon: lng.toString(), format: 'json' }
+    });
+  }
+
   // Obter rota via OSRM
   getRoute(originLng: number, originLat: number, destLng: number, destLat: number): Observable<any> {
     const coords = `${originLng},${originLat};${destLng},${destLat}`;
