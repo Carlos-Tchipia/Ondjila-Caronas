@@ -12,8 +12,8 @@
         <div class="ride-card__top">
           <span class="ride-card__icon">🚗</span>
           <div class="ride-card__price">
-            <strong>1.200 AOA</strong>
-            <small>{{ 'passenger.fixedPrice' | translate }}</small>
+            <strong>{{ 'passenger.priceAfterDestination' | translate }}</strong>
+            <small>{{ 'passenger.dynamicPrice' | translate }}</small>
           </div>
         </div>
         <h2>{{ 'passenger.soloTrip' | translate }}</h2>
@@ -33,8 +33,8 @@
         <div class="ride-card__top">
           <span class="ride-card__icon ride-card__icon--blue">👥</span>
           <div class="ride-card__price">
-            <span class="save-badge">{{ 'passenger.saveBadge' | translate: { amount: '520' } }}</span>
-            <strong>680 AOA</strong>
+            <span class="save-badge">{{ 'passenger.poolSavingsRange' | translate }}</span>
+            <strong>{{ 'passenger.priceAfterDestination' | translate }}</strong>
             <small>{{ 'passenger.moreEconomical' | translate }}</small>
           </div>
         </div>

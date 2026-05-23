@@ -12,6 +12,12 @@ export const ApiEndpoints = {
     requestPool: '/api/pool/request.php',
     cancelPool: '/api/pool/cancel.php',
   },
+  pricing: {
+    quote: '/api/pricing/quote.php',
+  },
+  admin: {
+    pricing: '/api/admin/pricing.php',
+  },
   pool: {
     details: '/api/pool/details.php',
     confirm: '/api/pool/confirm.php',

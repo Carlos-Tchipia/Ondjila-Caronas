@@ -1,0 +1,128 @@
+<app-sidebar-layout
+  [brand]="brand"
+  [menu]="menu"
+  [cta]="cta"
+  userGreetingKey="common.adminGreeting"
+  userLocationKey="common.adminRole"
+>
+  <app-admin-topbar appTopbar />
+
+  <section class="pricing-hero">
+    <div>
+      <span>{{ 'pricing.activeFactors' | translate }}</span>
+      <h1>{{ 'pricing.controls' | translate }}</h1>
+      <p>{{ 'pricing.controlsSub' | translate }}</p>
+    </div>
+    @if (controls(); as c) {
+      <label class="surge-switch">
+        <input type="checkbox" [(ngModel)]="c.enabled" />
+        <span>{{ 'pricing.enabled' | translate }}</span>
+      </label>
+    }
+  </section>
+
+  @if (metrics(); as m) {
+    <div class="kpi-grid pricing-kpis">
+      <div class="kpi-card kpi-card--green">
+        <div class="kpi-label">{{ 'pricing.quotes24h' | translate }}</div>
+        <div class="kpi-value">{{ m.summary.total_quotes }}</div>
+        <div class="kpi-trend">{{ 'common.now' | translate }}</div>
+      </div>
+      <div class="kpi-card kpi-card--blue">
+        <div class="kpi-label">{{ 'pricing.avgMultiplier' | translate }}</div>
+        <div class="kpi-value">{{ m.summary.avg_multiplier }}x</div>
+        <div class="kpi-trend">cap controlado</div>
+      </div>
+      <div class="kpi-card kpi-card--pink">
+        <div class="kpi-label">{{ 'pricing.highestSurge' | translate }}</div>
+        <div class="kpi-value">{{ m.summary.max_multiplier }}x</div>
+        <div class="kpi-trend">anti-abuso</div>
+      </div>
+      <div class="kpi-card kpi-card--green">
+        <div class="kpi-label">{{ 'pricing.avgFare' | translate }}</div>
+        <div class="kpi-value">{{ formatAoa(m.summary.avg_fare) }}</div>
+        <div class="kpi-trend">24h</div>
+      </div>
+    </div>
+  }
+
+  <div class="pricing-grid">
+    @if (controls(); as c) {
+      <section class="ui-card pricing-controls">
+        <h2>{{ 'pricing.controls' | translate }}</h2>
+        <label>
+          <span>{{ 'pricing.maxMultiplier' | translate }}</span>
+          <input type="number" min="1.1" max="3" step="0.05" [(ngModel)]="c.max_multiplier" />
+        </label>
+        <label>
+          <span>{{ 'pricing.manualMultiplier' | translate }}</span>
+          <input type="number" min="0.8" max="1.6" step="0.05" [(ngModel)]="c.manual_multiplier" />
+        </label>
+        <label>
+          <span>{{ 'pricing.nightFee' | translate }}</span>
+          <input type="number" min="0" step="10" [(ngModel)]="c.night_fee" />
+        </label>
+        <label>
+          <span>{{ 'pricing.busyZoneFee' | translate }}</span>
+          <input type="number" min="0" step="10" [(ngModel)]="c.busy_zone_fee" />
+        </label>
+        <div class="toggle-row">
+          <label><input type="checkbox" [(ngModel)]="c.weather_enabled" /> Clima</label>
+          <label><input type="checkbox" [(ngModel)]="c.traffic_enabled" /> Trânsito</label>
+          <label><input type="checkbox" [(ngModel)]="c.demand_enabled" /> Procura</label>
+          <label><input type="checkbox" [(ngModel)]="c.events_enabled" /> Eventos</label>
+        </div>
+        <button type="button" class="btn btn--primary" (click)="save()" [disabled]="saving()">
+          {{ 'pricing.saveControls' | translate }}
+        </button>
+      </section>
+    }
+
+    @if (metrics(); as m) {
+      <section class="ui-card">
+        <h2>Zonas com maior pressão</h2>
+        <div class="zone-list">
+          @for (zone of m.zones; track zone.region) {
+            <div>
+              <strong>{{ zone.region }}</strong>
+              <span>{{ zone.quotes }} quotes</span>
+              <em>{{ zone.avg_multiplier }}x</em>
+            </div>
+          } @empty {
+            <p class="muted">Sem histórico suficiente ainda.</p>
+          }
+        </div>
+      </section>
+    }
+  </div>
+
+  @if (metrics(); as m) {
+    <section class="ui-card">
+      <h2>{{ 'pricing.recentQuotes' | translate }}</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Zona</th>
+            <th>Veículo</th>
+            <th>Distância</th>
+            <th>Duração</th>
+            <th>Surge</th>
+            <th>Preço</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (quote of m.history; track quote.id) {
+            <tr>
+              <td>{{ quote.region }}</td>
+              <td>{{ quote.vehicle_type }}</td>
+              <td>{{ quote.distance_km }} km</td>
+              <td>{{ quote.duration_minutes }} min</td>
+              <td><span class="pill pill--blue">{{ quote.surge_multiplier }}x</span></td>
+              <td><strong>{{ formatAoa(quote.final_fare) }}</strong></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</app-sidebar-layout>

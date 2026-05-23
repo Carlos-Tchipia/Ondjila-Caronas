@@ -17,6 +17,8 @@ import { PoolRideCard } from '../../../shared/components/pool-ride-card/pool-rid
 import { PoolUiState } from '../../../core/models/pool.types';
 import { TranslateService } from '../../../core/i18n/translate.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { PricingApiService } from '../../../core/services/pricing/pricing-api.service';
+import { PricingQuote } from '../../../core/services/pricing/pricing.types';
 
 interface AddressSuggestion {
   place_id: number | string;
@@ -50,6 +52,8 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly activeRide = signal<PassengerRide | null>(null);
   readonly walletBalance = signal(0);
   readonly notice = signal<{ kind: 'success' | 'error'; text: string } | null>(null);
+  readonly pricingQuote = signal<PricingQuote | null>(null);
+  readonly isPricing = signal(false);
 
   destLat?: number;
   destLng?: number;
@@ -61,6 +65,7 @@ export class Dashboard implements OnInit, OnDestroy {
     private readonly mapService: MapService,
     private readonly passengerRidesApi: PassengerRidesApiService,
     private readonly walletApi: WalletApiService,
+    private readonly pricingApi: PricingApiService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly translate: TranslateService
@@ -216,6 +221,38 @@ export class Dashboard implements OnInit, OnDestroy {
     this.destLabel.set(suggestion.display_name.split(',').slice(0, 2).join(', '));
     this.suggestions.set([]);
     this.mapPanel.drawRoute(this.originLng(), this.originLat(), this.destLng, this.destLat);
+    this.updateFareQuote();
+  }
+
+  selectVehicle(type: 'economy' | 'comfort'): void {
+    this.selectedType.set(type);
+    this.updateFareQuote();
+  }
+
+  updateFareQuote(): void {
+    if (!this.destLat || !this.destLng) {
+      this.pricingQuote.set(null);
+      return;
+    }
+
+    this.isPricing.set(true);
+    this.pricingApi.quote({
+      origin_lat: this.originLat(),
+      origin_lng: this.originLng(),
+      dest_lat: this.destLat,
+      dest_lng: this.destLng,
+      vehicle_type: this.selectedType(),
+      ride_type: this.rideMode(),
+    }).subscribe({
+      next: (res) => {
+        this.isPricing.set(false);
+        this.pricingQuote.set(res.data?.quote ?? null);
+      },
+      error: () => {
+        this.isPricing.set(false);
+        this.pricingQuote.set(null);
+      },
+    });
   }
 
   requestPool(): void {
@@ -236,6 +273,9 @@ export class Dashboard implements OnInit, OnDestroy {
     this.passengerRidesApi.requestPool(payload).subscribe({
       next: (res) => {
         this.isRequesting.set(false);
+        if (res.data?.pricing) {
+          this.pricingQuote.set(res.data.pricing);
+        }
         const data = res.data as PoolRequestResult | undefined;
         if (data?.match_found && data.pool_details) {
           const mine = data.pool_details.my_ride;
@@ -294,8 +334,11 @@ export class Dashboard implements OnInit, OnDestroy {
     };
 
     this.passengerRidesApi.requestIndividual(payload).subscribe({
-      next: () => {
+      next: (res) => {
         this.isRequesting.set(false);
+        if (res.data?.pricing) {
+          this.pricingQuote.set(res.data.pricing);
+        }
         this.checkCurrentRide();
         this.showNotice('success', this.translate.t('ride.individualRequestRegistered'));
       },
@@ -342,6 +385,11 @@ export class Dashboard implements OnInit, OnDestroy {
 
   formatAoa(value?: number): string {
     return `${Math.round(value ?? 0).toLocaleString('pt-AO')} AOA`;
+  }
+
+  multiplierImpact(value?: number): string {
+    if (!value || value <= 1.01) return '0%';
+    return `+${Math.round((value - 1) * 100)}%`;
   }
 
   private showNotice(kind: 'success' | 'error', text: string): void {

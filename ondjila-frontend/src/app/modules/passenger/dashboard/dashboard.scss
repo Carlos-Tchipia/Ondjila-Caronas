@@ -33,3 +33,51 @@
     border-radius: var(--rounded-full);
   }
 }
+
+.fare-preview {
+  background: #ecfdf5;
+  border: 1px solid rgba(5, 150, 105, 0.18);
+  border-radius: var(--rounded-lg);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.fare-preview__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  strong {
+    color: var(--brand-700);
+    font-size: var(--text-lg);
+  }
+}
+
+.fare-reasons li {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.fare-reasons {
+  display: grid;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fare-reasons li {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+  justify-content: space-between;
+}
+
+.fare-reasons strong {
+  color: var(--brand-700);
+  flex: 0 0 auto;
+}
+
+.fare-reasons--compact {
+  margin: -4px 0 var(--space-3);
+}

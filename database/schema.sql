@@ -124,6 +124,9 @@ CREATE TABLE IF NOT EXISTS rides (
   fare_estimate        DECIMAL(10,2),
   fare_final           DECIMAL(10,2),
   fare_original        DECIMAL(10,2),       -- preço se fosse individual (para mostrar desconto pool)
+  pricing_quote_id     INT,
+  surge_multiplier     DECIMAL(5,2) DEFAULT 1.00,
+  fare_breakdown       JSON,
   pool_discount_pct    DECIMAL(5,2) DEFAULT 0,
   payment_method       ENUM('cash','wallet','multicaixa') DEFAULT 'cash',
   promo_code           VARCHAR(20),
@@ -145,6 +148,56 @@ CREATE TABLE IF NOT EXISTS rides (
   INDEX idx_status (status),
   INDEX idx_pool_group (pool_group_id),
   INDEX idx_sharing_token (sharing_token)
+);
+
+CREATE TABLE IF NOT EXISTS pricing_controls (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  control_key     VARCHAR(80) UNIQUE NOT NULL,
+  control_value   JSON NOT NULL,
+  is_enabled      BOOLEAN DEFAULT TRUE,
+  updated_by      INT NULL,
+  updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS pricing_quotes (
+  id                  INT AUTO_INCREMENT PRIMARY KEY,
+  passenger_id        INT NULL,
+  ride_id             INT NULL,
+  ride_type           ENUM('individual','pool') DEFAULT 'individual',
+  vehicle_type        ENUM('economy','comfort','xl') NOT NULL,
+  origin_lat          DECIMAL(10,8) NOT NULL,
+  origin_lng          DECIMAL(11,8) NOT NULL,
+  destination_lat     DECIMAL(10,8) NOT NULL,
+  destination_lng     DECIMAL(11,8) NOT NULL,
+  region              VARCHAR(100),
+  distance_km         DECIMAL(8,2) NOT NULL,
+  duration_minutes    INT NOT NULL,
+  base_fare           DECIMAL(10,2) NOT NULL,
+  final_fare          DECIMAL(10,2) NOT NULL,
+  surge_multiplier    DECIMAL(5,2) NOT NULL,
+  multipliers         JSON,
+  factors             JSON,
+  reasons             JSON,
+  created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (passenger_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (ride_id) REFERENCES rides(id) ON DELETE SET NULL,
+  INDEX idx_quote_created (created_at),
+  INDEX idx_quote_region (region),
+  INDEX idx_quote_passenger (passenger_id)
+);
+
+CREATE TABLE IF NOT EXISTS dynamic_pricing_logs (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  quote_id    INT NULL,
+  level       ENUM('debug','info','warning','error') DEFAULT 'info',
+  message     VARCHAR(255) NOT NULL,
+  context     JSON,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (quote_id) REFERENCES pricing_quotes(id) ON DELETE SET NULL,
+  INDEX idx_pricing_logs_created (created_at),
+  INDEX idx_pricing_logs_quote (quote_id)
 );
 
 -- ════════════════════════════════════════════════

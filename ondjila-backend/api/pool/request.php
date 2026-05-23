@@ -6,6 +6,7 @@ require_once '../../helpers/Validator.php';
 require_once '../../helpers/PoolMatchingHelper.php';
 require_once '../../helpers/PoolRouteHelper.php';
 require_once '../../helpers/FareCalculatorHelper.php';
+require_once '../../helpers/DynamicPricingService.php';
 require_once '../../helpers/PoolDetailsHelper.php';
 require_once '../../config/constants.php';
 require_once '../../helpers/AuthHelper.php';
@@ -32,13 +33,17 @@ $vehicleType = $data['vehicle_type'];
 
 $conn = Database::getInstance()->getConnection();
 
-$distanceKm = FareCalculatorHelper::tripDistanceKm(
-    (float) $data['origin_lat'],
-    (float) $data['origin_lng'],
-    (float) $data['dest_lat'],
-    (float) $data['dest_lng']
-);
-$soloFare = FareCalculatorHelper::soloFare($vehicleType, $distanceKm);
+$pricingQuote = DynamicPricingService::quote($conn, [
+    'origin_lat' => $data['origin_lat'],
+    'origin_lng' => $data['origin_lng'],
+    'dest_lat' => $data['dest_lat'],
+    'dest_lng' => $data['dest_lng'],
+    'vehicle_type' => $vehicleType,
+    'ride_type' => 'pool',
+], (int) $payload->sub, true);
+$distanceKm = (float) $pricingQuote['distance_km'];
+$durationMinutes = (int) $pricingQuote['duration_minutes'];
+$soloFare = (float) $pricingQuote['final_fare'];
 
 $stmtBalance = $conn->prepare('SELECT wallet_balance FROM users WHERE id = ?');
 $stmtBalance->execute([$payload->sub]);
@@ -73,13 +78,15 @@ try {
                 origin_address, origin_lat, origin_lng,
                 destination_address, destination_lat, destination_lng,
                 vehicle_type, status, pool_status,
-                fare_estimate, fare_final, fare_original, distance_km, pool_discount_pct
+                fare_estimate, fare_final, fare_original, distance_km, duration_minutes,
+                pool_discount_pct, pricing_quote_id, surge_multiplier, fare_breakdown
             ) VALUES (
                 :pass_id, :pool_id, 'pool',
                 :o_addr, :o_lat, :o_lng,
                 :d_addr, :d_lat, :d_lng,
                 :v_type, 'pending', 'matched',
-                :fare_est, :fare_est, :fare_orig, :dist_km, :disc
+                :fare_est, :fare_est, :fare_orig, :dist_km, :duration_min,
+                :disc, :quote_id, :surge_multiplier, :fare_breakdown
             )
         ");
 
@@ -97,15 +104,24 @@ try {
             ':fare_est' => $poolFareEstimate,
             ':fare_orig' => $soloFare,
             ':dist_km' => $distanceKm,
+            ':duration_min' => $durationMinutes,
             ':disc' => $disc,
+            ':quote_id' => $pricingQuote['quote_id'],
+            ':surge_multiplier' => $pricingQuote['surge_multiplier'],
+            ':fare_breakdown' => json_encode($pricingQuote, JSON_UNESCAPED_UNICODE),
         ]);
+
+        $newRideId = (int) $conn->lastInsertId();
+        if (!empty($pricingQuote['quote_id'])) {
+            DynamicPricingService::linkRide($conn, (int) $pricingQuote['quote_id'], $newRideId);
+        }
 
         $conn->prepare('UPDATE pool_groups SET current_count = current_count + 1 WHERE id = ?')
             ->execute([$poolGroupId]);
 
         $ridesStmt = $conn->prepare("
             SELECT id, passenger_id, origin_lat, origin_lng, destination_lat, destination_lng,
-                   origin_address, destination_address, pickup_order
+                   origin_address, destination_address, pickup_order, fare_original
             FROM rides WHERE pool_group_id = ? AND status NOT IN ('cancelled')
         ");
         $ridesStmt->execute([$poolGroupId]);
@@ -124,6 +140,7 @@ try {
             'scenario' => $scenario,
             'scenario_label' => PoolDetailsHelper::scenarioLabel($scenario),
             'pool_details' => $details,
+            'pricing' => $pricingQuote,
         ], 'Match de carona encontrado!', 200);
     } else {
         $insertGroup = $conn->prepare("
@@ -141,13 +158,15 @@ try {
                 origin_address, origin_lat, origin_lng,
                 destination_address, destination_lat, destination_lng,
                 vehicle_type, status, pool_status,
-                fare_estimate, fare_final, fare_original, distance_km, pool_discount_pct, pickup_order
+                fare_estimate, fare_final, fare_original, distance_km, duration_minutes,
+                pool_discount_pct, pickup_order, pricing_quote_id, surge_multiplier, fare_breakdown
             ) VALUES (
                 :pass_id, :pool_id, 'pool',
                 :o_addr, :o_lat, :o_lng,
                 :d_addr, :d_lat, :d_lng,
                 :v_type, 'pending', 'waiting_match',
-                :fare, :fare, :fare_orig, :dist_km, :disc, 1
+                :fare, :fare, :fare_orig, :dist_km, :duration_min,
+                :disc, 1, :quote_id, :surge_multiplier, :fare_breakdown
             )
         ");
 
@@ -164,10 +183,17 @@ try {
             ':fare' => $soloFare,
             ':fare_orig' => $soloFare,
             ':dist_km' => $distanceKm,
+            ':duration_min' => $durationMinutes,
             ':disc' => $disc,
+            ':quote_id' => $pricingQuote['quote_id'],
+            ':surge_multiplier' => $pricingQuote['surge_multiplier'],
+            ':fare_breakdown' => json_encode($pricingQuote, JSON_UNESCAPED_UNICODE),
         ]);
 
         $newRideId = (int) $conn->lastInsertId();
+        if (!empty($pricingQuote['quote_id'])) {
+            DynamicPricingService::linkRide($conn, (int) $pricingQuote['quote_id'], $newRideId);
+        }
 
         $routePayload = PoolRouteHelper::buildRoutePayload(
             [[
@@ -180,6 +206,7 @@ try {
                 'origin_address' => $originAddress,
                 'destination_address' => $destAddress,
                 'pickup_order' => 1,
+                'fare_original' => $soloFare,
             ]],
             PoolRouteHelper::SCENARIO_FORMING,
             $vehicleType
@@ -195,6 +222,7 @@ try {
             'ui_state' => 'searching_passengers',
             'fare_individual' => $soloFare,
             'estimated_duration_min' => $routePayload['estimated_duration_min'] ?? null,
+            'pricing' => $pricingQuote,
         ], 'A procurar parceiros de viagem...', 201);
     }
 } catch (Exception $e) {

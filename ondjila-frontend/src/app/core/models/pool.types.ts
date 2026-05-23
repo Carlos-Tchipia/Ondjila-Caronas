@@ -1,3 +1,5 @@
+import { PricingQuote } from '../services/pricing/pricing.types';
+
 export type PoolScenario =
   | 'same_origin_same_dest'
   | 'diff_origin_same_dest'
@@ -86,4 +88,5 @@ export interface PoolRequestResult {
   pool_details?: PoolDetails;
   fare_individual?: number;
   estimated_duration_min?: number;
+  pricing?: PricingQuote;
 }

@@ -25,6 +25,15 @@ class FareCalculatorHelper
         return round($base + ($distanceKm * $perKm), 2);
     }
 
+    public static function soloFareWithTime(string $vehicleType, float $distanceKm, int $durationMinutes): float
+    {
+        $base = FARE_BASE[$vehicleType] ?? FARE_BASE['economy'];
+        $perKm = FARE_PER_KM[$vehicleType] ?? FARE_PER_KM['economy'];
+        $perMin = FARE_PER_MIN[$vehicleType] ?? FARE_PER_MIN['economy'];
+        $minimum = FARE_MINIMUM[$vehicleType] ?? FARE_MINIMUM['economy'];
+        return round(max($minimum, $base + ($distanceKm * $perKm) + ($durationMinutes * $perMin)), 2);
+    }
+
     /**
      * Desconto pool conforme número de passageiros (30%–50%).
      */
@@ -48,13 +57,17 @@ class FareCalculatorHelper
         $soloTotal = 0.0;
 
         foreach ($legs as $leg) {
-            $km = self::tripDistanceKm(
-                (float) $leg['origin_lat'],
-                (float) $leg['origin_lng'],
-                (float) $leg['destination_lat'],
-                (float) $leg['destination_lng']
-            );
-            $fare = self::soloFare($vehicleType, $km);
+            if (isset($leg['fare_original']) && (float) $leg['fare_original'] > 0) {
+                $fare = (float) $leg['fare_original'];
+            } else {
+                $km = self::tripDistanceKm(
+                    (float) $leg['origin_lat'],
+                    (float) $leg['origin_lng'],
+                    (float) $leg['destination_lat'],
+                    (float) $leg['destination_lng']
+                );
+                $fare = self::soloFare($vehicleType, $km);
+            }
             $soloFares[] = $fare;
             $soloTotal += $fare;
         }

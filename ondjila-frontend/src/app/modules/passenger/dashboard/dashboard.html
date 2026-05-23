@@ -35,10 +35,20 @@
           <div class="fare-row">
             <span>{{ 'ride.amount' | translate }}</span>
             <strong>{{ formatAoa(ride.fare_final) }}</strong>
+            @if (ride.surge_multiplier && ride.surge_multiplier > 1.01) {
+              <span class="savings-tag">{{ ride.surge_multiplier }}x</span>
+            }
             @if (ride.savings) {
               <span class="savings-tag">{{ 'ride.saveAmount' | translate: { amount: formatAoa(ride.savings) } }}</span>
             }
           </div>
+          @if (ride.fare_breakdown?.reasons?.length) {
+            <ul class="fare-reasons fare-reasons--compact">
+              @for (reason of ride.fare_breakdown?.reasons; track reason.code) {
+                <li><span>{{ reason.label }}</span><strong>{{ reason.impact }}</strong></li>
+              }
+            </ul>
+          }
         }
 
         @if (ride.driver_name) {
@@ -98,7 +108,7 @@
           type="button"
           class="v-card"
           [class.selected]="selectedType() === 'economy'"
-          (click)="selectedType.set('economy')"
+          (click)="selectVehicle('economy')"
         >
           <span class="vehicle-mark">E</span>
           <span class="v-name">{{ (rideMode() === 'individual' ? 'passenger.economyRide' : 'passenger.economyPool') | translate }}</span>
@@ -107,12 +117,42 @@
           type="button"
           class="v-card"
           [class.selected]="selectedType() === 'comfort'"
-          (click)="selectedType.set('comfort')"
+          (click)="selectVehicle('comfort')"
         >
           <span class="vehicle-mark">C</span>
           <span class="v-name">{{ (rideMode() === 'individual' ? 'passenger.comfortRide' : 'passenger.comfortPool') | translate }}</span>
         </button>
       </div>
+
+      @if (pricingQuote(); as quote) {
+        <section class="fare-preview">
+          <div class="fare-preview__head">
+            <span>{{ 'pricing.estimatedFare' | translate }}</span>
+            <strong>{{ formatAoa(quote.final_fare) }}</strong>
+          </div>
+          <div class="fare-preview__meta">
+            <span>{{ quote.distance_km }} km</span>
+            <span>{{ quote.duration_minutes }} min</span>
+            <span>{{ quote.surge_multiplier }}x</span>
+            <span>{{ quote.region }}</span>
+          </div>
+          <div class="fare-preview__formula">
+            {{ 'pricing.formula' | translate }}
+          </div>
+          <ul class="fare-reasons">
+            @for (reason of quote.reasons; track reason.code) {
+              <li>
+                <span>{{ reason.label }}</span>
+                <strong>{{ reason.impact }}</strong>
+              </li>
+            }
+          </ul>
+        </section>
+      } @else if (isPricing()) {
+        <section class="fare-preview fare-preview--loading">
+          {{ 'pricing.calculating' | translate }}
+        </section>
+      }
 
       <p class="pool-hint">{{ (rideMode() === 'individual' ? 'passenger.individualHint' : 'passenger.poolHint') | translate }}</p>
 

@@ -1,4 +1,5 @@
 import { PoolDetails, PoolRequestResult, PoolRouteData, PoolUiState } from '../../models/pool.types';
+import { PricingQuote } from '../pricing/pricing.types';
 
 export interface PassengerRide {
   id: number;
@@ -16,6 +17,10 @@ export interface PassengerRide {
   destination_lng?: number;
   fare_final?: number;
   fare_original?: number;
+  distance_km?: number;
+  duration_minutes?: number | null;
+  surge_multiplier?: number;
+  fare_breakdown?: PricingQuote | null;
   savings?: number;
   pickup_order?: number;
   passenger_count?: number;
@@ -64,6 +69,8 @@ export interface IndividualRideRequestResult {
   ride_type: 'individual';
   fare_estimate: number;
   distance_km: number;
+  duration_minutes: number;
+  pricing?: PricingQuote;
 }
 
 export type { PoolRequestResult };

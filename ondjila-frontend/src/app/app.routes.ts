@@ -35,6 +35,7 @@ import { AdminReportsPage } from './modules/admin/pages/admin-reports.page';
 import { AdminSupportPage } from './modules/admin/pages/admin-support.page';
 import { AdminSectionPage } from './modules/admin/pages/admin-section.page';
 import { AdminLiveMapPage } from './modules/admin/pages/admin-live-map.page';
+import { AdminPricingPage } from './modules/admin/pages/admin-pricing.page';
 import { authGuard } from './core/guards/auth/auth-guard';
 import { driverGuard } from './core/guards/auth/driver-guard';
 import { adminGuard } from './core/guards/auth/admin-guard';
@@ -81,6 +82,7 @@ export const routes: Routes = [
   { path: 'admin/drivers', component: AdminDriversPage, canActivate: [authGuard, adminGuard] },
   { path: 'admin/reports', component: AdminReportsPage, canActivate: [authGuard, adminGuard] },
   { path: 'admin/live-map', component: AdminLiveMapPage, canActivate: [authGuard, adminGuard] },
+  { path: 'admin/pricing', component: AdminPricingPage, canActivate: [authGuard, adminGuard] },
   {
     path: 'admin/users',
     component: AdminSectionPage,

@@ -150,6 +150,7 @@ class PoolRouteHelper
                 'origin_lng' => (float) $r['origin_lng'],
                 'destination_lat' => (float) $r['destination_lat'],
                 'destination_lng' => (float) $r['destination_lng'],
+                'fare_original' => isset($r['fare_original']) ? (float) $r['fare_original'] : null,
             ];
         }, $ordered);
 

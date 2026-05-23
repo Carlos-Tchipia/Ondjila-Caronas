@@ -4,16 +4,19 @@ require_once '../../config/database.php';
 require_once '../../helpers/Response.php';
 require_once '../../helpers/AuthHelper.php';
 require_once '../../helpers/PoolDetailsHelper.php';
+require_once '../../helpers/PricingSchemaHelper.php';
 
 $payload = AuthHelper::requireAuth();
 
 $conn = Database::getInstance()->getConnection();
+PricingSchemaHelper::ensure($conn);
 
 $query = "
     SELECT r.id, r.status, r.pool_group_id, r.pool_status, r.ride_type,
            r.origin_address, r.origin_lat, r.origin_lng,
            r.destination_address, r.destination_lat, r.destination_lng,
            r.fare_final, r.fare_original, r.pickup_order, r.pool_discount_pct,
+           r.distance_km, r.duration_minutes, r.surge_multiplier, r.fare_breakdown,
            pg.status as pool_group_status, pg.route_data, pg.driver_id, pg.current_count, pg.max_passengers,
            d.vehicle_brand, d.vehicle_model, d.vehicle_plate, d.vehicle_color,
            d.current_lat as driver_lat, d.current_lng as driver_lng,
@@ -62,6 +65,10 @@ $ride = [
     'destination_lng' => (float) $currentRide['destination_lng'],
     'fare_final' => (float) $currentRide['fare_final'],
     'fare_original' => (float) $currentRide['fare_original'],
+    'distance_km' => (float) $currentRide['distance_km'],
+    'duration_minutes' => $currentRide['duration_minutes'] ? (int) $currentRide['duration_minutes'] : null,
+    'surge_multiplier' => $currentRide['surge_multiplier'] ? (float) $currentRide['surge_multiplier'] : 1.0,
+    'fare_breakdown' => $currentRide['fare_breakdown'] ? json_decode($currentRide['fare_breakdown'], true) : null,
     'savings' => max(0, (float) $currentRide['fare_original'] - (float) $currentRide['fare_final']),
     'pickup_order' => (int) $currentRide['pickup_order'],
     'driver_id' => $currentRide['driver_id'],

@@ -6,6 +6,7 @@ export const ADMIN_SIDEBAR_MENU: SidebarMenuItem[] = [
   { labelKey: 'nav.drivers', icon: 'D', route: '/admin/drivers' },
   { labelKey: 'nav.rides', icon: 'R', route: '/admin/rides' },
   { labelKey: 'nav.payments', icon: '$', route: '/admin/payments' },
+  { labelKey: 'pricing.controls', icon: 'P', route: '/admin/pricing' },
   { labelKey: 'nav.reports', icon: 'A', route: '/admin/reports' },
 ];
 
