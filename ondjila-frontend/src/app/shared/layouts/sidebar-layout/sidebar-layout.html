@@ -1,15 +1,20 @@
 <div class="app-shell">
   <aside class="app-sidebar">
-    <div class="app-sidebar__brand">{{ brand().title }}</div>
-    @if (brand().subtitle) {
-      <div class="app-sidebar__subtitle">{{ brand().subtitle }}</div>
-    }
+    <div class="app-sidebar__top">
+      <div>
+        <div class="app-sidebar__brand">{{ brand().titleKey | translate }}</div>
+        @if (brand().subtitleKey; as subtitleKey) {
+          <div class="app-sidebar__subtitle">{{ subtitleKey | translate }}</div>
+        }
+      </div>
+      <app-locale-controls />
+    </div>
 
     <div class="app-sidebar__user">
       <div class="app-sidebar__avatar">{{ initials() }}</div>
       <div class="app-sidebar__user-text">
-        <strong>{{ userGreeting() }}</strong>
-        <span>{{ userLocation() }}</span>
+        <strong>{{ userGreetingKey() | translate }}</strong>
+        <span>{{ userLocationKey() | translate }}</span>
       </div>
     </div>
 
@@ -22,7 +27,7 @@
           class="app-sidebar__link"
         >
           <span>{{ item.icon }}</span>
-          {{ item.label }}
+          {{ item.labelKey | translate }}
         </a>
       }
     </nav>
@@ -32,12 +37,14 @@
         @if (ctaBtn.icon) {
           <span>{{ ctaBtn.icon }}</span>
         }
-        {{ ctaBtn.label }}
+        {{ ctaBtn.labelKey | translate }}
       </a>
     }
 
     <div class="app-sidebar__footer">
-      <button type="button" class="app-sidebar__footer-link" (click)="logout()">⎋ Sair</button>
+      <button type="button" class="app-sidebar__footer-link" (click)="logout()">
+        ⎋ {{ 'common.logout' | translate }}
+      </button>
     </div>
   </aside>
 
@@ -51,7 +58,7 @@
 
   <nav class="mobile-nav">
     @for (item of menu(); track item.route) {
-      <a [routerLink]="item.route" routerLinkActive="active">{{ item.label }}</a>
+      <a [routerLink]="item.route" routerLinkActive="active">{{ item.labelKey | translate }}</a>
     }
   </nav>
 </div>

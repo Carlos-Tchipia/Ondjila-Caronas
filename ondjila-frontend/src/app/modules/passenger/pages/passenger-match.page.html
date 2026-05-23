@@ -4,15 +4,15 @@
     <app-map-app-header [dark]="true" />
 
     <div class="map-fab">
-      <button type="button" class="map-fab__btn" (click)="mapPanel.locateUser()" aria-label="Localização">⊕</button>
+      <button type="button" class="map-fab__btn" (click)="mapPanel.locateUser()" [attr.aria-label]="'a11y.myLocation' | translate">⊕</button>
     </div>
 
     <div class="match-modal animate-in">
       <div class="match-modal__head">
         <div>
-          <span class="match-badge">Partilhado</span>
-          <h1>Match encontrado!</h1>
-          <p>{{ m.scenario_label || 'Corrida pool compatível' }}</p>
+          <span class="match-badge">{{ 'pool.shared' | translate }}</span>
+          <h1>{{ 'passenger.matchTitle' | translate }}</h1>
+          <p>{{ m.scenario_label || ('passenger.matchCompatiblePool' | translate) }}</p>
         </div>
         <span class="match-modal__price">{{ formatPrice(m.poolPrice) }}</span>
       </div>
@@ -24,17 +24,21 @@
           <div class="match-modal__avatar">{{ initials(m.coPassengerName) }}</div>
           <div class="match-modal__partner-info">
             <strong>{{ m.coPassengerName }}</strong>
-            <span class="match-modal__dest">Destino: {{ m.coPassengerDest }}</span>
+            <span class="match-modal__dest">{{ 'passenger.destCoPassenger' | translate: { dest: m.coPassengerDest ?? '' } }}</span>
           </div>
           <div class="match-modal__pool-tag">
-            <span class="pool-blue">POOL</span>
-            <span>{{ m.extraKm }}</span>
+            <span class="pool-blue">{{ 'pool.poolingBlue' | translate }}</span>
+            @if (m.extraKmKey) {
+              <span>{{ m.extraKmKey | translate: m.extraKmParams }}</span>
+            } @else {
+              <span>{{ m.extraKm }}</span>
+            }
           </div>
         </div>
       }
 
       <div class="match-modal__savings">
-        <span>Poupança estimada</span>
+        <span>{{ 'passenger.estimatedSavings' | translate }}</span>
         <strong>{{ formatPrice(m.soloPrice - m.poolPrice) }}</strong>
       </div>
 
@@ -44,11 +48,11 @@
         (click)="confirmPool()"
         [disabled]="confirming()"
       >
-        {{ confirming() ? 'A confirmar...' : 'Confirmar e prosseguir →' }}
+        {{ confirming() ? ('passenger.confirming' | translate) : ('passenger.confirmProceed' | translate) }}
       </button>
 
       <button type="button" class="match-modal__solo" (click)="goSolo()">
-        Prefiro ir sozinho ({{ formatPrice(m.soloPrice) }})
+        {{ 'passenger.preferSolo' | translate: { price: formatPrice(m.soloPrice) } }}
       </button>
     </div>
   </div>

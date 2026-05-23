@@ -1,25 +1,25 @@
 @if (pool(); as p) {
   <article class="pool-card animate-in">
     <header class="pool-card__head">
-      <span class="pool-card__tag">Partilhado</span>
+      <span class="pool-card__tag">{{ 'pool.shared' | translate }}</span>
       <span class="pool-card__scenario">{{ scenarioIcon(p.scenario) }} {{ p.scenario_label }}</span>
     </header>
 
     @if (p.my_ride; as mine) {
       <div class="pool-card__pricing">
         <div>
-          <span class="label">O seu valor</span>
+          <span class="label">{{ 'pool.yourPrice' | translate }}</span>
           <strong class="price">{{ formatAoa(mine.fare_pool) }}</strong>
         </div>
         <div class="savings">
-          <span class="label">Poupa</span>
+          <span class="label">{{ 'pool.youSave' | translate }}</span>
           <strong>-{{ formatAoa(mine.savings) }}</strong>
           @if (mine.discount_pct > 0) {
-            <small>{{ mine.discount_pct }}% desconto pool</small>
+            <small>{{ 'pool.discount' | translate: { pct: mine.discount_pct } }}</small>
           }
         </div>
         <div class="solo-ref">
-          <span class="label">Individual seria</span>
+          <span class="label">{{ 'pool.soloWouldBe' | translate }}</span>
           <s>{{ formatAoa(mine.fare_individual) }}</s>
         </div>
       </div>
@@ -30,21 +30,21 @@
         <span>⏱ ~{{ p.estimated_duration_min }} min</span>
       }
       @if (p.extra_time_minutes > 0) {
-        <span>+{{ p.extra_time_minutes }} min (recolhas)</span>
+        <span>{{ 'pool.extraMin' | translate: { min: p.extra_time_minutes } }}</span>
       }
-      <span>👥 {{ p.passenger_count }}/{{ p.max_passengers }}</span>
+      <span>{{ 'pool.passengers' | translate: { count: p.passenger_count, max: p.max_passengers } }}</span>
     </div>
 
     @if (p.co_passengers.length) {
       <div class="pool-card__copassengers">
-        <span class="label">Co-passageiros</span>
+        <span class="label">{{ 'pool.coPassengers' | translate }}</span>
         <ul>
           @for (cp of p.co_passengers; track cp.passenger_id) {
             <li>
               <span class="avatar">{{ initials(cp.name) }}</span>
               <div>
                 <strong>{{ cp.name }}</strong>
-                <small>Recolha #{{ cp.pickup_order }} · {{ cp.origin_address }}</small>
+                <small>{{ 'pool.pickupOrder' | translate: { order: cp.pickup_order } }} · {{ cp.origin_address }}</small>
               </div>
             </li>
           }
@@ -54,12 +54,12 @@
 
     @if (p.route?.waypoints?.length) {
       <div class="pool-card__route">
-        <span class="label">Ordem da rota</span>
+        <span class="label">{{ 'pool.routeOrder' | translate }}</span>
         <ol>
           @for (wp of p.route!.waypoints; track wp.order) {
             <li [class.pickup]="wp.type === 'pickup'" [class.drop]="wp.type === 'dropoff'">
               <span class="order">{{ wp.order }}</span>
-              {{ wp.type === 'pickup' ? 'Recolha' : 'Destino' }}
+              {{ wp.type === 'pickup' ? ('pool.pickup' | translate) : ('pool.dropoff' | translate) }}
               @if (wp.address) {
                 <small>{{ wp.address }}</small>
               }

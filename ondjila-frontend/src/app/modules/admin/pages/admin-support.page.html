@@ -1,31 +1,31 @@
-<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Admin" userLocation="Help Center">
+<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreetingKey="common.adminGreeting" userLocationKey="admin.helpCenterLoc">
   <app-admin-topbar appTopbar />
 
   <section class="help-hero ui-card">
-    <h1>Como podemos ajudar hoje?</h1>
-    <p>Contacte a equipa especializada em operações de frota em Luanda.</p>
+    <h1>{{ 'admin.helpTitle' | translate }}</h1>
+    <p>{{ 'admin.helpSub' | translate }}</p>
     <div class="help-search">
-      <input type="search" placeholder="Como podemos ajudar?" />
-      <button type="button" class="btn btn--primary">Procurar</button>
+      <input type="search" [placeholder]="'admin.helpSearch' | translate" />
+      <button type="button" class="btn btn--primary">{{ 'common.search' | translate }}</button>
     </div>
   </section>
 
-  <h2 class="section-title">Tópicos Frequentes</h2>
+  <h2 class="section-title">{{ 'admin.frequentTopicsTitle' | translate }}</h2>
   <div class="topic-grid">
-    <article class="ui-card"><span>📦</span><h3>Objetos perdidos</h3><p>Fluxo de devolução entre passageiro e motorista.</p><a href="#">Saber mais →</a></article>
-    <article class="ui-card"><span>💳</span><h3>Problemas com pagamentos</h3><p>Reconciliação Multicaixa e comissões.</p><a href="#">Saber mais →</a></article>
-    <article class="ui-card topic--special"><span class="badge">ESPECIAL</span><h3>Segurança em Viagens Pool</h3><p>Políticas de partilha e incidentes.</p><a href="#">Saber mais →</a></article>
+    <article class="ui-card"><span>📦</span><h3>{{ 'passenger.lostItems' | translate }}</h3><p>{{ 'admin.lostItemsFlow' | translate }}</p><a href="#">{{ 'common.learnMore' | translate }}</a></article>
+    <article class="ui-card"><span>💳</span><h3>{{ 'passenger.paymentIssues' | translate }}</h3><p>{{ 'admin.paymentReconciliation' | translate }}</p><a href="#">{{ 'common.learnMore' | translate }}</a></article>
+    <article class="ui-card topic--special"><span class="badge">{{ 'passenger.special' | translate }}</span><h3>{{ 'passenger.poolSafety' | translate }}</h3><p>{{ 'admin.poolPolicies' | translate }}</p><a href="#">{{ 'common.learnMore' | translate }}</a></article>
   </div>
 
   <div class="support-row">
     <section class="ui-card chat-card">
-      <strong>Live Chat</strong> <span class="online">ONLINE</span>
-      <div class="chat-bubble"><strong>João — Ops</strong><p>Precisa de escalar um incidente de frota?</p></div>
-      <div class="chat-input"><input placeholder="Mensagem..." /><button class="btn btn--primary">➤</button></div>
+      <strong>{{ 'passenger.liveChat' | translate }}</strong> <span class="online">{{ 'common.online' | translate }}</span>
+      <div class="chat-bubble"><strong>{{ 'admin.chatOpsAgent' | translate }}</strong><p>{{ 'admin.chatOpsQuestion' | translate }}</p></div>
+      <div class="chat-input"><input [placeholder]="'admin.messagePlaceholder' | translate" /><button class="btn btn--primary">➤</button></div>
     </section>
     <div>
-      <a class="ui-card contact-card" href="tel:+244923000000"><strong>Suporte Telefónico</strong><p>+244 923 000 000</p></a>
-      <a class="ui-card contact-card" href="mailto:ops@ondjila.ao"><strong>E-mail</strong><p>ops@ondjila.ao</p></a>
+      <a class="ui-card contact-card" href="tel:+244923000000"><strong>{{ 'passenger.phoneSupport' | translate }}</strong><p>+244 923 000 000</p></a>
+      <a class="ui-card contact-card" href="mailto:ops@ondjila.ao"><strong>{{ 'admin.emailLabel' | translate }}</strong><p>ops@ondjila.ao</p></a>
     </div>
   </div>
 </app-sidebar-layout>

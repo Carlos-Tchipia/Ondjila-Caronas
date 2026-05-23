@@ -2,7 +2,7 @@
   <app-map-panel #mapPanel></app-map-panel>
 
   <header class="dash-header">
-    <div class="logo">Ondjila. <span class="badge">Motorista</span></div>
+    <div class="logo">{{ 'common.brand' | translate }}. <span class="badge">{{ 'shell.badgeDriver' | translate }}</span></div>
     <div class="driver-actions">
       <div class="wallet-badge">
         <span class="wallet-mark">Kz</span>
@@ -10,9 +10,9 @@
       </div>
       <div class="status-toggle">
         <span class="dot" [class.online]="isOnline()"></span>
-        <span>{{ isOnline() ? 'Online' : 'Offline' }}</span>
+        <span>{{ isOnline() ? ('common.online' | translate) : ('common.offline' | translate) }}</span>
         <button class="btn btn--ghost toggle-button" (click)="toggleOnline()">
-          Trocar
+          {{ 'driver.switchStatus' | translate }}
         </button>
       </div>
     </div>
@@ -29,11 +29,11 @@
   <aside class="request-panel">
     <div class="panel-handle" aria-hidden="true"></div>
     @if (activeRide(); as ride) {
-      <h3>Viagem em curso</h3>
+      <h3>{{ 'driver.tripInProgressTitle' | translate }}</h3>
       <div class="active-ride-card">
         <div class="pool-header">
           <span class="pool-id">Grupo #{{ ride.id }}</span>
-          <span class="pool-status badge">{{ ride.status === 'active' ? 'A caminho' : 'Em curso' }}</span>
+          <span class="pool-status badge">{{ ride.status === 'active' ? ('driver.statusEnRoute' | translate) : ('driver.statusInProgressShort' | translate) }}</span>
         </div>
 
         <div class="pool-route">
@@ -48,31 +48,31 @@
         </div>
 
         <div class="passengers-info">
-          Passageiros no carro: <strong>{{ ride.current_count }}</strong> / {{ ride.max_passengers }}
+          {{ 'driver.passengersInCar' | translate }} <strong>{{ ride.current_count }}</strong> / {{ ride.max_passengers }}
         </div>
 
         <div class="action-buttons">
           @if (ride.status === 'active') {
             <button class="btn btn--primary full-width" (click)="startRide()" [disabled]="processing()">
-              Iniciar viagem
+              {{ processing() ? ('driver.processing' | translate) : ('driver.startTrip' | translate) }}
             </button>
           } @else if (ride.status === 'in_progress') {
             <button class="btn btn--primary full-width" (click)="completeRide()" [disabled]="processing()">
-              Concluir viagem
+              {{ processing() ? ('driver.processing' | translate) : ('driver.completeTrip' | translate) }}
             </button>
           }
         </div>
       </div>
     } @else {
-      <h3>Pedidos perto de mim</h3>
+      <h3>{{ 'driver.requestsNearMe' | translate }}</h3>
 
       @if (!isOnline()) {
         <div class="empty-state">
-          Fica online para começares a receber pedidos de carona.
+          {{ 'driver.goOnlineHint' | translate }}
         </div>
       } @else {
         @if (loading()) {
-          <div class="empty-state">A procurar pools...</div>
+          <div class="empty-state">{{ 'driver.searchingPools' | translate }}</div>
         }
 
         <div class="pools-list">
@@ -80,7 +80,7 @@
             <div class="pool-card">
               <div class="pool-header">
                 <span class="pool-id">Grupo #{{ pool.id }}</span>
-                <span class="pool-count">{{ pool.current_count }} / {{ pool.max_passengers }} pass.</span>
+                <span class="pool-count">{{ pool.current_count }} / {{ pool.max_passengers }} {{ 'driver.passAbbrev' | translate }}</span>
               </div>
 
               <div class="pool-route">
@@ -95,14 +95,14 @@
               </div>
 
               <button class="btn btn--primary full-width" (click)="acceptPool(pool)" [disabled]="acceptingId() === pool.id">
-                {{ acceptingId() === pool.id ? 'A aceitar...' : 'Aceitar e conduzir' }}
+                {{ acceptingId() === pool.id ? ('driver.accepting' | translate) : ('driver.acceptAndDrive' | translate) }}
               </button>
             </div>
           }
 
           @if (!loading() && availablePools().length === 0) {
             <div class="empty-state">
-              Nenhum pedido de momento na tua zona.
+              {{ 'driver.noRequestsNow' | translate }}
             </div>
           }
         </div>

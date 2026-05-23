@@ -1,19 +1,16 @@
 <div class="landing">
   <section class="hero">
-    <div class="hero__media" role="img" aria-label="Luanda ao entardecer"></div>
+    <div class="hero__media" role="img" [attr.aria-label]="'landing.heroTitle' | translate"></div>
     <div class="hero__overlay"></div>
 
     <app-navbar variant="hero"></app-navbar>
 
     <div class="hero__inner">
       <div class="hero__copy animate-in">
-        <h1 class="hero__headline">A Tua Carona<br />em Luanda.</h1>
-        <p class="hero__subtitle">
-          A forma mais rápida e segura de te moveres pela cidade. Motoristas verificados,
-          preços transparentes e chegada em minutos.
-        </p>
+        <h1 class="hero__headline preline">{{ 'landing.heroTitle' | translate }}</h1>
+        <p class="hero__subtitle">{{ 'landing.heroSubtitle' | translate }}</p>
         <a routerLink="/register" class="hero__cta">
-          Pedir Agora
+          {{ 'landing.ctaNow' | translate }}
           <span class="hero__cta-arrow" aria-hidden="true">→</span>
         </a>
       </div>
@@ -24,8 +21,8 @@
         <label class="booking-bar__field">
           <span class="booking-bar__icon booking-bar__icon--origin" aria-hidden="true"></span>
           <span class="booking-bar__text">
-            <span class="booking-bar__label">Local de partida</span>
-            <input type="text" placeholder="Onde estás agora?" readonly />
+            <span class="booking-bar__label">{{ 'landing.originLabel' | translate }}</span>
+            <input type="text" [placeholder]="'landing.originPlaceholder' | translate" readonly />
           </span>
         </label>
 
@@ -34,12 +31,12 @@
         <label class="booking-bar__field">
           <span class="booking-bar__icon booking-bar__icon--dest" aria-hidden="true"></span>
           <span class="booking-bar__text">
-            <span class="booking-bar__label">Destino</span>
-            <input type="text" placeholder="Para onde vamos?" readonly />
+            <span class="booking-bar__label">{{ 'landing.destLabel' | translate }}</span>
+            <input type="text" [placeholder]="'landing.destPlaceholder' | translate" readonly />
           </span>
         </label>
 
-        <a routerLink="/register" class="booking-bar__submit">Ver Preços</a>
+        <a routerLink="/register" class="booking-bar__submit">{{ 'landing.seePrices' | translate }}</a>
       </form>
     </div>
   </section>
@@ -49,40 +46,25 @@
       <div class="features__visual animate-in">
         <img
           src="/images/filas-luanda.png"
-          alt="Filas de passageiros e candongueiros ao entardecer em Luanda"
+          alt=""
           loading="lazy"
           class="features__image"
         />
       </div>
 
       <div class="features__content animate-in">
-        <span class="features__eyebrow">Porque escolher</span>
-        <h2 class="features__title">Evita filas e esperas intermináveis.</h2>
-        <p class="features__body">
-          Com a Ondjila, pedes a tua carona em segundos e és recolhido no ponto exacto.
-          Pool inteligente, rotas optimizadas e pagamento digital — mobilidade urbana sem stress.
-        </p>
+        <span class="features__eyebrow">{{ 'landing.eyebrow' | translate }}</span>
+        <h2 class="features__title">{{ 'landing.featuresTitle' | translate }}</h2>
+        <p class="features__body">{{ 'landing.featuresBody' | translate }}</p>
 
         <ul class="features__list">
-          <li>
-            <span class="features__check" aria-hidden="true"></span>
-            Tempo de espera médio de 5 minutos
-          </li>
-          <li>
-            <span class="features__check" aria-hidden="true"></span>
-            Motoristas verificados e avaliados
-          </li>
-          <li>
-            <span class="features__check" aria-hidden="true"></span>
-            Preços claros antes de confirmares
-          </li>
-          <li>
-            <span class="features__check" aria-hidden="true"></span>
-            Carteira digital integrada
-          </li>
+          <li><span class="features__check" aria-hidden="true"></span>{{ 'landing.feature1' | translate }}</li>
+          <li><span class="features__check" aria-hidden="true"></span>{{ 'landing.feature2' | translate }}</li>
+          <li><span class="features__check" aria-hidden="true"></span>{{ 'landing.feature3' | translate }}</li>
+          <li><span class="features__check" aria-hidden="true"></span>{{ 'landing.feature4' | translate }}</li>
         </ul>
 
-        <a routerLink="/register" class="btn btn--primary btn--large">Começar agora</a>
+        <a routerLink="/register" class="btn btn--primary btn--large">{{ 'landing.startNow' | translate }}</a>
       </div>
     </div>
   </section>
@@ -91,19 +73,19 @@
     <div class="trust__inner">
       <div class="trust__item">
         <span class="trust__value">12.5k+</span>
-        <span class="trust__label">Viagens realizadas</span>
+        <span class="trust__label">{{ 'landing.trustTrips' | translate }}</span>
       </div>
       <div class="trust__item">
         <span class="trust__value">850+</span>
-        <span class="trust__label">Motoristas activos</span>
+        <span class="trust__label">{{ 'landing.trustDrivers' | translate }}</span>
       </div>
       <div class="trust__item">
         <span class="trust__value">4.9</span>
-        <span class="trust__label">Avaliação média</span>
+        <span class="trust__label">{{ 'landing.trustRating' | translate }}</span>
       </div>
       <div class="trust__item">
         <span class="trust__value">47</span>
-        <span class="trust__label">Bairros cobertos</span>
+        <span class="trust__label">{{ 'landing.trustZones' | translate }}</span>
       </div>
     </div>
   </section>
@@ -111,10 +93,10 @@
   <footer class="landing-footer" id="precos">
     <div class="landing-footer__inner">
       <span class="navbar__logo-mark" aria-hidden="true"></span>
-      <p>© {{ year }} Ondjila · Mobilidade em Luanda</p>
+      <p>© {{ year }} {{ 'common.brand' | translate }} · {{ 'landing.footerTagline' | translate }}</p>
       <div class="landing-footer__links">
-        <a routerLink="/register/driver">Ser motorista</a>
-        <a routerLink="/login">Entrar</a>
+        <a routerLink="/register/driver">{{ 'landing.becomeDriver' | translate }}</a>
+        <a routerLink="/login">{{ 'nav.login' | translate }}</a>
       </div>
     </div>
   </footer>

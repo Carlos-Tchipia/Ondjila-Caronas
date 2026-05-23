@@ -1,9 +1,9 @@
 <div class="auth-container">
   <div class="auth-card driver-register-card">
     <div class="auth-header">
-      <a routerLink="/" class="back-link">← Voltar</a>
-      <h2>Registo de motorista</h2>
-      <p>Completa o teu perfil e documentação para conduzir na Ondjila.</p>
+      <a routerLink="/" class="back-link">← {{ 'common.back' | translate }}</a>
+      <h2>{{ 'auth.driverRegisterTitle' | translate }}</h2>
+      <p>{{ 'auth.driverRegisterComplete' | translate }}</p>
     </div>
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
@@ -12,81 +12,81 @@
       }
 
       <section class="form-section">
-        <h3>Conta</h3>
+        <h3>{{ 'auth.accountSection' | translate }}</h3>
 
         <div class="form-group">
-          <label for="driver-name">Nome completo</label>
+          <label for="driver-name">{{ 'auth.fullName' | translate }}</label>
           <input id="driver-name" type="text" formControlName="name" autocomplete="name" />
           @if (form.controls.name.touched && form.controls.name.invalid) {
-            <span class="field-error">Insere o teu nome completo.</span>
+            <span class="field-error">{{ 'auth.nameRequired' | translate }}</span>
           }
         </div>
 
         <div class="form-group">
-          <label for="driver-email">Email</label>
+          <label for="driver-email">{{ 'auth.email' | translate }}</label>
           <input id="driver-email" type="email" formControlName="email" autocomplete="email" />
           @if (form.controls.email.touched && form.controls.email.invalid) {
-            <span class="field-error">Insere um email válido.</span>
+            <span class="field-error">{{ 'auth.invalidEmail' | translate }}</span>
           }
         </div>
 
         <div class="form-group">
-          <label for="driver-phone">Telefone</label>
+          <label for="driver-phone">{{ 'auth.phone' | translate }}</label>
           <input id="driver-phone" type="tel" formControlName="phone" autocomplete="tel" />
           @if (form.controls.phone.touched && form.controls.phone.invalid) {
-            <span class="field-error">Insere um número válido.</span>
+            <span class="field-error">{{ 'auth.phoneInvalidShort' | translate }}</span>
           }
         </div>
 
         <div class="form-group">
-          <label for="driver-password">Password</label>
+          <label for="driver-password">{{ 'auth.password' | translate }}</label>
           <input id="driver-password" type="password" formControlName="password" autocomplete="new-password" />
           @if (form.controls.password.touched && form.controls.password.invalid) {
-            <span class="field-error">Mínimo de 8 caracteres.</span>
+            <span class="field-error">{{ 'auth.passwordMin8Error' | translate }}</span>
           }
         </div>
       </section>
 
       <section class="form-section">
-        <h3>Veículo e licença</h3>
+        <h3>{{ 'auth.vehicleLicenseSection' | translate }}</h3>
 
         <div class="form-group">
-          <label for="driver-license">N.º carta de condução</label>
+          <label for="driver-license">{{ 'auth.licenseNumber' | translate }}</label>
           <input id="driver-license" type="text" formControlName="license_number" />
         </div>
 
         <div class="form-group">
-          <label for="driver-plate">Matrícula</label>
+          <label for="driver-plate">{{ 'auth.licensePlate' | translate }}</label>
           <input id="driver-plate" type="text" formControlName="vehicle_plate" />
         </div>
 
         <div class="form-group">
-          <label for="driver-type">Tipo de veículo</label>
+          <label for="driver-type">{{ 'auth.vehicleType' | translate }}</label>
           <select id="driver-type" formControlName="vehicle_type">
-            <option value="economy">Economy</option>
-            <option value="comfort">Comfort</option>
+            <option value="economy">{{ 'common.economy' | translate }}</option>
+            <option value="comfort">{{ 'common.comfort' | translate }}</option>
             <option value="xl">XL</option>
           </select>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="driver-brand">Marca</label>
+            <label for="driver-brand">{{ 'auth.vehicleBrand' | translate }}</label>
             <input id="driver-brand" type="text" formControlName="vehicle_brand" />
           </div>
           <div class="form-group">
-            <label for="driver-model">Modelo</label>
+            <label for="driver-model">{{ 'auth.vehicleModel' | translate }}</label>
             <input id="driver-model" type="text" formControlName="vehicle_model" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="driver-year">Ano</label>
+            <label for="driver-year">{{ 'auth.vehicleYear' | translate }}</label>
             <input id="driver-year" type="number" formControlName="vehicle_year" min="1990" max="2099" />
           </div>
           <div class="form-group">
-            <label for="driver-color">Cor</label>
+            <label for="driver-color">{{ 'auth.vehicleColor' | translate }}</label>
             <input id="driver-color" type="text" formControlName="vehicle_color" />
           </div>
         </div>
@@ -94,17 +94,17 @@
         <div class="form-group checkbox-row">
           <label>
             <input type="checkbox" formControlName="pool_enabled" />
-            Aceito caronas partilhadas (pool)
+            {{ 'auth.acceptPoolCheckbox' | translate }}
           </label>
         </div>
       </section>
 
       <section class="form-section">
-        <h3>Documentos</h3>
-        <p class="section-hint">JPG, PNG, WEBP ou PDF — máximo 5MB cada.</p>
+        <h3>{{ 'auth.documentsSection' | translate }}</h3>
+        <p class="section-hint">{{ 'auth.documentsHint' | translate }}</p>
 
         <div class="form-group">
-          <label for="doc-front">Carta de condução (frente)</label>
+          <label for="doc-front">{{ 'auth.licenseFront' | translate }}</label>
           <input id="doc-front" type="file" accept="image/*,.pdf" (change)="onDocumentSelected('doc_license_front', $event)" />
           @if (docErrors()['doc_license_front']) {
             <span class="field-error">{{ docErrors()['doc_license_front'] }}</span>
@@ -112,7 +112,7 @@
         </div>
 
         <div class="form-group">
-          <label for="doc-back">Carta de condução (verso)</label>
+          <label for="doc-back">{{ 'auth.licenseBack' | translate }}</label>
           <input id="doc-back" type="file" accept="image/*,.pdf" (change)="onDocumentSelected('doc_license_back', $event)" />
           @if (docErrors()['doc_license_back']) {
             <span class="field-error">{{ docErrors()['doc_license_back'] }}</span>
@@ -120,7 +120,7 @@
         </div>
 
         <div class="form-group">
-          <label for="doc-insurance">Seguro</label>
+          <label for="doc-insurance">{{ 'auth.insurance' | translate }}</label>
           <input id="doc-insurance" type="file" accept="image/*,.pdf" (change)="onDocumentSelected('doc_insurance', $event)" />
           @if (docErrors()['doc_insurance']) {
             <span class="field-error">{{ docErrors()['doc_insurance'] }}</span>
@@ -128,7 +128,7 @@
         </div>
 
         <div class="form-group">
-          <label for="doc-id">Bilhete de identidade</label>
+          <label for="doc-id">{{ 'auth.idCard' | translate }}</label>
           <input id="doc-id" type="file" accept="image/*,.pdf" (change)="onDocumentSelected('doc_id_card', $event)" />
           @if (docErrors()['doc_id_card']) {
             <span class="field-error">{{ docErrors()['doc_id_card'] }}</span>
@@ -137,14 +137,14 @@
       </section>
 
       <button type="submit" class="btn btn--primary btn--large full-width" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'A enviar...' : 'Registar como motorista' }}
+        {{ isSubmitting() ? ('auth.submitting' | translate) : ('auth.registerAsDriver' | translate) }}
       </button>
     </form>
 
     <div class="auth-footer">
-      Já tens conta? <a routerLink="/login">Entrar</a>
+      {{ 'auth.hasAccount' | translate }} <a routerLink="/login">{{ 'auth.signIn' | translate }}</a>
       <br /><br />
-      <a routerLink="/register" class="muted-link">Registar apenas como passageiro</a>
+      <a routerLink="/register" class="muted-link">{{ 'auth.registerPassengerOnly' | translate }}</a>
     </div>
   </div>
 </div>

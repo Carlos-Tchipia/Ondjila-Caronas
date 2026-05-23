@@ -15,6 +15,8 @@ import { MapAppHeader } from '../../../shared/components/map-app-header/map-app-
 import { PoolStatusTracker } from '../../../shared/components/pool-status-tracker/pool-status-tracker';
 import { PoolRideCard } from '../../../shared/components/pool-ride-card/pool-ride-card';
 import { PoolUiState } from '../../../core/models/pool.types';
+import { TranslateService } from '../../../core/i18n/translate.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 interface AddressSuggestion {
   place_id: number | string;
@@ -26,7 +28,7 @@ interface AddressSuggestion {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [MapPanel, CommonModule, BottomNav, MapAppHeader, PoolStatusTracker, PoolRideCard],
+  imports: [MapPanel, CommonModule, BottomNav, MapAppHeader, PoolStatusTracker, PoolRideCard, TranslatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -37,7 +39,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
   readonly originLat = signal<number>(-8.8147);
   readonly originLng = signal<number>(13.2302);
-  readonly originAddress = signal<string>('A localizar...');
+  readonly originAddress = signal<string>('');
 
   readonly suggestions = signal<AddressSuggestion[]>([]);
   readonly destLabel = signal('');
@@ -58,10 +60,12 @@ export class Dashboard implements OnInit, OnDestroy {
     private readonly mapService: MapService,
     private readonly passengerRidesApi: PassengerRidesApiService,
     private readonly walletApi: WalletApiService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly translate: TranslateService
   ) {}
 
   ngOnInit(): void {
+    this.originAddress.set(this.translate.t('passenger.locating'));
     this.getLocation();
     this.checkCurrentRide();
     this.fetchWalletBalance();
@@ -82,10 +86,10 @@ export class Dashboard implements OnInit, OnDestroy {
                 const parts = r.display_name.split(',');
                 this.originAddress.set(parts.slice(0, 2).join(', '));
               } else {
-                this.originAddress.set('Local Atual');
+                this.originAddress.set(this.translate.t('passenger.currentLocation'));
               }
             },
-            error: () => this.originAddress.set('Local Atual'),
+            error: () => this.originAddress.set(this.translate.t('passenger.currentLocation')),
           });
         },
         () => {
@@ -116,7 +120,7 @@ export class Dashboard implements OnInit, OnDestroy {
         const newRide = res.data?.ride || null;
 
         if (previousRide && !newRide && previousRide.status === 'in_progress') {
-          this.showNotice('success', 'Viagem concluída. Obrigado por viajar com a Ondjila.');
+          this.showNotice('success', this.translate.t('ride.tripDoneThanks'));
         }
 
         this.activeRide.set(newRide);
@@ -164,16 +168,16 @@ export class Dashboard implements OnInit, OnDestroy {
 
   getStatusText(ride: PassengerRide): string {
     const state = this.uiState(ride);
-    const labels: Record<PoolUiState, string> = {
-      searching_passengers: 'A procurar passageiros compatíveis...',
-      pool_found: 'Corrida partilhada encontrada — à espera de motorista',
-      driver_en_route: 'Motorista a caminho',
-      passenger_picked_up: 'Passageiro recolhido',
-      ride_in_progress: 'Corrida em andamento',
-      completed: 'Corrida finalizada',
-      cancelled: 'Cancelada',
+    const keys: Record<PoolUiState, string> = {
+      searching_passengers: 'ride.statusSearching',
+      pool_found: 'ride.statusPoolFound',
+      driver_en_route: 'ride.statusDriverEnRoute',
+      passenger_picked_up: 'ride.statusPickedUp',
+      ride_in_progress: 'ride.statusInProgress',
+      completed: 'ride.statusCompleted',
+      cancelled: 'ride.statusCancelled',
     };
-    return labels[state] ?? 'A processar...';
+    return this.translate.t(keys[state] ?? 'ride.statusProcessing');
   }
 
   canCancelRide(ride: PassengerRide): boolean {
@@ -211,7 +215,7 @@ export class Dashboard implements OnInit, OnDestroy {
       dest_lng: this.destLng,
       vehicle_type: this.selectedType(),
       origin_address: this.originAddress(),
-      destination_address: this.destLabel() || 'Destino',
+      destination_address: this.destLabel() || this.translate.t('passenger.destination'),
     };
 
     this.passengerRidesApi.requestPool(payload).subscribe({
@@ -225,7 +229,7 @@ export class Dashboard implements OnInit, OnDestroy {
             poolPrice: mine?.fare_pool ?? 0,
             soloPrice: mine?.fare_individual ?? 0,
             originLabel: this.originAddress(),
-            destLabel: this.destLabel() || 'Destino',
+            destLabel: this.destLabel() || this.translate.t('passenger.destination'),
             origin_lat: this.originLat(),
             origin_lng: this.originLng(),
             dest_lat: this.destLat!,
@@ -244,12 +248,17 @@ export class Dashboard implements OnInit, OnDestroy {
         }
         this.checkCurrentRide();
         if (!data?.match_found) {
-          this.showNotice('success', 'Pedido registado. A procurar parceiros de viagem...');
+          this.showNotice('success', this.translate.t('ride.requestRegistered'));
         }
       },
       error: (err) => {
         this.isRequesting.set(false);
-        this.showNotice('error', 'Erro ao pedir carona: ' + (err.error?.message || 'Tente novamente'));
+        this.showNotice(
+          'error',
+          this.translate.t('errors.requestPool', {
+            message: err.error?.message || this.translate.t('errors.generic'),
+          })
+        );
       },
     });
   }
@@ -261,11 +270,16 @@ export class Dashboard implements OnInit, OnDestroy {
         this.isCancelling.set(false);
         this.activeRide.set(null);
         this.mapPanel?.stopDriverSimulation();
-        this.showNotice('success', 'Carona cancelada.');
+        this.showNotice('success', this.translate.t('ride.cancelSuccess'));
       },
       error: (err) => {
         this.isCancelling.set(false);
-        this.showNotice('error', 'Erro ao cancelar: ' + (err.error?.message || 'Tente novamente'));
+        this.showNotice(
+          'error',
+          this.translate.t('errors.cancelPool', {
+            message: err.error?.message || this.translate.t('errors.generic'),
+          })
+        );
       },
     });
   }

@@ -1,4 +1,8 @@
-<app-shell-page title="Avaliar viagem" subtitle="A tua opinião melhora a comunidade Ondjila." backLink="/passenger/trips">
+<app-shell-page
+  [titleKey]="'passenger.rateTitle'"
+  [subtitleKey]="'passenger.rateSubtitle'"
+  backLink="/passenger/trips"
+>
   <div class="shell-card rate-card">
     <div class="rate-card__driver">JM</div>
     <h2>João Motorista</h2>
@@ -10,12 +14,12 @@
     </div>
     <textarea
       rows="4"
-      placeholder="Comentário opcional..."
+      [placeholder]="'passenger.rateCommentPlaceholder' | translate"
       [value]="comment()"
       (input)="comment.set($any($event.target).value)"
     ></textarea>
     <button type="button" class="btn btn--primary full-width" [disabled]="stars() === 0" (click)="submit()">
-      Enviar avaliação
+      {{ 'passenger.submitRating' | translate }}
     </button>
   </div>
 </app-shell-page>

@@ -1,8 +1,9 @@
 import { Component, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 export interface BottomNavItem {
-  label: string;
+  labelKey: string;
   icon: string;
   route: string;
 }
@@ -10,7 +11,7 @@ export interface BottomNavItem {
 @Component({
   selector: 'app-bottom-nav',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './bottom-nav.html',
   styleUrl: './bottom-nav.scss',
 })

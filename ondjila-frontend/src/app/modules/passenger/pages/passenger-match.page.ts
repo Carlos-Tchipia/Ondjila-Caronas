@@ -6,11 +6,12 @@ import { PoolMatchState } from '../../../core/models/pool-match.state';
 import { PoolApiService } from '../../../core/services/pool/pool-api.service';
 import { PoolDetails } from '../../../core/models/pool.types';
 import { PoolRideCard } from '../../../shared/components/pool-ride-card/pool-ride-card';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-passenger-match',
   standalone: true,
-  imports: [MapPanel, MapAppHeader, PoolRideCard],
+  imports: [MapPanel, MapAppHeader, PoolRideCard, TranslatePipe],
   templateUrl: './passenger-match.page.html',
   styleUrl: './passenger-match.page.scss',
 })
@@ -66,10 +67,9 @@ export class PassengerMatchPage implements OnInit, AfterViewInit {
       coPassengerName: cp?.name ?? m.coPassengerName,
       coPassengerDest: cp?.destination_address ?? m.coPassengerDest,
       scenario_label: pool.scenario_label,
-      extraKm:
-        pool.extra_time_minutes > 0
-          ? `+${pool.extra_time_minutes} min estimados`
-          : 'Rota directa',
+      extraKmKey: pool.extra_time_minutes > 0 ? 'driver.estimatedMin' : 'pool.directRoute',
+      extraKmParams:
+        pool.extra_time_minutes > 0 ? { min: pool.extra_time_minutes } : undefined,
     });
   }
 

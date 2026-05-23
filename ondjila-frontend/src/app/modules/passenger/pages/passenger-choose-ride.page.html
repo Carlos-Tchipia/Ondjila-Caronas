@@ -3,8 +3,8 @@
 
   <main class="choose-main">
     <header class="choose-header">
-      <h1>Escolha como quer viajar</h1>
-      <p>Selecione o modo que melhor se adapta à sua rotina e orçamento hoje.</p>
+      <h1>{{ 'passenger.chooseTitle' | translate }}</h1>
+      <p>{{ 'passenger.chooseSubtitle' | translate }}</p>
     </header>
 
     <div class="ride-cards">
@@ -13,19 +13,19 @@
           <span class="ride-card__icon">🚗</span>
           <div class="ride-card__price">
             <strong>1.200 AOA</strong>
-            <small>Preço fixo</small>
+            <small>{{ 'passenger.fixedPrice' | translate }}</small>
           </div>
         </div>
-        <h2>Viagem Individual</h2>
-        <p>Viagem privada e direta para o seu destino. Sem paragens intermédias.</p>
+        <h2>{{ 'passenger.soloTrip' | translate }}</h2>
+        <p>{{ 'passenger.soloDesc' | translate }}</p>
         <ul>
-          <li>100% de privacidade garantida.</li>
-          <li>Rota mais rápida disponível.</li>
-          <li>Escolha a sua música e AC.</li>
+          <li>{{ 'passenger.soloPrivacy' | translate }}</li>
+          <li>{{ 'passenger.soloFastest' | translate }}</li>
+          <li>{{ 'passenger.soloComfort' | translate }}</li>
         </ul>
-        <div class="ride-card__visual ride-card__visual--car" role="img" aria-label="Interior de viatura"></div>
+        <div class="ride-card__visual ride-card__visual--car" role="img" [attr.aria-label]="'passenger.ariaCarInterior' | translate"></div>
         <button type="button" class="btn btn--primary btn--block" (click)="chooseIndividual()">
-          Confirmar Individual
+          {{ 'passenger.confirmSolo' | translate }}
         </button>
       </article>
 
@@ -33,21 +33,21 @@
         <div class="ride-card__top">
           <span class="ride-card__icon ride-card__icon--blue">👥</span>
           <div class="ride-card__price">
-            <span class="save-badge">POUPA 520 AOA</span>
+            <span class="save-badge">{{ 'passenger.saveBadge' | translate: { amount: '520' } }}</span>
             <strong>680 AOA</strong>
-            <small>Mais económico</small>
+            <small>{{ 'passenger.moreEconomical' | translate }}</small>
           </div>
         </div>
-        <h2>Viagem Partilhada (Pool)</h2>
-        <p>Partilhe a viagem com outros passageiros na mesma direção. Sustentável e acessível.</p>
-        <p class="eco">🌿 Opção Mais Sustentável</p>
+        <h2>{{ 'passenger.poolTrip' | translate }}</h2>
+        <p>{{ 'passenger.poolDesc' | translate }}</p>
+        <p class="eco">🌿 {{ 'passenger.sustainable' | translate }}</p>
         <ul>
-          <li>Máximo de 2 paragens extra.</li>
-          <li>Conheça pessoas da sua zona.</li>
+          <li>{{ 'passenger.poolMaxStops' | translate }}</li>
+          <li>{{ 'passenger.poolMeetPeople' | translate }}</li>
         </ul>
-        <div class="ride-card__visual ride-card__visual--pool" role="img" aria-label="Passageiros em shuttle"></div>
+        <div class="ride-card__visual ride-card__visual--pool" role="img" [attr.aria-label]="'passenger.ariaShuttle' | translate"></div>
         <button type="button" class="btn btn--pool btn--block" (click)="choosePool()">
-          Escolher Pool
+          {{ 'passenger.choosePool' | translate }}
         </button>
       </article>
     </div>
@@ -56,14 +56,14 @@
       <div class="trust-card trust-card--map">
         <div class="trust-card__art"></div>
         <div>
-          <h3>Compromisso com o Tempo</h3>
-          <p>Algoritmos de IA garantem que, mesmo em Pool, o atraso não excede 8 minutos.</p>
+          <h3>{{ 'passenger.timeCommitment' | translate }}</h3>
+          <p>{{ 'passenger.timeCommitmentBody' | translate }}</p>
         </div>
       </div>
       <div class="trust-card trust-card--safe">
         <span>🛡</span>
-        <h3>Segurança Ondjila</h3>
-        <p>Todos os motoristas passam por verificação rigorosa de antecedentes.</p>
+        <h3>{{ 'passenger.safetyTitle' | translate }}</h3>
+        <p>{{ 'passenger.safetyBody' | translate }}</p>
       </div>
     </div>
   </main>
@@ -71,13 +71,13 @@
   <footer class="choose-footer">
     <div>
       <strong>Ondjila Mobility</strong>
-      <p>© 2026 Ondjila Mobility. Todos os direitos reservados.</p>
+      <p>{{ 'common.copyright' | translate: { year: '2026' } }}</p>
     </div>
     <nav>
-      <a href="#">Privacidade</a>
-      <a href="#">Termos</a>
-      <a routerLink="/passenger/support">Ajuda</a>
-      <a href="#">Contacto</a>
+      <a href="#">{{ 'common.privacy' | translate }}</a>
+      <a href="#">{{ 'common.terms' | translate }}</a>
+      <a routerLink="/passenger/support">{{ 'common.help' | translate }}</a>
+      <a href="#">{{ 'common.contact' | translate }}</a>
     </nav>
   </footer>
 </div>

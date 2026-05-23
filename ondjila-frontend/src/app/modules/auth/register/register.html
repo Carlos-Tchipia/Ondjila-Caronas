@@ -1,9 +1,9 @@
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
-      <a routerLink="/" class="back-link">← Voltar</a>
-      <h2>Cria a tua conta</h2>
-      <p>Junta-te à rede de caronas mais segura de Luanda.</p>
+      <a routerLink="/" class="back-link">← {{ 'common.back' | translate }}</a>
+      <h2>{{ 'auth.registerTitle' | translate }}</h2>
+      <p>{{ 'auth.registerTagline' | translate }}</p>
     </div>
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
@@ -12,46 +12,46 @@
       }
 
       <div class="form-group">
-        <label for="register-name">Nome completo</label>
-        <input id="register-name" type="text" placeholder="Ex: Ana Ferreira" formControlName="name" autocomplete="name" />
+        <label for="register-name">{{ 'auth.fullName' | translate }}</label>
+        <input id="register-name" type="text" [placeholder]="'auth.namePlaceholder' | translate" formControlName="name" autocomplete="name" />
         @if (form.controls.name.touched && form.controls.name.invalid) {
-          <span class="field-error">Insere o teu nome completo.</span>
+          <span class="field-error">{{ 'auth.nameRequired' | translate }}</span>
         }
       </div>
 
       <div class="form-group">
-        <label for="register-email">Email</label>
-        <input id="register-email" type="email" placeholder="O teu melhor email" formControlName="email" autocomplete="email" />
+        <label for="register-email">{{ 'auth.email' | translate }}</label>
+        <input id="register-email" type="email" [placeholder]="'auth.emailBestPlaceholder' | translate" formControlName="email" autocomplete="email" />
         @if (form.controls.email.touched && form.controls.email.invalid) {
-          <span class="field-error">Insere um email válido.</span>
+          <span class="field-error">{{ 'auth.invalidEmail' | translate }}</span>
         }
       </div>
 
       <div class="form-group">
-        <label for="register-phone">Número de telefone</label>
+        <label for="register-phone">{{ 'auth.phoneNumber' | translate }}</label>
         <input id="register-phone" type="tel" placeholder="+244 9XX XXX XXX" formControlName="phone" autocomplete="tel" />
         @if (form.controls.phone.touched && form.controls.phone.invalid) {
-          <span class="field-error">Insere um número de telefone válido.</span>
+          <span class="field-error">{{ 'auth.phoneInvalid' | translate }}</span>
         }
       </div>
 
       <div class="form-group">
-        <label for="register-password">Password</label>
-        <input id="register-password" type="password" placeholder="Mínimo de 8 caracteres" formControlName="password" autocomplete="new-password" />
+        <label for="register-password">{{ 'auth.password' | translate }}</label>
+        <input id="register-password" type="password" [placeholder]="'auth.passwordMin8' | translate" formControlName="password" autocomplete="new-password" />
         @if (form.controls.password.touched && form.controls.password.invalid) {
-          <span class="field-error">Usa pelo menos 8 caracteres.</span>
+          <span class="field-error">{{ 'auth.passwordMin8Error' | translate }}</span>
         }
       </div>
 
       <button type="submit" class="btn btn--primary btn--large full-width create-account" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'A criar...' : 'Criar conta' }}
+        {{ isSubmitting() ? ('auth.creating' | translate) : ('auth.createAccount' | translate) }}
       </button>
     </form>
 
     <div class="auth-footer">
-      Já tens conta? <a routerLink="/login">Entrar</a>
+      {{ 'auth.hasAccount' | translate }} <a routerLink="/login">{{ 'auth.signIn' | translate }}</a>
       <br><br>
-      <a routerLink="/register/driver" class="muted-link">Queres ser motorista Ondjila? Clica aqui.</a>
+      <a routerLink="/register/driver" class="muted-link">{{ 'auth.becomeDriverPrompt' | translate }}</a>
     </div>
   </div>
 </div>

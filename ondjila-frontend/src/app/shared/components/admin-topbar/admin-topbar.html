@@ -1,14 +1,16 @@
 <div class="admin-topbar">
-  <input type="search" class="admin-topbar__search" placeholder="Search rides, drivers, or alerts..." />
+  <input
+    type="search"
+    class="admin-topbar__search"
+    [placeholder]="'admin.searchPlaceholder' | translate"
+  />
   <div class="admin-topbar__actions">
-    <button type="button" aria-label="Notificações">🔔</button>
-    <button type="button" aria-label="Ajuda">?</button>
-    <button type="button" aria-label="Tema">🌙</button>
-    <button type="button" class="btn btn--ghost admin-topbar__export">Quick Export</button>
+    <app-locale-controls />
+    <button type="button" class="btn btn--ghost admin-topbar__export">{{ 'admin.quickExport' | translate }}</button>
     <div class="admin-topbar__user">
       <div>
-        <strong>Admin Profile</strong>
-        <span>SUPER ADMIN</span>
+        <strong>{{ 'common.adminGreeting' | translate }}</strong>
+        <span>{{ 'common.adminRole' | translate }}</span>
       </div>
       <div class="admin-topbar__avatar">AD</div>
     </div>

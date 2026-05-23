@@ -2,15 +2,15 @@
   [brand]="brand"
   [menu]="menu"
   [cta]="cta"
-  userGreeting="Admin Profile"
-  userLocation="SUPER ADMIN"
+  userGreetingKey="common.adminGreeting"
+  userLocationKey="common.adminRole"
 >
   <app-admin-topbar appTopbar />
 
   <div class="kpi-grid admin-kpis">
-    @for (k of kpis; track k.label) {
+    @for (k of kpis; track k.labelKey) {
       <div class="kpi-card kpi-card--chart" [class]="'kpi-card--' + k.color">
-        <div class="kpi-label">{{ k.label }}</div>
+        <div class="kpi-label">{{ k.labelKey | translate }}</div>
         <div class="kpi-value">{{ k.value }}</div>
         <div class="kpi-trend" [class.down]="k.down">{{ k.trend }}</div>
         <div class="mini-chart" aria-hidden="true"></div>
@@ -20,34 +20,34 @@
 
   <div class="admin-charts-row">
     <section class="ui-card">
-      <h2>Desempenho da Frota</h2>
-      <p class="muted">Últimas 24h — Individual vs Pool</p>
-      <div class="line-chart-placeholder" role="img" aria-label="Gráfico de viagens"></div>
+      <h2>{{ 'admin.fleetPerformance' | translate }}</h2>
+      <p class="muted">{{ 'admin.fleet24h' | translate }}</p>
+      <div class="line-chart-placeholder" role="img" [attr.aria-label]="'admin.fleetChartAria' | translate"></div>
       <div class="legend">
-        <span><i class="dot dot--green"></i> Individual</span>
-        <span><i class="dot dot--blue"></i> Pool</span>
+        <span><i class="dot dot--green"></i> {{ 'common.individual' | translate }}</span>
+        <span><i class="dot dot--blue"></i> {{ 'common.pool' | translate }}</span>
       </div>
     </section>
     <section class="ui-card zones-card">
-      <h2>Zonas Ativas</h2>
-      <div class="zones-map" role="img" aria-label="Mapa de calor Luanda"></div>
+      <h2>{{ 'admin.activeZones' | translate }}</h2>
+      <div class="zones-map" role="img" [attr.aria-label]="'admin.zonesMapAria' | translate"></div>
     </section>
   </div>
 
   <section class="ui-card activity-card">
     <div class="activity-card__head">
-      <h2>Actividade Recente</h2>
-      <a routerLink="/admin/rides">Ver Histórico Completo</a>
+      <h2>{{ 'admin.recentActivity' | translate }}</h2>
+      <a routerLink="/admin/rides">{{ 'admin.viewFullHistory' | translate }}</a>
     </div>
     <table class="data-table">
       <thead>
         <tr>
-          <th>ID Viagem</th>
-          <th>Tipo</th>
-          <th>Motorista</th>
-          <th>Passageiro</th>
-          <th>Estado</th>
-          <th>Valor</th>
+          <th>{{ 'admin.tripId' | translate }}</th>
+          <th>{{ 'admin.type' | translate }}</th>
+          <th>{{ 'admin.driver' | translate }}</th>
+          <th>{{ 'admin.passenger' | translate }}</th>
+          <th>{{ 'admin.state' | translate }}</th>
+          <th>{{ 'admin.value' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -59,11 +59,11 @@
             <td>{{ a.passenger }}</td>
             <td>
               @if (a.ok) {
-                <span class="status status--ok">✓ {{ a.status }}</span>
+                <span class="status status--ok">✓ {{ a.statusKey | translate }}</span>
               } @else if (a.progress) {
-                <span class="status status--progress">↻ {{ a.status }}</span>
+                <span class="status status--progress">↻ {{ a.statusKey | translate }}</span>
               } @else {
-                <span class="status status--cancel">✕ {{ a.status }}</span>
+                <span class="status status--cancel">✕ {{ a.statusKey | translate }}</span>
               }
             </td>
             <td><strong>{{ a.value }}</strong></td>

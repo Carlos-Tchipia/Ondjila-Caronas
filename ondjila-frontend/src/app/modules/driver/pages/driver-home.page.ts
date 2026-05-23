@@ -2,18 +2,19 @@ import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SidebarLayout } from '../../../shared/layouts/sidebar-layout/sidebar-layout';
 import { DRIVER_SIDEBAR_CTA, DRIVER_SIDEBAR_MENU } from '../../../core/navigation/driver-sidebar.nav';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-driver-home',
   standalone: true,
-  imports: [SidebarLayout, RouterLink],
+  imports: [SidebarLayout, RouterLink, TranslatePipe],
   templateUrl: './driver-home.page.html',
   styleUrl: './driver-home.page.scss',
 })
 export class DriverHomePage {
   readonly menu = DRIVER_SIDEBAR_MENU;
   readonly cta = DRIVER_SIDEBAR_CTA;
-  readonly brand = { title: 'Ondjila' };
+  readonly brand = { titleKey: 'common.brand' };
   readonly online = signal(true);
   readonly poolEnabled = signal(true);
 
@@ -33,3 +34,4 @@ export class DriverHomePage {
     { time: '12:10', type: 'Individual', passenger: 'Carlos M.', dest: 'Aeroporto 4 de Fev', earn: '5.500 AOA' },
   ];
 }
+

@@ -1,25 +1,25 @@
-<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Olá, Motorista">
+<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreetingKey="common.driverGreeting">
   <header class="earnings-topbar" appTopbar>
     <div>
-      <h1>Histórico e Ganhos</h1>
-      <p>Acompanhe seu desempenho financeiro detalhado.</p>
+      <h1>{{ 'driver.earningsTitle' | translate }}</h1>
+      <p>{{ 'driver.earningsSubtitle' | translate }}</p>
     </div>
     <div class="export-btns">
-      <button type="button" class="btn btn--ghost">📄 Baixar Relatório PDF</button>
-      <button type="button" class="btn btn--ghost">⬇ Exportar CSV</button>
+      <button type="button" class="btn btn--ghost">📄 {{ 'driver.downloadPdf' | translate }}</button>
+      <button type="button" class="btn btn--ghost">⬇ {{ 'driver.exportCsv' | translate }}</button>
     </div>
   </header>
 
   <div class="summary-row">
     <section class="ui-card balance-summary">
-      <span class="kpi-label">Saldo disponível</span>
+      <span class="kpi-label">{{ 'driver.availableBalance' | translate }}</span>
       <p class="big-balance">452.800,00 <small>Kz</small></p>
-      <button type="button" class="btn btn--primary">Levantar Ganhos</button>
+      <button type="button" class="btn btn--primary">{{ 'driver.withdrawEarnings' | translate }}</button>
     </section>
     <section class="ui-card ui-card--blue pool-summary">
-      <span class="kpi-label">Total ganhos pool</span>
+      <span class="kpi-label">{{ 'driver.totalPoolEarnings' | translate }}</span>
       <p class="pool-value">128.450,00 Kz</p>
-      <p class="pool-trend">+12% vs. semana passada</p>
+      <p class="pool-trend">{{ 'driver.vsLastWeek' | translate }}</p>
       <div class="pool-bar"><span style="width: 64%"></span></div>
     </section>
   </div>
@@ -27,25 +27,25 @@
   <section class="ui-card table-section">
     <div class="table-toolbar">
       <div class="segmented">
-        <button type="button" [class.active]="period() === 'dia'" (click)="period.set('dia')">Dia</button>
-        <button type="button" [class.active]="period() === 'semana'" (click)="period.set('semana')">Semana</button>
-        <button type="button" [class.active]="period() === 'mes'" (click)="period.set('mes')">Mês</button>
+        <button type="button" [class.active]="period() === 'dia'" (click)="period.set('dia')">{{ 'driver.day' | translate }}</button>
+        <button type="button" [class.active]="period() === 'semana'" (click)="period.set('semana')">{{ 'driver.week' | translate }}</button>
+        <button type="button" [class.active]="period() === 'mes'" (click)="period.set('mes')">{{ 'driver.month' | translate }}</button>
       </div>
-      <select aria-label="Serviço">
-        <option>Todos os Serviços</option>
-        <option>Individual</option>
-        <option>Pool</option>
+      <select [attr.aria-label]="'driver.service' | translate">
+        <option>{{ 'driver.allServices' | translate }}</option>
+        <option>{{ 'common.individual' | translate }}</option>
+        <option>{{ 'common.pool' | translate }}</option>
       </select>
-      <button type="button" class="btn btn--ghost" aria-label="Filtros">⚙</button>
+      <button type="button" class="btn btn--ghost" [attr.aria-label]="'common.filters' | translate">⚙</button>
     </div>
     <table class="data-table">
       <thead>
         <tr>
-          <th>Data/Hora</th>
-          <th>Serviço</th>
-          <th>Total Bruto</th>
-          <th>Comissão</th>
-          <th>Ganhos Líquidos</th>
+          <th>{{ 'driver.dateTime' | translate }}</th>
+          <th>{{ 'driver.service' | translate }}</th>
+          <th>{{ 'driver.gross' | translate }}</th>
+          <th>{{ 'driver.commission' | translate }}</th>
+          <th>{{ 'driver.netEarnings' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -60,11 +60,15 @@
         }
       </tbody>
     </table>
-    <p class="more-link"><a href="#">Ver mais transações</a></p>
+    <p class="more-link"><a href="#">{{ 'driver.moreTx' | translate }}</a></p>
   </section>
 
   <footer class="app-page-footer" appFooter>
     <span>Ondjila © 2026</span>
-    <span><a href="#">Privacidade</a><a href="#">Termos</a><a href="#">Ajuda</a></span>
+    <span>
+      <a href="#">{{ 'common.privacy' | translate }}</a>
+      <a href="#">{{ 'common.terms' | translate }}</a>
+      <a href="#">{{ 'common.help' | translate }}</a>
+    </span>
   </footer>
 </app-sidebar-layout>

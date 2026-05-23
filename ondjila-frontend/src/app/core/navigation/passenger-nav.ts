@@ -1,15 +1,15 @@
 import { BottomNavItem } from '../../shared/components/bottom-nav/bottom-nav';
 
 export const PASSENGER_NAV: BottomNavItem[] = [
-  { label: 'Início', icon: '⌂', route: '/passenger/home' },
-  { label: 'Viagens', icon: '↗', route: '/passenger/trips' },
-  { label: 'Pagamentos', icon: '◎', route: '/passenger/payments' },
-  { label: 'Perfil', icon: '◉', route: '/passenger/profile' },
+  { labelKey: 'nav.home', icon: '⌂', route: '/passenger/home' },
+  { labelKey: 'nav.trips', icon: '↗', route: '/passenger/trips' },
+  { labelKey: 'nav.payments', icon: '◎', route: '/passenger/payments' },
+  { labelKey: 'nav.profile', icon: '◉', route: '/passenger/profile' },
 ];
 
 export const DRIVER_NAV: BottomNavItem[] = [
-  { label: 'Início', icon: '⌂', route: '/driver/home' },
-  { label: 'Ganhos', icon: '◎', route: '/driver/earnings' },
-  { label: 'Mapa', icon: '⌖', route: '/driver/live' },
-  { label: 'Perfil', icon: '◉', route: '/driver/profile' },
+  { labelKey: 'nav.home', icon: '⌂', route: '/driver/home' },
+  { labelKey: 'nav.earnings', icon: '◎', route: '/driver/earnings' },
+  { labelKey: 'nav.liveMap', icon: '⌖', route: '/driver/live' },
+  { labelKey: 'nav.profile', icon: '◉', route: '/driver/profile' },
 ];

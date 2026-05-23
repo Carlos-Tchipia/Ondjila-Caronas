@@ -2,23 +2,24 @@ import { Component } from '@angular/core';
 import { SidebarLayout } from '../../../shared/layouts/sidebar-layout/sidebar-layout';
 import { AdminTopbar } from '../../../shared/components/admin-topbar/admin-topbar';
 import { ADMIN_SIDEBAR_CTA, ADMIN_SIDEBAR_MENU } from '../../../core/navigation/admin-sidebar.nav';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-reports',
   standalone: true,
-  imports: [SidebarLayout, AdminTopbar],
+  imports: [SidebarLayout, AdminTopbar, TranslatePipe],
   templateUrl: './admin-reports.page.html',
   styleUrl: './admin-reports.page.scss',
 })
 export class AdminReportsPage {
   readonly menu = ADMIN_SIDEBAR_MENU;
   readonly cta = ADMIN_SIDEBAR_CTA;
-  readonly brand = { title: 'Ondjila Admin', subtitle: 'Luanda Fleet Backoffice' };
+  readonly brand = { titleKey: 'admin.brand', subtitleKey: 'admin.subtitle' };
 
   readonly metrics = [
-    { label: 'Receita Bruta', value: '12.450.000 Kz', trend: '+12.4%' },
-    { label: 'Comissões', value: '1.867.500 Kz', trend: '+5.2%' },
-    { label: 'Lucro Líquido', value: '10.582.500 Kz', trend: '+18.1%', highlight: true },
+    { labelKey: 'admin.grossRevenue', value: '12.450.000 Kz', trend: '+12.4%' },
+    { labelKey: 'admin.commissions', value: '1.867.500 Kz', trend: '+5.2%' },
+    { labelKey: 'admin.netProfit', value: '10.582.500 Kz', trend: '+18.1%', highlight: true },
   ];
 
   readonly bairros = [
@@ -32,3 +33,4 @@ export class AdminReportsPage {
   readonly adoptionBars = [40, 55, 50, 60, 90, 45, 70];
   readonly days = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'];
 }
+

@@ -1,14 +1,16 @@
 import { Component, input } from '@angular/core';
 import { PoolUiState } from '../../../core/models/pool.types';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 interface Step {
   key: PoolUiState;
-  label: string;
+  labelKey: string;
 }
 
 @Component({
   selector: 'app-pool-status-tracker',
   standalone: true,
+  imports: [TranslatePipe],
   templateUrl: './pool-status-tracker.html',
   styleUrl: './pool-status-tracker.scss',
 })
@@ -18,12 +20,12 @@ export class PoolStatusTracker {
   readonly maxPassengers = input(3);
 
   readonly steps: Step[] = [
-    { key: 'searching_passengers', label: 'A procurar' },
-    { key: 'pool_found', label: 'Pool encontrado' },
-    { key: 'driver_en_route', label: 'Motorista' },
-    { key: 'passenger_picked_up', label: 'Recolhido' },
-    { key: 'ride_in_progress', label: 'Em curso' },
-    { key: 'completed', label: 'Concluída' },
+    { key: 'searching_passengers', labelKey: 'pool.searching' },
+    { key: 'pool_found', labelKey: 'pool.poolFound' },
+    { key: 'driver_en_route', labelKey: 'pool.driverEnRoute' },
+    { key: 'passenger_picked_up', labelKey: 'pool.pickedUp' },
+    { key: 'ride_in_progress', labelKey: 'pool.inProgress' },
+    { key: 'completed', labelKey: 'pool.done' },
   ];
 
   stepIndex(): number {

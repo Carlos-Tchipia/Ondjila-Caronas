@@ -1,16 +1,16 @@
 export interface SidebarMenuItem {
-  label: string;
+  labelKey: string;
   icon: string;
   route: string;
 }
 
 export interface SidebarCta {
-  label: string;
+  labelKey: string;
   route: string;
   icon?: string;
 }
 
 export interface SidebarBrand {
-  title: string;
-  subtitle?: string;
+  titleKey: string;
+  subtitleKey?: string;
 }

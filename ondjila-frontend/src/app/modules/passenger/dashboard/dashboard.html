@@ -14,7 +14,7 @@
   <aside class="request-panel">
     <div class="panel-handle" aria-hidden="true"></div>
     @if (activeRide(); as ride) {
-      <h3>Viagem partilhada</h3>
+      <h3>{{ 'passenger.sharedTrip' | translate }}</h3>
 
       <app-pool-status-tracker
         [state]="uiState(ride)"
@@ -31,10 +31,10 @@
           <app-pool-ride-card [pool]="ride.pool" />
         } @else if (ride.fare_final != null) {
           <div class="fare-row">
-            <span>Valor</span>
+            <span>{{ 'ride.amount' | translate }}</span>
             <strong>{{ formatAoa(ride.fare_final) }}</strong>
             @if (ride.savings) {
-              <span class="savings-tag">Poupa {{ formatAoa(ride.savings) }}</span>
+              <span class="savings-tag">{{ 'ride.saveAmount' | translate: { amount: formatAoa(ride.savings) } }}</span>
             }
           </div>
         }
@@ -51,7 +51,7 @@
         } @else {
           <div class="waiting-animation">
             <div class="spinner"></div>
-            <p>A procurar motoristas na sua zona...</p>
+            <p>{{ 'ride.waitingDriver' | translate }}</p>
           </div>
         }
 
@@ -62,22 +62,22 @@
             (click)="cancelRide()"
             [disabled]="isCancelling()"
           >
-            {{ isCancelling() ? 'A cancelar...' : 'Cancelar carona' }}
+            {{ isCancelling() ? ('passenger.cancelling' | translate) : ('passenger.cancelRide' | translate) }}
           </button>
         }
       </div>
     } @else {
-      <h3>Para onde vamos?</h3>
+      <h3>{{ 'passenger.dashboardTitle' | translate }}</h3>
 
       <div class="search-box">
         <div class="input-group">
           <span class="icon origin-icon"></span>
-          <input type="text" placeholder="Local de partida" [value]="originAddress()" readonly />
+          <input type="text" [placeholder]="'passenger.originPlaceholder' | translate" [value]="originAddress()" readonly />
         </div>
 
         <div class="input-group">
           <span class="icon dest-icon"></span>
-          <input type="text" placeholder="Procurar destino..." (input)="onSearchDest($event)" />
+          <input type="text" [placeholder]="'passenger.searchDest' | translate" (input)="onSearchDest($event)" />
         </div>
 
         @if (suggestions().length > 0) {
@@ -99,7 +99,7 @@
           (click)="selectedType.set('economy')"
         >
           <span class="vehicle-mark">E</span>
-          <span class="v-name">Economy Pool</span>
+          <span class="v-name">{{ 'passenger.economyPool' | translate }}</span>
         </button>
         <button
           type="button"
@@ -108,14 +108,14 @@
           (click)="selectedType.set('comfort')"
         >
           <span class="vehicle-mark">C</span>
-          <span class="v-name">Comfort Pool</span>
+          <span class="v-name">{{ 'passenger.comfortPool' | translate }}</span>
         </button>
       </div>
 
-      <p class="pool-hint">O sistema agrupa passageiros com destinos compatíveis e divide o custo automaticamente.</p>
+      <p class="pool-hint">{{ 'passenger.poolHint' | translate }}</p>
 
       <button class="btn btn--primary btn--large full-width" (click)="requestPool()" [disabled]="!destLat || isRequesting()">
-        {{ isRequesting() ? 'A procurar match...' : 'Pedir viagem partilhada' }}
+        {{ isRequesting() ? ('passenger.requestingPool' | translate) : ('passenger.requestPool' | translate) }}
       </button>
     }
   </aside>

@@ -75,18 +75,18 @@ export const routes: Routes = [
     path: 'admin/users',
     component: AdminSectionPage,
     canActivate: [authGuard, adminGuard],
-    data: { title: 'Utilizadores', description: 'Gestão de contas de passageiros.' },
+    data: { titleKey: 'nav.users', descriptionKey: 'admin.usersPageDesc' },
   },
   {
     path: 'admin/rides',
     component: AdminSectionPage,
     canActivate: [authGuard, adminGuard],
-    data: { title: 'Viagens', description: 'Histórico e monitorização de corridas.' },
+    data: { titleKey: 'nav.rides', descriptionKey: 'admin.ridesPageDesc' },
   },
   {
     path: 'admin/payments',
     component: AdminSectionPage,
     canActivate: [authGuard, adminGuard],
-    data: { title: 'Pagamentos', description: 'Transações, comissões e reconciliação.' },
+    data: { titleKey: 'nav.payments', descriptionKey: 'admin.paymentsPageDesc' },
   },
 ];

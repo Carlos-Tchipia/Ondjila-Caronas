@@ -1,40 +1,40 @@
-<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Olá, Passageiro">
+<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreetingKey="common.passengerGreeting">
   <header class="page-topbar" appTopbar>
     <div>
-      <h1>Suporte</h1>
-      <p>Como podemos ajudar?</p>
+      <h1>{{ 'passenger.supportTitle' | translate }}</h1>
+      <p>{{ 'passenger.supportSubtitle' | translate }}</p>
     </div>
   </header>
 
   <section class="help-hero ui-card">
-    <h2>Como podemos ajudar hoje?</h2>
-    <p>Equipa especializada em Luanda, disponível 24/7.</p>
+    <h2>{{ 'passenger.supportHero' | translate }}</h2>
+    <p>{{ 'passenger.supportHeroBody' | translate }}</p>
     <div class="help-search">
-      <input type="search" placeholder="Pesquisar tópicos..." />
-      <button type="button" class="btn btn--primary">Procurar</button>
+      <input type="search" [placeholder]="'passenger.searchTopics' | translate" />
+      <button type="button" class="btn btn--primary">{{ 'common.search' | translate }}</button>
     </div>
   </section>
 
-  <h3 class="section-title">Tópicos frequentes</h3>
+  <h3 class="section-title">{{ 'passenger.frequentTopics' | translate }}</h3>
   <div class="topic-grid">
     <article class="ui-card topic-card">
       <span class="topic-card__icon">📦</span>
-      <h4>Objetos perdidos</h4>
-      <p>Reporte itens esquecidos no veículo.</p>
-      <a routerLink="/passenger/chat">Saber mais →</a>
+      <h4>{{ 'passenger.lostItems' | translate }}</h4>
+      <p>{{ 'passenger.lostItemsDesc' | translate }}</p>
+      <a routerLink="/passenger/chat">{{ 'common.learnMore' | translate }}</a>
     </article>
     <article class="ui-card topic-card">
       <span class="topic-card__icon topic-card__icon--blue">💳</span>
-      <h4>Problemas com pagamentos</h4>
-      <p>Saldo, Multicaixa e recibos.</p>
-      <a routerLink="/passenger/payments">Saber mais →</a>
+      <h4>{{ 'passenger.paymentIssues' | translate }}</h4>
+      <p>{{ 'passenger.paymentIssuesDesc' | translate }}</p>
+      <a routerLink="/passenger/payments">{{ 'common.learnMore' | translate }}</a>
     </article>
     <article class="ui-card topic-card topic-card--special">
-      <span class="badge-especial">Especial</span>
+      <span class="badge-especial">{{ 'passenger.special' | translate }}</span>
       <span class="topic-card__icon topic-card__icon--blue">🛡</span>
-      <h4>Segurança em Viagens Pool</h4>
-      <p>Partilha segura com verificação de rota.</p>
-      <a routerLink="/passenger/security">Saber mais →</a>
+      <h4>{{ 'passenger.poolSafety' | translate }}</h4>
+      <p>{{ 'passenger.poolSafetyDesc' | translate }}</p>
+      <a routerLink="/passenger/security">{{ 'common.learnMore' | translate }}</a>
     </article>
   </div>
 
@@ -43,30 +43,30 @@
       <div class="chat-card__head">
         <span class="avatar">J</span>
         <div>
-          <strong>Live Chat</strong>
-          <span class="online">ONLINE</span>
+          <strong>{{ 'passenger.liveChat' | translate }}</strong>
+          <span class="online">{{ 'common.online' | translate }}</span>
         </div>
       </div>
       <div class="chat-bubble">
-        <strong>João — Suporte</strong>
-        <p>Olá! Em que podemos ajudar com a sua viagem?</p>
+        <strong>{{ 'passenger.chatSupportAgent' | translate }}</strong>
+        <p>{{ 'passenger.chatSupportHello' | translate }}</p>
       </div>
       <div class="chat-input">
-        <input type="text" placeholder="Escreva a sua mensagem..." />
+        <input type="text" [placeholder]="'passenger.chatMessagePlaceholder' | translate" />
         <button type="button" class="btn btn--primary">➤</button>
       </div>
     </section>
     <div class="contact-stack">
       <a class="ui-card contact-card" href="tel:+244923000000">
         <div>
-          <strong>Suporte Telefónico</strong>
+          <strong>{{ 'passenger.phoneSupport' | translate }}</strong>
           <p class="contact-value">+244 923 000 000</p>
         </div>
         <span>›</span>
       </a>
       <a class="ui-card contact-card" href="mailto:suporte@ondjila.ao">
         <div>
-          <strong>Suporte por E-mail</strong>
+          <strong>{{ 'passenger.emailSupport' | translate }}</strong>
           <p class="contact-value">suporte@ondjila.ao</p>
         </div>
         <span>›</span>
@@ -75,9 +75,9 @@
   </div>
 
   <div class="category-pills">
-    <button type="button">👤 A Minha Conta</button>
-    <button type="button">🧾 Recibos</button>
-    <button type="button">🎫 Ondjila Pass</button>
-    <button type="button">🎁 Promoções</button>
+    <button type="button">👤 {{ 'passenger.myAccount' | translate }}</button>
+    <button type="button">🧾 {{ 'passenger.receipts' | translate }}</button>
+    <button type="button">🎫 {{ 'passenger.ondjilaPass' | translate }}</button>
+    <button type="button">🎁 {{ 'passenger.promotions' | translate }}</button>
   </div>
 </app-sidebar-layout>

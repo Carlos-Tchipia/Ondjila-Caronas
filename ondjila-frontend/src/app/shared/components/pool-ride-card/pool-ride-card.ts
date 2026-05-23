@@ -1,9 +1,11 @@
 import { Component, input } from '@angular/core';
-import { PoolCoPassenger, PoolDetails, PoolScenario } from '../../../core/models/pool.types';
+import { PoolDetails, PoolScenario } from '../../../core/models/pool.types';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-pool-ride-card',
   standalone: true,
+  imports: [TranslatePipe],
   templateUrl: './pool-ride-card.html',
   styleUrl: './pool-ride-card.scss',
 })

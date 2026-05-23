@@ -7,10 +7,12 @@ import { WalletApiService } from '../../../core/services/wallet/wallet-api.servi
 import { MapPanel } from '../../../shared/components/map-panel/map-panel';
 import { BottomNav } from '../../../shared/components/bottom-nav/bottom-nav';
 import { DRIVER_NAV } from '../../../core/navigation/passenger-nav';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslateService } from '../../../core/i18n/translate.service';
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
-  imports: [MapPanel, CommonModule, BottomNav],
+  imports: [MapPanel, CommonModule, BottomNav, TranslatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -33,7 +35,8 @@ export class Dashboard implements OnInit, OnDestroy {
 
   constructor(
     private readonly driverRidesApi: DriverRidesApiService,
-    private readonly walletApi: WalletApiService
+    private readonly walletApi: WalletApiService,
+    private readonly translate: TranslateService
   ) {}
 
   private locationInterval?: ReturnType<typeof setInterval>;
@@ -149,7 +152,12 @@ export class Dashboard implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.acceptingId.set(null);
-        this.showNotice('error', 'Erro ao aceitar viagem: ' + (err.error?.message || 'Tente novamente'));
+        this.showNotice(
+          'error',
+          this.translate.t('errors.acceptPool', {
+            message: err.error?.message || this.translate.t('errors.generic'),
+          })
+        );
       },
     });
   }
@@ -167,7 +175,12 @@ export class Dashboard implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.processing.set(false);
-        this.showNotice('error', 'Erro ao iniciar viagem: ' + (err.error?.message || 'Tente novamente'));
+        this.showNotice(
+          'error',
+          this.translate.t('errors.startRide', {
+            message: err.error?.message || this.translate.t('errors.generic'),
+          })
+        );
       },
     });
   }
@@ -183,11 +196,16 @@ export class Dashboard implements OnInit, OnDestroy {
         this.processing.set(false);
         this.activeRide.set(null);
         this.availablePools.set([]);
-        this.showNotice('success', 'Viagem concluída. Excelente trabalho.');
+        this.showNotice('success', this.translate.t('driver.tripCompleteSuccess'));
       },
       error: (err) => {
         this.processing.set(false);
-        this.showNotice('error', 'Erro ao concluir viagem: ' + (err.error?.message || 'Tente novamente'));
+        this.showNotice(
+          'error',
+          this.translate.t('errors.completeRide', {
+            message: err.error?.message || this.translate.t('errors.generic'),
+          })
+        );
       },
     });
   }

@@ -15,5 +15,7 @@ export interface PoolMatchState {
   coPassengerRating?: number;
   coPassengerDest?: string;
   extraKm?: string;
+  extraKmKey?: string;
+  extraKmParams?: Record<string, string | number>;
   scenario_label?: string;
 }

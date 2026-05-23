@@ -1,15 +1,20 @@
-<app-shell-page title="Chat" subtitle="Mensagens com o motorista." backLink="/passenger/dashboard" badge="Viagem activa">
+<app-shell-page
+  [titleKey]="'passenger.chatTitle'"
+  [subtitleKey]="'passenger.chatSubtitle'"
+  backLink="/passenger/dashboard"
+  [badgeKey]="'passenger.chatBadge'"
+>
   <div class="shell-card chat-box">
     @for (msg of messages(); track $index) {
       <div class="chat-bubble" [class.chat-bubble--me]="msg.from === 'me'">
-        <p>{{ msg.text }}</p>
+        <p>{{ msg.textKey ? (msg.textKey | translate) : msg.text }}</p>
         <time>{{ msg.time }}</time>
       </div>
     }
   </div>
   <div class="shell-card chat-compose">
-    <input type="text" placeholder="Escreve uma mensagem..." [(ngModel)]="draft" (keyup.enter)="send()" />
-    <button type="button" class="btn btn--primary" (click)="send()">Enviar</button>
+    <input type="text" [placeholder]="'passenger.chatPlaceholder' | translate" [(ngModel)]="draft" (keyup.enter)="send()" />
+    <button type="button" class="btn btn--primary" (click)="send()">{{ 'common.send' | translate }}</button>
   </div>
 </app-shell-page>
 <app-bottom-nav [items]="nav" />

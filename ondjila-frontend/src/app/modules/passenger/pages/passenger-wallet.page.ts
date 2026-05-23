@@ -4,30 +4,31 @@ import { ShellPage } from '../../../shared/layouts/shell-page/shell-page';
 import { BottomNav } from '../../../shared/components/bottom-nav/bottom-nav';
 import { PASSENGER_NAV } from '../../../core/navigation/passenger-nav';
 import { WalletApiService } from '../../../core/services/wallet/wallet-api.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-passenger-wallet',
   standalone: true,
-  imports: [ShellPage, BottomNav, DecimalPipe],
+  imports: [ShellPage, BottomNav, DecimalPipe, TranslatePipe],
   template: `
     <app-shell-page
-      title="Carteira"
-      subtitle="Saldo virtual e movimentos recentes."
+      [titleKey]="'passenger.walletTitle'"
+      [subtitleKey]="'passenger.walletSubtitle'"
       backLink="/passenger/dashboard"
-      badge="Pagamentos"
+      [badgeKey]="'passenger.walletBadge'"
     >
       <div class="shell-card">
-        <p class="wallet-hero">Saldo disponível</p>
+        <p class="wallet-hero">{{ 'driver.availableBalance' | translate }}</p>
         <h2 class="wallet-amount">{{ balance() | number:'1.2-2' }} <small>Kz</small></h2>
-        <button type="button" class="btn btn--primary" disabled>Carregar saldo (em breve)</button>
+        <button type="button" class="btn btn--primary" disabled>{{ 'passenger.topUpSoon' | translate }}</button>
       </div>
       <div class="shell-card">
-        <h2>Movimentos</h2>
+        <h2>{{ 'passenger.movements' | translate }}</h2>
         <ul class="shell-list">
-          <li><span>Pagamento de carona</span><strong>- 2 500 Kz</strong></li>
-          <li><span>Carregamento</span><strong>+ 5 000 Kz</strong></li>
+          <li><span>{{ 'passenger.ridePayment' | translate }}</span><strong>- 2 500 Kz</strong></li>
+          <li><span>{{ 'passenger.topUpMovement' | translate }}</span><strong>+ 5 000 Kz</strong></li>
         </ul>
-        <p style="margin-top:1rem">Histórico completo ligado à API em desenvolvimento.</p>
+        <p style="margin-top:1rem">{{ 'passenger.walletHistoryDev' | translate }}</p>
       </div>
     </app-shell-page>
     <app-bottom-nav [items]="nav" />

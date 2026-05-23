@@ -4,22 +4,28 @@ import { ShellPage } from '../../../shared/layouts/shell-page/shell-page';
 import { BottomNav } from '../../../shared/components/bottom-nav/bottom-nav';
 import { DRIVER_NAV } from '../../../core/navigation/passenger-nav';
 import { WalletApiService } from '../../../core/services/wallet/wallet-api.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-driver-wallet',
   standalone: true,
-  imports: [ShellPage, BottomNav, DecimalPipe],
+  imports: [ShellPage, BottomNav, DecimalPipe, TranslatePipe],
   template: `
-    <app-shell-page title="Ganhos" subtitle="Receitas de pools e caronas." backLink="/driver/dashboard" badge="Motorista">
+    <app-shell-page
+      [titleKey]="'driver.walletPageTitle'"
+      [subtitleKey]="'driver.walletPageSubtitle'"
+      backLink="/driver/dashboard"
+      [badgeKey]="'shell.badgeDriver'"
+    >
       <div class="shell-card">
-        <p style="margin:0;color:var(--color-text-muted);font-size:0.875rem">Saldo disponível</p>
+        <p style="margin:0;color:var(--color-text-muted);font-size:0.875rem">{{ 'driver.availableBalance' | translate }}</p>
         <h2 style="font-size:2.5rem;font-weight:800;color:var(--brand-700);margin:0.5rem 0 1rem">
           {{ balance() | number:'1.2-2' }} <small style="font-size:1rem">Kz</small>
         </h2>
       </div>
       <div class="shell-card">
-        <h2>Últimas receitas</h2>
-        <p>Detalhe por viagem após conclusão no dashboard.</p>
+        <h2>{{ 'driver.recentEarnings' | translate }}</h2>
+        <p>{{ 'driver.earningsPerTripHint' | translate }}</p>
       </div>
     </app-shell-page>
     <app-bottom-nav [items]="nav" />

@@ -7,18 +7,19 @@ import {
   PASSENGER_SIDEBAR_MENU,
 } from '../../../core/navigation/passenger-sidebar.nav';
 import { WalletApiService } from '../../../core/services/wallet/wallet-api.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-passenger-payments',
   standalone: true,
-  imports: [SidebarLayout, DecimalPipe, RouterLink],
+  imports: [SidebarLayout, DecimalPipe, RouterLink, TranslatePipe],
   templateUrl: './passenger-payments.page.html',
   styleUrl: './passenger-payments.page.scss',
 })
 export class PassengerPaymentsPage implements OnInit {
   readonly menu = PASSENGER_SIDEBAR_MENU;
   readonly cta = PASSENGER_SIDEBAR_CTA;
-  readonly brand = { title: 'Ondjila', subtitle: undefined };
+  readonly brand = { titleKey: 'common.brand' };
   readonly balance = signal(15400);
 
   constructor(private readonly walletApi: WalletApiService) {}
@@ -32,3 +33,4 @@ export class PassengerPaymentsPage implements OnInit {
     });
   }
 }
+

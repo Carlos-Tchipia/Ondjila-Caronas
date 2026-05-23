@@ -1,18 +1,23 @@
-<app-shell-page title="Perfil motorista" subtitle="Conta e veículo." backLink="/driver/home" badge="Motorista">
+<app-shell-page
+  [titleKey]="'driver.profileTitle'"
+  [subtitleKey]="'driver.profileSubtitle'"
+  backLink="/driver/home"
+  [badgeKey]="'shell.badgeDriver'"
+>
   <div class="shell-card" style="display:flex;gap:1rem;align-items:center">
     <div class="rate-card__driver">MF</div>
     <div>
-      <h2 style="margin:0">{{ user()?.name || 'Motorista' }}</h2>
+      <h2 style="margin:0">{{ user()?.name || ('driver.defaultDriverName' | translate) }}</h2>
       <p style="margin:4px 0 0;color:var(--color-text-muted)">{{ user()?.email }}</p>
-      <span class="badge badge--live" style="margin-top:8px">Online</span>
+      <span class="badge badge--live" style="margin-top:8px">{{ 'common.online' | translate }}</span>
     </div>
   </div>
   <div class="shell-card">
-    <h2>Veículo</h2>
+    <h2>{{ 'driver.vehicleSection' | translate }}</h2>
     <p>Toyota Corolla · Economy · LD-00-22-BB</p>
   </div>
   <a routerLink="/register/driver" class="shell-card link-card" style="display:block;text-decoration:none;color:inherit;font-weight:600">
-    Actualizar documentação
+    {{ 'driver.updateDocs' | translate }}
   </a>
 </app-shell-page>
 <app-bottom-nav [items]="nav" />

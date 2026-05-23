@@ -3,18 +3,25 @@ import { ActivatedRoute } from '@angular/router';
 import { SidebarLayout } from '../../../shared/layouts/sidebar-layout/sidebar-layout';
 import { AdminTopbar } from '../../../shared/components/admin-topbar/admin-topbar';
 import { ADMIN_SIDEBAR_CTA, ADMIN_SIDEBAR_MENU } from '../../../core/navigation/admin-sidebar.nav';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-section',
   standalone: true,
-  imports: [SidebarLayout, AdminTopbar],
+  imports: [SidebarLayout, AdminTopbar, TranslatePipe],
   template: `
-    <app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Admin" userLocation="Backoffice">
+    <app-sidebar-layout
+      [brand]="brand"
+      [menu]="menu"
+      [cta]="cta"
+      userGreetingKey="common.adminGreeting"
+      userLocationKey="admin.subtitle"
+    >
       <app-admin-topbar appTopbar />
       <div class="ui-card section-placeholder">
-        <h1>{{ title() }}</h1>
-        <p>{{ description() }}</p>
-        <p class="muted">Módulo em desenvolvimento — dados ligados à API em breve.</p>
+        <h1>{{ title() | translate }}</h1>
+        <p>{{ description() | translate }}</p>
+        <p class="muted">{{ 'admin.sectionDev' | translate }}</p>
       </div>
     </app-sidebar-layout>
   `,
@@ -27,17 +34,19 @@ import { ADMIN_SIDEBAR_CTA, ADMIN_SIDEBAR_MENU } from '../../../core/navigation/
   `,
 })
 export class AdminSectionPage implements OnInit {
-  readonly title = signal('Secção');
-  readonly description = signal('Gestão e monitorização.');
+  readonly title = signal('');
+  readonly description = signal('');
   readonly menu = ADMIN_SIDEBAR_MENU;
   readonly cta = ADMIN_SIDEBAR_CTA;
-  readonly brand = { title: 'Ondjila Admin', subtitle: 'Luanda Fleet Backoffice' };
+  readonly brand = { titleKey: 'admin.brand', subtitleKey: 'admin.subtitle' };
 
   constructor(private readonly route: ActivatedRoute) {}
 
   ngOnInit(): void {
     const data = this.route.snapshot.data;
-    if (data['title']) this.title.set(String(data['title']));
-    if (data['description']) this.description.set(String(data['description']));
+    const titleKey = String(data['titleKey'] || '');
+    const descriptionKey = String(data['descriptionKey'] || '');
+    this.title.set(titleKey || 'admin.sectionDefault');
+    this.description.set(descriptionKey || 'admin.sectionDefaultDesc');
   }
 }

@@ -1,20 +1,17 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { LocaleControls } from '../locale-controls/locale-controls';
 
 @Component({
   selector: 'app-map-app-header',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe, LocaleControls],
   templateUrl: './map-app-header.html',
   styleUrl: './map-app-header.scss',
 })
 export class MapAppHeader {
   readonly dark = input(false);
-  readonly lang = signal<'PT' | 'EN'>('PT');
-
-  toggleLang(): void {
-    this.lang.update((v) => (v === 'PT' ? 'EN' : 'PT'));
-  }
 
   userInitials(): string {
     try {

@@ -1,32 +1,32 @@
-<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Admin" userLocation="Backoffice">
+<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreetingKey="common.adminGreeting" userLocationKey="admin.subtitle">
   <app-admin-topbar appTopbar />
 
   <header class="page-intro">
-    <h1>Relatórios de Desempenho</h1>
+    <h1>{{ 'admin.reportsTitle' | translate }}</h1>
   </header>
 
   <div class="metrics-row">
-    @for (m of metrics; track m.label) {
+    @for (m of metrics; track m.labelKey) {
       <div class="ui-card metric-card" [class.metric-card--highlight]="m.highlight">
-        <span class="kpi-label">{{ m.label }}</span>
+        <span class="kpi-label">{{ m.labelKey | translate }}</span>
         <p class="metric-value">{{ m.value }}</p>
         <span class="kpi-trend">{{ m.trend }}</span>
       </div>
     }
   </div>
 
-  <h2 class="section-accent">Análise Pool</h2>
+  <h2 class="section-accent">{{ 'admin.poolAnalysis' | translate }}</h2>
   <div class="pool-analysis">
     <div class="ui-card co2-card">
       <span class="co2-icon">🌿</span>
       <p class="co2-value">482 Ton</p>
-      <p>de CO₂ Salvos</p>
-      <small>Crescimento constante</small>
+      <p>{{ 'admin.co2Saved' | translate }}</p>
+      <small>{{ 'admin.constantGrowth' | translate }}</small>
     </div>
     <div class="ui-card adoption-card">
       <div class="adoption-head">
-        <h3>Taxa de Adopção</h3>
-        <span class="pill pill--blue">64% AVG</span>
+        <h3>{{ 'admin.adoptionRate' | translate }}</h3>
+        <span class="pill pill--blue">64% {{ 'admin.adoptionAvg' | translate }}</span>
       </div>
       <div class="bar-chart adoption-bars">
         @for (h of adoptionBars; track $index) {
@@ -41,7 +41,7 @@
 
   <div class="reports-bottom">
     <section class="ui-card">
-      <h3>Top Bairros (Volume de Corridas)</h3>
+      <h3>{{ 'admin.topDistricts' | translate }}</h3>
       <ul class="bairro-list">
         @for (b of bairros; track b.name) {
           <li>
@@ -52,17 +52,17 @@
       </ul>
     </section>
     <section class="ui-card satisfaction-card">
-      <h3>Satisfação do Passageiro</h3>
+      <h3>{{ 'admin.satisfaction' | translate }}</h3>
       <p class="score">4.8 <span>★★★★★</span></p>
       <blockquote class="feedback">
-        <p>«O sistema Pool poupa tempo e dinheiro na Marginal.»</p>
-        <footer>— Maria J.</footer>
+        <p>{{ 'admin.feedbackQuote' | translate }}</p>
+        <footer>{{ 'admin.feedbackAuthor' | translate }}</footer>
       </blockquote>
     </section>
   </div>
 
   <div class="report-actions">
-    <button type="button" class="btn btn--ghost">📄 Exportar PDF Financeiro</button>
-    <button type="button" class="btn btn--primary">Gerar Relatório Completo →</button>
+    <button type="button" class="btn btn--ghost">📄 {{ 'admin.exportFinancial' | translate }}</button>
+    <button type="button" class="btn btn--primary">{{ 'admin.fullReport' | translate }}</button>
   </div>
 </app-sidebar-layout>

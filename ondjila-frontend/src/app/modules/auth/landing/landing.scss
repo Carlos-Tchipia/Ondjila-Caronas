@@ -1,5 +1,9 @@
 .landing {
-  background: #ffffff;
+  background: var(--color-bg);
+}
+
+.preline {
+  white-space: pre-line;
 }
 
 /* ─── Hero full-bleed ─── */
@@ -243,7 +247,7 @@
 /* ─── Features (white section) ─── */
 .features {
   padding: clamp(4rem, 10vw, 7rem) clamp(1.5rem, 5vw, 3rem);
-  background: #ffffff;
+  background: var(--color-bg);
 
   &__grid {
     max-width: 1200px;

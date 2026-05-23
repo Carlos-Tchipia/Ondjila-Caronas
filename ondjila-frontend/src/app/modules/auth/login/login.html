@@ -1,9 +1,12 @@
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
-      <a routerLink="/" class="back-link">← Voltar</a>
-      <h2>Bem-vindo(a) de volta!</h2>
-      <p>Inicia a tua sessão para viajares connosco.</p>
+      <div class="auth-header__top">
+        <a routerLink="/" class="back-link">← {{ 'common.back' | translate }}</a>
+        <app-locale-controls />
+      </div>
+      <h2>{{ 'auth.welcomeBack' | translate }}</h2>
+      <p>{{ 'auth.loginSubtitle' | translate }}</p>
     </div>
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
@@ -12,34 +15,34 @@
       }
 
       <div class="form-group">
-        <label for="login-email">Email</label>
-        <input id="login-email" type="email" placeholder="O teu email" formControlName="email" autocomplete="email" />
+        <label for="login-email">{{ 'auth.email' | translate }}</label>
+        <input id="login-email" type="email" [placeholder]="'auth.emailPlaceholder' | translate" formControlName="email" autocomplete="email" />
         @if (form.controls.email.touched && form.controls.email.invalid) {
-          <span class="field-error">Insere um email válido.</span>
+          <span class="field-error">{{ 'auth.invalidEmail' | translate }}</span>
         }
       </div>
 
       <div class="form-group">
-        <label for="login-password">Password</label>
-        <input id="login-password" type="password" placeholder="A tua senha secreta" formControlName="password" autocomplete="current-password" />
+        <label for="login-password">{{ 'auth.password' | translate }}</label>
+        <input id="login-password" type="password" [placeholder]="'auth.passwordPlaceholder' | translate" formControlName="password" autocomplete="current-password" />
         @if (form.controls.password.touched && form.controls.password.invalid) {
-          <span class="field-error">A password é obrigatória.</span>
+          <span class="field-error">{{ 'auth.passwordRequired' | translate }}</span>
         }
       </div>
 
       <div class="forgot-password">
-        <a href="#">Esqueceste a senha?</a>
+        <a href="#">{{ 'auth.forgotPassword' | translate }}</a>
       </div>
 
       <button type="submit" class="btn btn--primary btn--large full-width" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'A entrar...' : 'Entrar' }}
+        {{ isSubmitting() ? ('auth.signingIn' | translate) : ('auth.signIn' | translate) }}
       </button>
     </form>
 
     <div class="auth-footer">
-      Não tens conta? <a routerLink="/register">Regista-te agora</a>
+      {{ 'auth.noAccount' | translate }} <a routerLink="/register">{{ 'auth.registerNow' | translate }}</a>
       <br /><br />
-      <a routerLink="/register/driver" class="muted-link">Registar como motorista</a>
+      <a routerLink="/register/driver" class="muted-link">{{ 'auth.registerDriver' | translate }}</a>
     </div>
   </div>
 </div>

@@ -1,16 +1,12 @@
 <header class="map-app-header" [class.map-app-header--dark]="dark()">
   <a routerLink="/passenger/home" class="map-app-header__brand">
     <span class="map-app-header__logo" aria-hidden="true">🚗</span>
-    <span>Ondjila</span>
+    <span>{{ 'common.brand' | translate }}</span>
   </a>
 
   <div class="map-app-header__actions">
-    <button type="button" class="map-app-header__lang" (click)="toggleLang()">
-      <span [class.active]="lang() === 'PT'">PT</span>
-      <span class="sep">|</span>
-      <span [class.active]="lang() === 'EN'">EN</span>
-    </button>
-    <a routerLink="/passenger/profile" class="map-app-header__avatar" [attr.aria-label]="'Perfil de ' + userInitials()">
+    <app-locale-controls [variant]="dark() ? 'glass' : 'glass'" />
+    <a routerLink="/passenger/profile" class="map-app-header__avatar" [attr.aria-label]="'nav.profile' | translate">
       {{ userInitials() }}
     </a>
   </div>

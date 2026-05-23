@@ -2,18 +2,19 @@ import { Component, signal } from '@angular/core';
 import { SidebarLayout } from '../../../shared/layouts/sidebar-layout/sidebar-layout';
 import { AdminTopbar } from '../../../shared/components/admin-topbar/admin-topbar';
 import { ADMIN_SIDEBAR_CTA, ADMIN_SIDEBAR_MENU } from '../../../core/navigation/admin-sidebar.nav';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-drivers',
   standalone: true,
-  imports: [SidebarLayout, AdminTopbar],
+  imports: [SidebarLayout, AdminTopbar, TranslatePipe],
   templateUrl: './admin-drivers.page.html',
   styleUrl: './admin-drivers.page.scss',
 })
 export class AdminDriversPage {
   readonly menu = ADMIN_SIDEBAR_MENU;
   readonly cta = ADMIN_SIDEBAR_CTA;
-  readonly brand = { title: 'Ondjila Admin', subtitle: 'Luanda Fleet Backoffice' };
+  readonly brand = { titleKey: 'admin.brand', subtitleKey: 'admin.subtitle' };
   readonly tab = signal<'pending' | 'approved' | 'rejected'>('pending');
 
   readonly drivers = [
@@ -23,3 +24,4 @@ export class AdminDriversPage {
     { initials: 'RK', color: '#ea580c', name: 'Rui Kiala', id: '#92809', plate: 'LD-33-GH', vehicle: 'Kia Rio 2020', date: '17 Mai 2026', docs: 4, docsTotal: 4 },
   ];
 }
+

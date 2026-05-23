@@ -1,40 +1,41 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ShellPage } from '../../../shared/layouts/shell-page/shell-page';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [ShellPage, RouterLink],
+  imports: [ShellPage, RouterLink, TranslatePipe],
   template: `
     <app-shell-page
-      title="Administração"
-      subtitle="Gestão de motoristas, utilizadores e operações."
+      [titleKey]="'admin.adminDashboardTitle'"
+      [subtitleKey]="'admin.adminDashboardSubtitle'"
       backLink="/"
-      badge="Admin"
+      [badgeKey]="'shell.badgeAdmin'"
     >
       <div class="admin-grid">
         <div class="shell-card">
-          <h2>Motoristas pendentes</h2>
+          <h2>{{ 'admin.pendingDriversTitle' | translate }}</h2>
           <p class="stat-big">1</p>
-          <p>Rever documentos e aprovar contas.</p>
-          <button type="button" class="btn btn--primary" disabled>Aprovar</button>
+          <p>{{ 'admin.reviewApprove' | translate }}</p>
+          <button type="button" class="btn btn--primary" disabled>{{ 'admin.approveBtn' | translate }}</button>
         </div>
         <div class="shell-card">
-          <h2>Viagens hoje</h2>
+          <h2>{{ 'admin.tripsTodayCard' | translate }}</h2>
           <p class="stat-big">—</p>
-          <p>Monitorização em tempo real (WebSockets v1.1).</p>
+          <p>{{ 'admin.realtimeWs' | translate }}</p>
         </div>
         <div class="shell-card">
-          <h2>Utilizadores</h2>
-          <p>Gestão de contas e suspensões.</p>
+          <h2>{{ 'admin.usersTitle' | translate }}</h2>
+          <p>{{ 'admin.usersManage' | translate }}</p>
         </div>
         <div class="shell-card">
-          <h2>Promoções</h2>
-          <p>Códigos e campanhas.</p>
+          <h2>{{ 'admin.promotionsTitle' | translate }}</h2>
+          <p>{{ 'admin.promotionsManage' | translate }}</p>
         </div>
       </div>
-      <a routerLink="/login" class="btn btn--ghost">Sair para login</a>
+      <a routerLink="/login" class="btn btn--ghost">{{ 'admin.logoutToLogin' | translate }}</a>
     </app-shell-page>
   `,
   styles: `

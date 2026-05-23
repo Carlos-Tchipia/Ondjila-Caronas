@@ -1,17 +1,18 @@
 import { Component } from '@angular/core';
 import { SidebarLayout } from '../../../shared/layouts/sidebar-layout/sidebar-layout';
 import { DRIVER_SIDEBAR_CTA, DRIVER_SIDEBAR_MENU } from '../../../core/navigation/driver-sidebar.nav';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-driver-support',
   standalone: true,
-  imports: [SidebarLayout],
+  imports: [SidebarLayout, TranslatePipe],
   template: `
-    <app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Olá, Motorista">
-      <header class="page-topbar" appTopbar><h1>Suporte</h1></header>
+    <app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreetingKey="common.driverGreeting">
+      <header class="page-topbar" appTopbar><h1>{{ 'nav.support' | translate }}</h1></header>
       <div class="ui-card">
-        <p>Linha motoristas: <strong style="color: var(--brand-700)">+244 923 111 222</strong></p>
-        <p style="margin-top: 0.5rem">Email: motoristas@ondjila.ao</p>
+        <p>{{ 'driver.supportLine' | translate }} <strong style="color: var(--brand-700)">+244 923 111 222</strong></p>
+        <p style="margin-top: 0.5rem">{{ 'driver.supportEmailLabel' | translate }} motoristas@ondjila.ao</p>
       </div>
     </app-sidebar-layout>
   `,
@@ -20,5 +21,5 @@ import { DRIVER_SIDEBAR_CTA, DRIVER_SIDEBAR_MENU } from '../../../core/navigatio
 export class DriverSupportPage {
   readonly menu = DRIVER_SIDEBAR_MENU;
   readonly cta = DRIVER_SIDEBAR_CTA;
-  readonly brand = { title: 'Ondjila' };
+  readonly brand = { titleKey: 'common.brand' };
 }

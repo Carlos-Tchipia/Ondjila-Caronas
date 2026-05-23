@@ -3,24 +3,25 @@ import { ShellPage } from '../../../shared/layouts/shell-page/shell-page';
 import { BottomNav } from '../../../shared/components/bottom-nav/bottom-nav';
 import { PASSENGER_NAV } from '../../../core/navigation/passenger-nav';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-passenger-profile',
   standalone: true,
-  imports: [ShellPage, BottomNav, RouterLink],
+  imports: [ShellPage, BottomNav, RouterLink, TranslatePipe],
   template: `
-    <app-shell-page title="Perfil" subtitle="Conta e preferências." backLink="/passenger/dashboard">
+    <app-shell-page [titleKey]="'passenger.profileTitle'" [subtitleKey]="'passenger.profileSubtitle'" backLink="/passenger/dashboard">
       <div class="shell-card profile-card">
         <div class="avatar profile-avatar">{{ initials() }}</div>
         <div>
-          <h2>{{ user()?.name || 'Utilizador' }}</h2>
+          <h2>{{ user()?.name || ('passenger.defaultUser' | translate) }}</h2>
           <p>{{ user()?.email }}</p>
         </div>
       </div>
-      <a routerLink="/passenger/wallet" class="shell-card link-card">◎ Carteira</a>
-      <a routerLink="/passenger/trips" class="shell-card link-card">↗ As minhas viagens</a>
-      <a routerLink="/passenger/notifications" class="shell-card link-card">🔔 Notificações</a>
-      <a routerLink="/passenger/settings" class="shell-card link-card">⚙ Configurações</a>
+      <a routerLink="/passenger/wallet" class="shell-card link-card">◎ {{ 'passenger.linkWallet' | translate }}</a>
+      <a routerLink="/passenger/trips" class="shell-card link-card">↗ {{ 'passenger.linkTrips' | translate }}</a>
+      <a routerLink="/passenger/notifications" class="shell-card link-card">🔔 {{ 'passenger.linkNotifications' | translate }}</a>
+      <a routerLink="/passenger/settings" class="shell-card link-card">⚙ {{ 'passenger.linkSettings' | translate }}</a>
     </app-shell-page>
     <app-bottom-nav [items]="nav" />
   `,

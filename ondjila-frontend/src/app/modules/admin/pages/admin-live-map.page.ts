@@ -2,18 +2,25 @@ import { Component } from '@angular/core';
 import { SidebarLayout } from '../../../shared/layouts/sidebar-layout/sidebar-layout';
 import { AdminTopbar } from '../../../shared/components/admin-topbar/admin-topbar';
 import { ADMIN_SIDEBAR_CTA, ADMIN_SIDEBAR_MENU } from '../../../core/navigation/admin-sidebar.nav';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-live-map',
   standalone: true,
-  imports: [SidebarLayout, AdminTopbar],
+  imports: [SidebarLayout, AdminTopbar, TranslatePipe],
   template: `
-    <app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Admin" userLocation="Live Map">
+    <app-sidebar-layout
+      [brand]="brand"
+      [menu]="menu"
+      [cta]="cta"
+      userGreetingKey="common.adminGreeting"
+      userLocationKey="admin.liveMap"
+    >
       <app-admin-topbar appTopbar />
       <div class="ui-card map-full">
-        <h1>Live Map View</h1>
-        <p>Vista em tempo real da frota em Luanda (integração WebSocket v1.1).</p>
-        <div class="map-placeholder" role="img" aria-label="Mapa ao vivo"></div>
+        <h1>{{ 'admin.liveMapTitle' | translate }}</h1>
+        <p>{{ 'admin.liveMapSub' | translate }}</p>
+        <div class="map-placeholder" role="img" [attr.aria-label]="'admin.liveMapAria' | translate"></div>
       </div>
     </app-sidebar-layout>
   `,
@@ -30,5 +37,5 @@ import { ADMIN_SIDEBAR_CTA, ADMIN_SIDEBAR_MENU } from '../../../core/navigation/
 export class AdminLiveMapPage {
   readonly menu = ADMIN_SIDEBAR_MENU;
   readonly cta = ADMIN_SIDEBAR_CTA;
-  readonly brand = { title: 'Ondjila Admin', subtitle: 'Luanda Fleet Backoffice' };
+  readonly brand = { titleKey: 'admin.brand', subtitleKey: 'admin.subtitle' };
 }

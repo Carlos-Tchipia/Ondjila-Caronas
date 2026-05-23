@@ -6,6 +6,8 @@ import {
   DriverAuthApiService,
   DriverRegisterDocuments,
 } from '../../../core/services/auth/driver-auth-api.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslateService } from '../../../core/i18n/translate.service';
 
 const DOC_KEYS = [
   'doc_license_front',
@@ -18,7 +20,7 @@ type DocKey = (typeof DOC_KEYS)[number];
 
 @Component({
   selector: 'app-register-driver',
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, TranslatePipe],
   templateUrl: './register-driver.html',
   styleUrl: './register-driver.scss',
 })

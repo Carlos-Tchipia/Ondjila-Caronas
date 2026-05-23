@@ -2,10 +2,12 @@ import { Component, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth/auth-api.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslateService } from '../../../core/i18n/translate.service';
 
 @Component({
   selector: 'app-register',
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, TranslatePipe],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -34,7 +36,8 @@ export class Register {
 
   constructor(
     private readonly authApi: AuthApiService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly translate: TranslateService
   ) {}
 
   submit(): void {
@@ -53,7 +56,7 @@ export class Register {
         void this.router.navigateByUrl(this.authApi.dashboardRouteFor(data.user));
       },
       error: (err) => {
-        this.errorMessage.set(err.error?.message || 'Não foi possível criar a conta.');
+        this.errorMessage.set(err.error?.message || this.translate.t('auth.registerFailed'));
         this.isSubmitting.set(false);
       },
     });

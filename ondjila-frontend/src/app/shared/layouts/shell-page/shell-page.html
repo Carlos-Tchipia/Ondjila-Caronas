@@ -1,12 +1,20 @@
 <div class="shell-page animate-in">
   <header class="shell-page__header">
-    <a [routerLink]="backLink()" class="shell-page__back">← Voltar</a>
+    <a [routerLink]="backLink()" class="shell-page__back">← {{ 'common.back' | translate }}</a>
     <div>
-      @if (badge()) {
-        <span class="badge">{{ badge() }}</span>
+      @if (badgeKey()) {
+        <span class="badge">{{ badgeKey() | translate }}</span>
       }
-      <h1>{{ title() }}</h1>
-      @if (subtitle()) {
+      <h1>
+        @if (titleKey()) {
+          {{ titleKey() | translate }}
+        } @else {
+          {{ title() }}
+        }
+      </h1>
+      @if (subtitleKey()) {
+        <p>{{ subtitleKey() | translate }}</p>
+      } @else if (subtitle()) {
         <p>{{ subtitle() }}</p>
       }
     </div>

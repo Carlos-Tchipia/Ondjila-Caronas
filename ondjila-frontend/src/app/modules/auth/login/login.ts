@@ -2,10 +2,13 @@ import { Component, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth/auth-api.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslateService } from '../../../core/i18n/translate.service';
+import { LocaleControls } from '../../../shared/components/locale-controls/locale-controls';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, TranslatePipe, LocaleControls],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -26,7 +29,8 @@ export class Login {
 
   constructor(
     private readonly authApi: AuthApiService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly translate: TranslateService
   ) {}
 
   submit(): void {
@@ -45,7 +49,9 @@ export class Login {
         void this.router.navigateByUrl(this.authApi.dashboardRouteFor(data.user));
       },
       error: (err) => {
-        this.errorMessage.set(err.error?.message || 'Não foi possível iniciar sessão.');
+        this.errorMessage.set(
+          err.error?.message || this.translate.t('errors.loginFailed')
+        );
         this.isSubmitting.set(false);
       },
     });

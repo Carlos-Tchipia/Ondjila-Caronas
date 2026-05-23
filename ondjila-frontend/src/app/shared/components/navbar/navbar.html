@@ -7,23 +7,18 @@
   <div class="navbar__container">
     <a routerLink="/" class="navbar__logo">
       <span class="navbar__logo-mark" aria-hidden="true"></span>
-      <span class="navbar__logo-text">Ondjila</span>
+      <span class="navbar__logo-text">{{ 'common.brand' | translate }}</span>
     </a>
 
     <div class="navbar__links">
-      <a href="#como-funciona">Como funciona</a>
-      <a href="#precos">Preços</a>
-      <a href="#seguranca">Segurança</a>
+      <a href="#como-funciona">{{ 'nav.howItWorks' | translate }}</a>
+      <a href="#precos">{{ 'nav.prices' | translate }}</a>
+      <a href="#seguranca">{{ 'nav.security' | translate }}</a>
     </div>
 
     <div class="navbar__actions">
-      <button type="button" class="navbar__lang" aria-label="Idioma">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-        </svg>
-      </button>
-      <a routerLink="/login" class="navbar__login">Entrar</a>
+      <app-locale-controls [variant]="variant() === 'hero' ? 'dark' : 'default'" />
+      <a routerLink="/login" class="navbar__login">{{ 'nav.login' | translate }}</a>
     </div>
   </div>
 </nav>

@@ -1,22 +1,26 @@
-<app-shell-page title="As tuas viagens" subtitle="Histórico e detalhes." backLink="/passenger/dashboard">
+<app-shell-page
+  [titleKey]="'passenger.tripsTitle'"
+  [subtitleKey]="'passenger.tripsSubtitle'"
+  backLink="/passenger/dashboard"
+>
   @for (t of trips(); track t.id) {
     <article class="shell-card trip-card">
       <div class="trip-card__meta">
         <span>{{ t.date }}</span>
-        <span class="badge">{{ t.status }}</span>
+        <span class="badge">{{ t.statusKey | translate }}</span>
       </div>
       <p class="trip-card__route">{{ t.from }} → {{ t.to }}</p>
       <div class="trip-card__footer">
         <span>{{ t.driver }}</span>
         <strong>{{ t.price }} Kz</strong>
       </div>
-      <a routerLink="/passenger/rate" class="btn btn--ghost full-width" style="margin-top:12px">Avaliar viagem</a>
+      <a routerLink="/passenger/rate" class="btn btn--ghost full-width" style="margin-top:12px">{{ 'passenger.rateTrip' | translate }}</a>
     </article>
   } @empty {
     <div class="shell-card">
-      <h2>Sem viagens ainda</h2>
-      <p>Pede a tua primeira carona no início.</p>
-      <a routerLink="/passenger/dashboard" class="btn btn--primary">Pedir carona</a>
+      <h2>{{ 'passenger.noTripsTitle' | translate }}</h2>
+      <p>{{ 'passenger.noTripsBody' | translate }}</p>
+      <a routerLink="/passenger/dashboard" class="btn btn--primary">{{ 'passenger.requestRide' | translate }}</a>
     </div>
   }
 </app-shell-page>

@@ -1,13 +1,13 @@
 <div class="pool-tracker">
   <div class="pool-tracker__badge">
-    <span class="pool-tracker__shared">Partilhado</span>
-    <span>{{ passengerCount() }}/{{ maxPassengers() }} passageiros</span>
+    <span class="pool-tracker__shared">{{ 'pool.shared' | translate }}</span>
+    <span>{{ 'pool.passengers' | translate: { count: passengerCount(), max: maxPassengers() } }}</span>
   </div>
   <ol class="pool-tracker__steps">
     @for (step of steps; track step.key; let i = $index) {
       <li [class.active]="isActive(i)" [class.current]="isCurrent(i)">
         <span class="dot"></span>
-        <span class="label">{{ step.label }}</span>
+        <span class="label">{{ step.labelKey | translate }}</span>
       </li>
     }
   </ol>

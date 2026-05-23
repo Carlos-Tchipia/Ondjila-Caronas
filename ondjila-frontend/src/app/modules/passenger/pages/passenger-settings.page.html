@@ -1,32 +1,65 @@
-<app-shell-page title="Configurações" subtitle="Conta, idioma e preferências." backLink="/passenger/profile">
+<app-shell-page
+  [titleKey]="'settings.title'"
+  [subtitleKey]="'settings.subtitle'"
+  backLink="/passenger/profile"
+>
   <div class="shell-card settings-group">
-    <h2>Idioma</h2>
+    <h2>{{ 'settings.language' | translate }}</h2>
     <div class="settings-chips">
-      <button type="button" class="chip" [class.active]="language() === 'pt'" (click)="language.set('pt')">Português</button>
-      <button type="button" class="chip" [class.active]="language() === 'en'" (click)="language.set('en')">English</button>
+      <button
+        type="button"
+        class="chip"
+        [class.active]="locale.lang() === 'pt'"
+        (click)="locale.setLang('pt')"
+      >
+        {{ 'settings.portuguese' | translate }}
+      </button>
+      <button
+        type="button"
+        class="chip"
+        [class.active]="locale.lang() === 'en'"
+        (click)="locale.setLang('en')"
+      >
+        {{ 'settings.english' | translate }}
+      </button>
     </div>
   </div>
 
   <div class="shell-card settings-group">
-    <h2>Aparência</h2>
+    <h2>{{ 'settings.appearance' | translate }}</h2>
     <div class="settings-chips">
-      <button type="button" class="chip" [class.active]="theme() === 'light'" (click)="theme.set('light')">Claro</button>
-      <button type="button" class="chip" [class.active]="theme() === 'dark'" (click)="theme.set('dark')">Escuro</button>
-      <button type="button" class="chip" [class.active]="theme() === 'system'" (click)="theme.set('system')">Sistema</button>
+      <button
+        type="button"
+        class="chip"
+        [class.active]="locale.theme() === 'light'"
+        (click)="locale.setTheme('light')"
+      >
+        {{ 'settings.light' | translate }}
+      </button>
+      <button
+        type="button"
+        class="chip"
+        [class.active]="locale.theme() === 'dark'"
+        (click)="locale.setTheme('dark')"
+      >
+        {{ 'settings.dark' | translate }}
+      </button>
     </div>
   </div>
 
   <div class="shell-card settings-group">
-    <h2>Pool de caronas</h2>
+    <h2>{{ 'settings.poolSection' | translate }}</h2>
     <label class="toggle-row">
-      <span>Aceitar partilha de viagem</span>
+      <span>{{ 'settings.poolToggle' | translate }}</span>
       <input type="checkbox" [checked]="poolEnabled()" (change)="poolEnabled.set($any($event.target).checked)" />
     </label>
   </div>
 
   @if (saved()) {
-    <p class="form-alert form-alert--success">Preferências guardadas.</p>
+    <p class="form-alert form-alert--success">{{ 'settings.savedPrefs' | translate }}</p>
   }
-  <button type="button" class="btn btn--primary full-width" (click)="save()">Guardar</button>
+  <button type="button" class="btn btn--primary full-width" (click)="save()">
+    {{ 'common.save' | translate }}
+  </button>
 </app-shell-page>
 <app-bottom-nav [items]="nav" />

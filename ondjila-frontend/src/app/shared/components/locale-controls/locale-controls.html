@@ -1,0 +1,35 @@
+<div
+  class="locale-controls"
+  [class.locale-controls--dark]="variant() === 'dark'"
+  [class.locale-controls--glass]="variant() === 'glass'"
+>
+  <div class="locale-controls__lang" role="group" [attr.aria-label]="'a11y.language' | translate">
+    <button
+      type="button"
+      [class.active]="locale.lang() === 'pt'"
+      (click)="setLang('pt')"
+    >
+      PT
+    </button>
+    <button
+      type="button"
+      [class.active]="locale.lang() === 'en'"
+      (click)="setLang('en')"
+    >
+      EN
+    </button>
+  </div>
+
+  <button
+    type="button"
+    class="locale-controls__theme"
+    (click)="toggleTheme()"
+    [attr.aria-label]="(locale.theme() === 'light' ? 'a11y.themeDark' : 'a11y.themeLight') | translate"
+  >
+    @if (locale.theme() === 'light') {
+      <span aria-hidden="true">🌙</span>
+    } @else {
+      <span aria-hidden="true">☀</span>
+    }
+  </button>
+</div>

@@ -1,11 +1,13 @@
 import { Component, input, OnInit, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { SidebarBrand, SidebarCta, SidebarMenuItem } from '../../../core/navigation/sidebar.types';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { LocaleControls } from '../../components/locale-controls/locale-controls';
 
 @Component({
   selector: 'app-sidebar-layout',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, TranslatePipe, LocaleControls],
   templateUrl: './sidebar-layout.html',
   styleUrl: './sidebar-layout.scss',
 })
@@ -13,13 +15,13 @@ export class SidebarLayout implements OnInit {
   readonly brand = input.required<SidebarBrand>();
   readonly menu = input.required<SidebarMenuItem[]>();
   readonly cta = input<SidebarCta | null>(null);
-  readonly userGreeting = input('Olá');
-  readonly userLocation = input('Luanda, AO');
-  readonly footerLinks = input<{ label: string; route: string }[]>([
-    { label: 'Privacidade', route: '/' },
-    { label: 'Termos', route: '/' },
-    { label: 'Ajuda', route: '/' },
-    { label: 'Contacto', route: '/' },
+  readonly userGreetingKey = input('common.passengerGreeting');
+  readonly userLocationKey = input('common.locationDefault');
+  readonly footerLinks = input<{ labelKey: string; route: string }[]>([
+    { labelKey: 'common.privacy', route: '/' },
+    { labelKey: 'common.terms', route: '/' },
+    { labelKey: 'common.help', route: '/' },
+    { labelKey: 'common.contact', route: '/' },
   ]);
 
   readonly initials = signal('OD');

@@ -3,11 +3,12 @@ import { RouterLink } from '@angular/router';
 import { ShellPage } from '../../../shared/layouts/shell-page/shell-page';
 import { BottomNav } from '../../../shared/components/bottom-nav/bottom-nav';
 import { DRIVER_NAV } from '../../../core/navigation/passenger-nav';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-driver-profile',
   standalone: true,
-  imports: [ShellPage, BottomNav, RouterLink],
+  imports: [ShellPage, BottomNav, RouterLink, TranslatePipe],
   templateUrl: './driver-profile.page.html',
   styleUrl: '../../passenger/pages/passenger-pages.scss',
 })
