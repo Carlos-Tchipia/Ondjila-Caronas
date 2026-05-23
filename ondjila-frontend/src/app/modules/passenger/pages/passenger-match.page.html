@@ -1,0 +1,55 @@
+@if (match(); as m) {
+  <div class="match-flow">
+    <app-map-panel #mapPanel mapId="match-map" variant="satellite" [warmTone]="true" />
+    <app-map-app-header [dark]="true" />
+
+    <div class="map-fab">
+      <button type="button" class="map-fab__btn" (click)="mapPanel.locateUser()" aria-label="Localização">⊕</button>
+    </div>
+
+    <div class="match-modal animate-in">
+      <div class="match-modal__head">
+        <div>
+          <span class="match-badge">Partilhado</span>
+          <h1>Match encontrado!</h1>
+          <p>{{ m.scenario_label || 'Corrida pool compatível' }}</p>
+        </div>
+        <span class="match-modal__price">{{ formatPrice(m.poolPrice) }}</span>
+      </div>
+
+      @if (poolDetails(); as pool) {
+        <app-pool-ride-card [pool]="pool" />
+      } @else {
+        <div class="match-modal__partner">
+          <div class="match-modal__avatar">{{ initials(m.coPassengerName) }}</div>
+          <div class="match-modal__partner-info">
+            <strong>{{ m.coPassengerName }}</strong>
+            <span class="match-modal__dest">Destino: {{ m.coPassengerDest }}</span>
+          </div>
+          <div class="match-modal__pool-tag">
+            <span class="pool-blue">POOL</span>
+            <span>{{ m.extraKm }}</span>
+          </div>
+        </div>
+      }
+
+      <div class="match-modal__savings">
+        <span>Poupança estimada</span>
+        <strong>{{ formatPrice(m.soloPrice - m.poolPrice) }}</strong>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn--primary btn--large full-width match-modal__confirm"
+        (click)="confirmPool()"
+        [disabled]="confirming()"
+      >
+        {{ confirming() ? 'A confirmar...' : 'Confirmar e prosseguir →' }}
+      </button>
+
+      <button type="button" class="match-modal__solo" (click)="goSolo()">
+        Prefiro ir sozinho ({{ formatPrice(m.soloPrice) }})
+      </button>
+    </div>
+  </div>
+}

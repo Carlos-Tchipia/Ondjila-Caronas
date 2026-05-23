@@ -1,0 +1,17 @@
+<div class="shell-page animate-in">
+  <header class="shell-page__header">
+    <a [routerLink]="backLink()" class="shell-page__back">← Voltar</a>
+    <div>
+      @if (badge()) {
+        <span class="badge">{{ badge() }}</span>
+      }
+      <h1>{{ title() }}</h1>
+      @if (subtitle()) {
+        <p>{{ subtitle() }}</p>
+      }
+    </div>
+  </header>
+  <main class="shell-page__content">
+    <ng-content />
+  </main>
+</div>

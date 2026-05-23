@@ -1,0 +1,83 @@
+<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Olá, Passageiro">
+  <header class="page-topbar" appTopbar>
+    <div>
+      <h1>Suporte</h1>
+      <p>Como podemos ajudar?</p>
+    </div>
+  </header>
+
+  <section class="help-hero ui-card">
+    <h2>Como podemos ajudar hoje?</h2>
+    <p>Equipa especializada em Luanda, disponível 24/7.</p>
+    <div class="help-search">
+      <input type="search" placeholder="Pesquisar tópicos..." />
+      <button type="button" class="btn btn--primary">Procurar</button>
+    </div>
+  </section>
+
+  <h3 class="section-title">Tópicos frequentes</h3>
+  <div class="topic-grid">
+    <article class="ui-card topic-card">
+      <span class="topic-card__icon">📦</span>
+      <h4>Objetos perdidos</h4>
+      <p>Reporte itens esquecidos no veículo.</p>
+      <a routerLink="/passenger/chat">Saber mais →</a>
+    </article>
+    <article class="ui-card topic-card">
+      <span class="topic-card__icon topic-card__icon--blue">💳</span>
+      <h4>Problemas com pagamentos</h4>
+      <p>Saldo, Multicaixa e recibos.</p>
+      <a routerLink="/passenger/payments">Saber mais →</a>
+    </article>
+    <article class="ui-card topic-card topic-card--special">
+      <span class="badge-especial">Especial</span>
+      <span class="topic-card__icon topic-card__icon--blue">🛡</span>
+      <h4>Segurança em Viagens Pool</h4>
+      <p>Partilha segura com verificação de rota.</p>
+      <a routerLink="/passenger/security">Saber mais →</a>
+    </article>
+  </div>
+
+  <div class="support-row">
+    <section class="ui-card chat-card">
+      <div class="chat-card__head">
+        <span class="avatar">J</span>
+        <div>
+          <strong>Live Chat</strong>
+          <span class="online">ONLINE</span>
+        </div>
+      </div>
+      <div class="chat-bubble">
+        <strong>João — Suporte</strong>
+        <p>Olá! Em que podemos ajudar com a sua viagem?</p>
+      </div>
+      <div class="chat-input">
+        <input type="text" placeholder="Escreva a sua mensagem..." />
+        <button type="button" class="btn btn--primary">➤</button>
+      </div>
+    </section>
+    <div class="contact-stack">
+      <a class="ui-card contact-card" href="tel:+244923000000">
+        <div>
+          <strong>Suporte Telefónico</strong>
+          <p class="contact-value">+244 923 000 000</p>
+        </div>
+        <span>›</span>
+      </a>
+      <a class="ui-card contact-card" href="mailto:suporte@ondjila.ao">
+        <div>
+          <strong>Suporte por E-mail</strong>
+          <p class="contact-value">suporte@ondjila.ao</p>
+        </div>
+        <span>›</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="category-pills">
+    <button type="button">👤 A Minha Conta</button>
+    <button type="button">🧾 Recibos</button>
+    <button type="button">🎫 Ondjila Pass</button>
+    <button type="button">🎁 Promoções</button>
+  </div>
+</app-sidebar-layout>

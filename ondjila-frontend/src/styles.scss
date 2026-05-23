@@ -1,5 +1,10 @@
-@use 'styles/variables';
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Geist:wght@400;500;600;700&display=swap');
+@use 'styles/tokens';
+@use 'styles/animations';
+@use 'styles/components';
+@use 'styles/auth';
+@use 'styles/sidebar-layout';
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
 * {
   margin: 0;
@@ -7,48 +12,33 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-family-body);
   background-color: var(--color-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-family-display);
   font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-/* Utilities globais baseados no PRD */
-.btn {
-  font-family: var(--font-family-body);
-  border: none;
-  border-radius: var(--rounded-default);
-  padding: 12px 24px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+a {
+  color: inherit;
+}
 
-  &--primary {
-    background-color: var(--color-primary);
-    color: white;
-    &:hover {
-      background-color: var(--color-primary-dark);
-    }
-  }
-
-  &--large {
-    padding: 16px 32px;
-    font-size: 18px;
-    font-weight: 500;
-  }
-
-  &--ghost {
-    background: transparent;
-    color: var(--color-text);
-    border: 1px solid var(--color-border);
-    &:hover {
-      background: var(--color-surface-dim);
-    }
-  }
+img {
+  max-width: 100%;
 }

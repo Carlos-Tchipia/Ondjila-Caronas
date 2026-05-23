@@ -1,16 +1,7 @@
 <div class="dashboard-layout">
   <app-map-panel #mapPanel></app-map-panel>
 
-  <header class="dash-header glass-panel">
-    <div class="logo">Ondjila.</div>
-    <div class="user-menu">
-      <div class="wallet-badge">
-        <span class="wallet-mark">Kz</span>
-        <span class="balance">{{ walletBalance() | number:'1.2-2' }} Kz</span>
-      </div>
-      <span class="avatar" aria-label="Perfil">OD</span>
-    </div>
-  </header>
+  <app-map-app-header />
 
   @if (notice(); as currentNotice) {
     <div class="toast-stack">
@@ -20,17 +11,37 @@
     </div>
   }
 
-  <aside class="request-panel glass-panel">
+  <aside class="request-panel">
+    <div class="panel-handle" aria-hidden="true"></div>
     @if (activeRide(); as ride) {
-      <h3>Detalhes da viagem</h3>
+      <h3>Viagem partilhada</h3>
+
+      <app-pool-status-tracker
+        [state]="uiState(ride)"
+        [passengerCount]="ride.passenger_count ?? ride.pool?.passenger_count ?? 1"
+        [maxPassengers]="ride.max_passengers ?? ride.pool?.max_passengers ?? 3"
+      />
+
       <div class="active-ride-card">
         <div class="status-badge" [class.in-progress]="ride.status === 'in_progress'">
           {{ getStatusText(ride) }}
         </div>
 
+        @if (ride.pool) {
+          <app-pool-ride-card [pool]="ride.pool" />
+        } @else if (ride.fare_final != null) {
+          <div class="fare-row">
+            <span>Valor</span>
+            <strong>{{ formatAoa(ride.fare_final) }}</strong>
+            @if (ride.savings) {
+              <span class="savings-tag">Poupa {{ formatAoa(ride.savings) }}</span>
+            }
+          </div>
+        }
+
         @if (ride.driver_name) {
           <div class="driver-info">
-            <div class="driver-avatar">OD</div>
+            <div class="driver-avatar">🚕</div>
             <div class="driver-details">
               <strong>{{ ride.driver_name }}</strong>
               <span>{{ ride.vehicle_brand }} {{ ride.vehicle_model }}</span>
@@ -61,7 +72,7 @@
       <div class="search-box">
         <div class="input-group">
           <span class="icon origin-icon"></span>
-          <input type="text" placeholder="Local de partida (ex: Mutamba)" [value]="originAddress()" readonly />
+          <input type="text" placeholder="Local de partida" [value]="originAddress()" readonly />
         </div>
 
         <div class="input-group">
@@ -81,19 +92,33 @@
       </div>
 
       <div class="vehicle-options">
-        <button type="button" class="v-card" [class.selected]="selectedType() === 'economy'" (click)="selectedType.set('economy')">
+        <button
+          type="button"
+          class="v-card"
+          [class.selected]="selectedType() === 'economy'"
+          (click)="selectedType.set('economy')"
+        >
           <span class="vehicle-mark">E</span>
-          <span class="v-name">Economy</span>
+          <span class="v-name">Economy Pool</span>
         </button>
-        <button type="button" class="v-card" [class.selected]="selectedType() === 'comfort'" (click)="selectedType.set('comfort')">
+        <button
+          type="button"
+          class="v-card"
+          [class.selected]="selectedType() === 'comfort'"
+          (click)="selectedType.set('comfort')"
+        >
           <span class="vehicle-mark">C</span>
-          <span class="v-name">Comfort</span>
+          <span class="v-name">Comfort Pool</span>
         </button>
       </div>
 
+      <p class="pool-hint">O sistema agrupa passageiros com destinos compatíveis e divide o custo automaticamente.</p>
+
       <button class="btn btn--primary btn--large full-width" (click)="requestPool()" [disabled]="!destLat || isRequesting()">
-        {{ isRequesting() ? 'A pedir...' : 'Pedir carona' }}
+        {{ isRequesting() ? 'A procurar match...' : 'Pedir viagem partilhada' }}
       </button>
     }
   </aside>
+
+  <app-bottom-nav [items]="navItems" />
 </div>

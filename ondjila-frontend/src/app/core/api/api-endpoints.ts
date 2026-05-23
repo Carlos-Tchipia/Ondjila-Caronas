@@ -11,11 +11,17 @@ export const ApiEndpoints = {
     requestPool: '/api/pool/request.php',
     cancelPool: '/api/pool/cancel.php',
   },
+  pool: {
+    details: '/api/pool/details.php',
+    confirm: '/api/pool/confirm.php',
+  },
   driver: {
+    register: '/api/drivers/register.php',
     currentRide: '/api/drivers/current-ride.php',
     availablePools: '/api/drivers/available-pools.php',
     acceptPool: '/api/drivers/accept-pool.php',
     startRide: '/api/drivers/start-ride.php',
     completeRide: '/api/drivers/complete-ride.php',
+    updateLocation: '/api/drivers/update-location.php',
   },
 } as const;

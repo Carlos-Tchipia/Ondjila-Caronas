@@ -1,0 +1,78 @@
+<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Admin" userLocation="Backoffice">
+  <app-admin-topbar appTopbar />
+
+  <header class="page-intro">
+    <h1>Validação de Motoristas</h1>
+    <p>Gerencie novos registros e aprove a documentação para expansão da frota.</p>
+  </header>
+
+  <div class="tabs">
+    <button type="button" class="active" (click)="tab.set('pending')">Pendentes <span class="badge">12</span></button>
+    <button type="button" (click)="tab.set('approved')">Aprovados</button>
+    <button type="button" (click)="tab.set('rejected')">Rejeitados</button>
+  </div>
+
+  <section class="ui-card filters-card">
+    <input type="search" placeholder="Filtrar por nome ou número da carta..." />
+    <select><option>Todos os Veículos</option></select>
+    <button type="button" class="btn btn--ghost">Filtros avançados</button>
+  </section>
+
+  <section class="ui-card table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Motorista</th>
+          <th>Matrícula</th>
+          <th>Veículo</th>
+          <th>Data Submissão</th>
+          <th>Status Documentos</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (d of drivers; track d.id) {
+          <tr>
+            <td>
+              <div class="driver-cell">
+                <span class="driver-avatar" [style.background]="d.color">{{ d.initials }}</span>
+                <span><strong>{{ d.name }}</strong><small>{{ d.id }}</small></span>
+              </div>
+            </td>
+            <td>{{ d.plate }}</td>
+            <td>{{ d.vehicle }}</td>
+            <td>{{ d.date }}</td>
+            <td>
+              <div class="doc-bar">
+                <div class="doc-bar__fill" [style.width.%]="(d.docs / d.docsTotal) * 100"></div>
+              </div>
+              <small>{{ d.docs }}/{{ d.docsTotal }}</small>
+            </td>
+            <td><button type="button" class="btn btn--primary btn--sm">Analisar</button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <p class="table-footer">Mostrando 4 de 12 motoristas pendentes</p>
+    <div class="pagination">
+      <button type="button">‹</button>
+      <button type="button" class="active">1</button>
+      <button type="button">2</button>
+      <button type="button">3</button>
+      <button type="button">›</button>
+    </div>
+  </section>
+
+  <div class="bottom-widgets">
+    <div class="ui-card widget widget--blue">
+      <p class="widget__label">Taxa de aprovação semanal</p>
+      <p class="widget__value">84%</p>
+      <p class="widget__sub">+5% em relação à semana passada</p>
+    </div>
+    <div class="ui-card widget widget--guide">
+      <h3>Tutorial de Validação</h3>
+      <p>Guia passo a passo para rever documentos e aprovar motoristas.</p>
+      <button type="button" class="btn btn--ghost">Iniciar Guia</button>
+    </div>
+  </div>
+</app-sidebar-layout>

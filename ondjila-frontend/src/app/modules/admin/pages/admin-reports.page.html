@@ -1,0 +1,68 @@
+<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Admin" userLocation="Backoffice">
+  <app-admin-topbar appTopbar />
+
+  <header class="page-intro">
+    <h1>Relatórios de Desempenho</h1>
+  </header>
+
+  <div class="metrics-row">
+    @for (m of metrics; track m.label) {
+      <div class="ui-card metric-card" [class.metric-card--highlight]="m.highlight">
+        <span class="kpi-label">{{ m.label }}</span>
+        <p class="metric-value">{{ m.value }}</p>
+        <span class="kpi-trend">{{ m.trend }}</span>
+      </div>
+    }
+  </div>
+
+  <h2 class="section-accent">Análise Pool</h2>
+  <div class="pool-analysis">
+    <div class="ui-card co2-card">
+      <span class="co2-icon">🌿</span>
+      <p class="co2-value">482 Ton</p>
+      <p>de CO₂ Salvos</p>
+      <small>Crescimento constante</small>
+    </div>
+    <div class="ui-card adoption-card">
+      <div class="adoption-head">
+        <h3>Taxa de Adopção</h3>
+        <span class="pill pill--blue">64% AVG</span>
+      </div>
+      <div class="bar-chart adoption-bars">
+        @for (h of adoptionBars; track $index) {
+          <div class="bar">
+            <div class="bar-fill" [style.height.%]="h" [class.bar-fill--active]="$index === 4 || $index === 6"></div>
+            <span>{{ days[$index] }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="reports-bottom">
+    <section class="ui-card">
+      <h3>Top Bairros (Volume de Corridas)</h3>
+      <ul class="bairro-list">
+        @for (b of bairros; track b.name) {
+          <li>
+            <div class="bairro-head"><strong>{{ b.name }}</strong><span>{{ b.trips }}</span></div>
+            <div class="bairro-bar"><span [style.width.%]="b.pct"></span></div>
+          </li>
+        }
+      </ul>
+    </section>
+    <section class="ui-card satisfaction-card">
+      <h3>Satisfação do Passageiro</h3>
+      <p class="score">4.8 <span>★★★★★</span></p>
+      <blockquote class="feedback">
+        <p>«O sistema Pool poupa tempo e dinheiro na Marginal.»</p>
+        <footer>— Maria J.</footer>
+      </blockquote>
+    </section>
+  </div>
+
+  <div class="report-actions">
+    <button type="button" class="btn btn--ghost">📄 Exportar PDF Financeiro</button>
+    <button type="button" class="btn btn--primary">Gerar Relatório Completo →</button>
+  </div>
+</app-sidebar-layout>

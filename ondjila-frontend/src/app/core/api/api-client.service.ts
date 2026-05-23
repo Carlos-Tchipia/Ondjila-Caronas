@@ -18,6 +18,10 @@ export class ApiClient {
     return this.http.post<TResponse>(this.url(path), body);
   }
 
+  postFormData<TResponse>(path: string, body: FormData) {
+    return this.http.post<TResponse>(this.url(path), body);
+  }
+
   private url(path: string): string {
     return `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
   }

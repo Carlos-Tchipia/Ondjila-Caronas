@@ -1,35 +1,30 @@
 <?php
 require_once __DIR__ . '/HaversineHelper.php';
+require_once __DIR__ . '/PoolRouteHelper.php';
 
-class PoolMatchingHelper {
-
+class PoolMatchingHelper
+{
     /**
-     * Encontra corridas pool compatíveis para um novo passageiro.
-     * 1. Status do grupo tem que ser 'forming' ou 'active'
-     * 2. Tem que ter espaço (current_count < max_passengers)
-     * 3. A origem do novo passageiro deve estar até 2km da origem do motorista ou da rota
-     * 4. A direção deve ser semelhante (< 45 graus)
+     * Encontra grupos pool compatíveis.
+     * Cenário 1: mesma origem + mesmo destino (prioridade máxima)
+     * Cenário 2: origens diferentes, mesmo destino (bearing + destino próximo)
      */
     public static function findMatches(
         PDO $conn,
-        float $originLat, float $originLng,
-        float $destLat,   float $destLng,
+        float $originLat,
+        float $originLng,
+        float $destLat,
+        float $destLng,
         string $vehicleType
     ): array {
-        
-        // Calcular o angulo do novo passageiro
-        $newPassengerBearing = self::calculateBearing($originLat, $originLng, $destLat, $destLng);
+        $newBearing = self::calculateBearing($originLat, $originLng, $destLat, $destLng);
 
-        // Obter grupos ativos com espaço
         $stmt = $conn->prepare("
-            SELECT pg.*, r.origin_lat as first_origin_lat, r.origin_lng as first_origin_lng, 
-                   r.destination_lat as first_dest_lat, r.destination_lng as first_dest_lng
+            SELECT pg.id, pg.vehicle_type, pg.current_count, pg.max_passengers, pg.route_data
             FROM pool_groups pg
-            JOIN rides r ON r.pool_group_id = pg.id
             WHERE pg.status IN ('forming', 'active')
               AND pg.current_count < pg.max_passengers
               AND pg.vehicle_type = :v_type
-            GROUP BY pg.id
         ");
         $stmt->execute([':v_type' => $vehicleType]);
         $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -37,45 +32,114 @@ class PoolMatchingHelper {
         $matches = [];
 
         foreach ($groups as $group) {
+            $ridesStmt = $conn->prepare("
+                SELECT id, passenger_id, origin_lat, origin_lng, destination_lat, destination_lng,
+                       origin_address, destination_address, pickup_order
+                FROM rides
+                WHERE pool_group_id = ? AND status NOT IN ('cancelled', 'completed')
+                ORDER BY pickup_order ASC, id ASC
+            ");
+            $ridesStmt->execute([$group['id']]);
+            $rides = $ridesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (count($rides) === 0) {
+                continue;
+            }
+
+            $scenario = PoolRouteHelper::detectScenario(
+                $originLat,
+                $originLng,
+                $destLat,
+                $destLng,
+                $rides
+            );
+
+            if ($scenario === PoolRouteHelper::SCENARIO_FORMING) {
+                continue;
+            }
+
+            $ref = $rides[0];
             $groupBearing = self::calculateBearing(
-                $group['first_origin_lat'], $group['first_origin_lng'],
-                $group['first_dest_lat'], $group['first_dest_lng']
+                (float) $ref['origin_lat'],
+                (float) $ref['origin_lng'],
+                (float) $ref['destination_lat'],
+                (float) $ref['destination_lng']
             );
 
-            // 1. Verificar direção (max 45 graus de desvio)
-            $diffBearing = abs($newPassengerBearing - $groupBearing);
-            if ($diffBearing > 180) {
-                $diffBearing = 360 - $diffBearing;
+            $bearingDiff = self::bearingDifference($newBearing, $groupBearing);
+            if ($bearingDiff > PoolRouteHelper::MAX_BEARING_DIFF) {
+                continue;
             }
 
-            if ($diffBearing > 45) {
-                continue; // Vai noutra direção
+            $destDist = HaversineHelper::distance(
+                $destLat,
+                $destLng,
+                (float) $ref['destination_lat'],
+                (float) $ref['destination_lng']
+            );
+            if ($destDist > PoolRouteHelper::DEST_MATCH_MAX_KM) {
+                continue;
             }
 
-            // 2. Verificar distância à origem
-            $distanceToGroupOrigin = HaversineHelper::distance(
-                $originLat, $originLng,
-                $group['first_origin_lat'], $group['first_origin_lng']
+            if ($scenario === PoolRouteHelper::SCENARIO_DIFF_ORIGIN_SAME_DEST) {
+                $minOriginDist = PHP_FLOAT_MAX;
+                foreach ($rides as $ride) {
+                    $d = HaversineHelper::distance(
+                        $originLat,
+                        $originLng,
+                        (float) $ride['origin_lat'],
+                        (float) $ride['origin_lng']
+                    );
+                    $minOriginDist = min($minOriginDist, $d);
+                }
+                if ($minOriginDist < PoolRouteHelper::ORIGIN_SAME_THRESHOLD_KM) {
+                    $scenario = PoolRouteHelper::SCENARIO_SAME_ORIGIN_DEST;
+                }
+            }
+
+            $originDist = HaversineHelper::distance(
+                $originLat,
+                $originLng,
+                (float) $ref['origin_lat'],
+                (float) $ref['origin_lng']
             );
 
-            if ($distanceToGroupOrigin <= 2.0) { // Raio de 2km
-                $group['deviation_score'] = $diffBearing + ($distanceToGroupOrigin * 10);
-                $matches[] = $group;
+            if (
+                $scenario === PoolRouteHelper::SCENARIO_SAME_ORIGIN_DEST
+                && $originDist > PoolRouteHelper::ORIGIN_MATCH_MAX_KM
+            ) {
+                continue;
             }
+
+            if (
+                $scenario === PoolRouteHelper::SCENARIO_DIFF_ORIGIN_SAME_DEST
+                && $originDist > PoolRouteHelper::ORIGIN_MATCH_MAX_KM * 1.5
+            ) {
+                continue;
+            }
+
+            $priority = $scenario === PoolRouteHelper::SCENARIO_SAME_ORIGIN_DEST ? 0 : 1;
+            $group['match_scenario'] = $scenario;
+            $group['deviation_score'] = $priority * 100 + $bearingDiff + ($originDist * 8) + ($destDist * 5);
+            $group['existing_rides'] = $rides;
+            $matches[] = $group;
         }
 
-        // Ordenar pelo menor desvio (score)
-        usort($matches, function($a, $b) {
+        usort($matches, static function ($a, $b) {
             return $a['deviation_score'] <=> $b['deviation_score'];
         });
 
         return $matches;
     }
 
-    /**
-     * Calcula o ângulo de direção entre 2 pontos (Bearing)
-     */
-    public static function calculateBearing(float $lat1, float $lng1, float $lat2, float $lng2): float {
+    public static function bearingDifference(float $a, float $b): float
+    {
+        $diff = abs($a - $b);
+        return $diff > 180 ? 360 - $diff : $diff;
+    }
+
+    public static function calculateBearing(float $lat1, float $lng1, float $lat2, float $lng2): float
+    {
         $lat1 = deg2rad($lat1);
         $lng1 = deg2rad($lng1);
         $lat2 = deg2rad($lat2);
@@ -84,8 +148,7 @@ class PoolMatchingHelper {
         $dLng = $lng2 - $lng1;
         $y = sin($dLng) * cos($lat2);
         $x = cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dLng);
-        
-        $brng = atan2($y, $x);
-        return fmod((rad2deg($brng) + 360), 360);
+
+        return fmod((rad2deg(atan2($y, $x)) + 360), 360);
     }
 }

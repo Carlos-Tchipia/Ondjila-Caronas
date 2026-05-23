@@ -1,0 +1,57 @@
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <div class="app-sidebar__brand">{{ brand().title }}</div>
+    @if (brand().subtitle) {
+      <div class="app-sidebar__subtitle">{{ brand().subtitle }}</div>
+    }
+
+    <div class="app-sidebar__user">
+      <div class="app-sidebar__avatar">{{ initials() }}</div>
+      <div class="app-sidebar__user-text">
+        <strong>{{ userGreeting() }}</strong>
+        <span>{{ userLocation() }}</span>
+      </div>
+    </div>
+
+    <nav class="app-sidebar__nav">
+      @for (item of menu(); track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route.endsWith('/home') || item.route.endsWith('/overview') }"
+          class="app-sidebar__link"
+        >
+          <span>{{ item.icon }}</span>
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    @if (cta(); as ctaBtn) {
+      <a [routerLink]="ctaBtn.route" class="app-sidebar__cta">
+        @if (ctaBtn.icon) {
+          <span>{{ ctaBtn.icon }}</span>
+        }
+        {{ ctaBtn.label }}
+      </a>
+    }
+
+    <div class="app-sidebar__footer">
+      <button type="button" class="app-sidebar__footer-link" (click)="logout()">⎋ Sair</button>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <ng-content select="[appTopbar]" />
+    <div class="app-content">
+      <ng-content />
+    </div>
+    <ng-content select="[appFooter]" />
+  </div>
+
+  <nav class="mobile-nav">
+    @for (item of menu(); track item.route) {
+      <a [routerLink]="item.route" routerLinkActive="active">{{ item.label }}</a>
+    }
+  </nav>
+</div>

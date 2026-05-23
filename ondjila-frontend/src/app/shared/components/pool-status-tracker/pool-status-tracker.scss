@@ -1,0 +1,65 @@
+.pool-tracker {
+  margin-bottom: var(--space-4);
+
+  &__badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  &__shared {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 4px 10px;
+    border-radius: var(--rounded-full);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__steps {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+
+    li {
+      flex: 1;
+      text-align: center;
+      opacity: 0.35;
+      transition: opacity 0.3s ease;
+
+      &.active {
+        opacity: 1;
+      }
+
+      &.current .dot {
+        background: var(--brand-600);
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.25);
+        animation: pulse-soft 1.5s ease infinite;
+      }
+
+      .dot {
+        display: block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--color-border-strong);
+        margin: 0 auto 6px;
+      }
+
+      .label {
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-text-muted);
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+@if (pool(); as p) {
+  <article class="pool-card animate-in">
+    <header class="pool-card__head">
+      <span class="pool-card__tag">Partilhado</span>
+      <span class="pool-card__scenario">{{ scenarioIcon(p.scenario) }} {{ p.scenario_label }}</span>
+    </header>
+
+    @if (p.my_ride; as mine) {
+      <div class="pool-card__pricing">
+        <div>
+          <span class="label">O seu valor</span>
+          <strong class="price">{{ formatAoa(mine.fare_pool) }}</strong>
+        </div>
+        <div class="savings">
+          <span class="label">Poupa</span>
+          <strong>-{{ formatAoa(mine.savings) }}</strong>
+          @if (mine.discount_pct > 0) {
+            <small>{{ mine.discount_pct }}% desconto pool</small>
+          }
+        </div>
+        <div class="solo-ref">
+          <span class="label">Individual seria</span>
+          <s>{{ formatAoa(mine.fare_individual) }}</s>
+        </div>
+      </div>
+    }
+
+    <div class="pool-card__meta">
+      @if (p.estimated_duration_min) {
+        <span>⏱ ~{{ p.estimated_duration_min }} min</span>
+      }
+      @if (p.extra_time_minutes > 0) {
+        <span>+{{ p.extra_time_minutes }} min (recolhas)</span>
+      }
+      <span>👥 {{ p.passenger_count }}/{{ p.max_passengers }}</span>
+    </div>
+
+    @if (p.co_passengers.length) {
+      <div class="pool-card__copassengers">
+        <span class="label">Co-passageiros</span>
+        <ul>
+          @for (cp of p.co_passengers; track cp.passenger_id) {
+            <li>
+              <span class="avatar">{{ initials(cp.name) }}</span>
+              <div>
+                <strong>{{ cp.name }}</strong>
+                <small>Recolha #{{ cp.pickup_order }} · {{ cp.origin_address }}</small>
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    @if (p.route?.waypoints?.length) {
+      <div class="pool-card__route">
+        <span class="label">Ordem da rota</span>
+        <ol>
+          @for (wp of p.route!.waypoints; track wp.order) {
+            <li [class.pickup]="wp.type === 'pickup'" [class.drop]="wp.type === 'dropoff'">
+              <span class="order">{{ wp.order }}</span>
+              {{ wp.type === 'pickup' ? 'Recolha' : 'Destino' }}
+              @if (wp.address) {
+                <small>{{ wp.address }}</small>
+              }
+            </li>
+          }
+        </ol>
+      </div>
+    }
+  </article>
+}

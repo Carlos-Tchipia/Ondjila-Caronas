@@ -1,7 +1,7 @@
 <div class="dashboard-layout">
   <app-map-panel #mapPanel></app-map-panel>
 
-  <header class="dash-header glass-panel">
+  <header class="dash-header">
     <div class="logo">Ondjila. <span class="badge">Motorista</span></div>
     <div class="driver-actions">
       <div class="wallet-badge">
@@ -26,7 +26,8 @@
     </div>
   }
 
-  <aside class="request-panel glass-panel">
+  <aside class="request-panel">
+    <div class="panel-handle" aria-hidden="true"></div>
     @if (activeRide(); as ride) {
       <h3>Viagem em curso</h3>
       <div class="active-ride-card">
@@ -108,4 +109,6 @@
       }
     }
   </aside>
+
+  <app-bottom-nav [items]="navItems" />
 </div>

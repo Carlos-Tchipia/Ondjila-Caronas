@@ -48,6 +48,8 @@ export class AuthApiService {
   }
 
   dashboardRouteFor(user: AuthUser): string {
-    return user.role === 'driver' ? '/driver/dashboard' : '/passenger/dashboard';
+    if (user.role === 'admin') return '/admin/overview';
+    if (user.role === 'driver') return '/driver/home';
+    return '/passenger/home';
   }
 }

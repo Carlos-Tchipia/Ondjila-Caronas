@@ -6,7 +6,12 @@ import { environment } from '../../../../environments/environment';
 export interface RouteResponse {
   distance: number;
   duration: number;
-  geometry: string; // Polilinha codificada
+  geometry: string;
+}
+
+export interface LatLng {
+  lat: number;
+  lng: number;
 }
 
 @Injectable({
@@ -36,7 +41,14 @@ export class MapService {
   getRoute(originLng: number, originLat: number, destLng: number, destLat: number): Observable<any> {
     const coords = `${originLng},${originLat};${destLng},${destLat}`;
     return this.http.get<any>(`${this.osrmUrl}/${coords}`, {
-      params: { overview: 'full', geometries: 'geojson' }
+      params: { overview: 'full', geometries: 'geojson' },
+    });
+  }
+
+  getRouteThroughWaypoints(points: LatLng[]): Observable<any> {
+    const coords = points.map((p) => `${p.lng},${p.lat}`).join(';');
+    return this.http.get<any>(`${this.osrmUrl}/${coords}`, {
+      params: { overview: 'full', geometries: 'geojson', steps: 'true' },
     });
   }
 }

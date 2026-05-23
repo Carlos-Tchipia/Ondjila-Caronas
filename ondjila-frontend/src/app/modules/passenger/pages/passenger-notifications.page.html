@@ -1,0 +1,13 @@
+<app-shell-page title="Notificações" subtitle="Alertas de viagem e promoções." backLink="/passenger/dashboard">
+  @for (n of items(); track n.id) {
+    <article class="shell-card notif-card" [class.unread]="n.unread">
+      <div class="notif-card__dot" [class.active]="n.unread"></div>
+      <div>
+        <h2>{{ n.title }}</h2>
+        <p>{{ n.body }}</p>
+        <time>{{ n.time }}</time>
+      </div>
+    </article>
+  }
+</app-shell-page>
+<app-bottom-nav [items]="nav" />

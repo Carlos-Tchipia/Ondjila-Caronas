@@ -1,8 +1,95 @@
+:host {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-map);
+}
+
 .map-container {
   width: 100%;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1; /* Ficar atrás dos painéis de UI (glassmorphism) */
+  height: 100%;
+  background: #e8eef4;
+}
+
+:host.map-panel--warm .map-container {
+  filter: sepia(0.12) saturate(1.15) contrast(1.02);
+}
+
+:host ::ng-deep {
+  .map-pin__wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: var(--pin-color);
+    border: 3px solid white;
+    box-shadow: var(--shadow-md);
+  }
+
+  .map-pin__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: white;
+    transform: rotate(45deg);
+  }
+
+  .map-pin--vehicle .map-pin__wrap {
+    border-radius: 50%;
+    transform: none;
+    background: white;
+    animation: pulse-soft 2s ease infinite;
+  }
+
+  .map-pin--passenger .map-pin__wrap {
+    border-radius: 50%;
+    transform: none;
+    background: #2563eb;
+    --pin-color: #2563eb;
+  }
+
+  .map-pin__passenger {
+    color: white;
+    font-weight: 800;
+    font-size: 12px;
+    transform: none;
+  }
+
+  :global(.route-line-animated) {
+    animation: route-dash 1.2s linear infinite;
+  }
+
+  @keyframes route-dash {
+    to {
+      stroke-dashoffset: -26;
+    }
+  }
+
+  .map-pin__car {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .route-line-animated {
+    filter: drop-shadow(0 2px 8px rgba(5, 150, 105, 0.4));
+  }
+
+  .leaflet-control-zoom {
+    border: none !important;
+    box-shadow: var(--shadow-md) !important;
+    border-radius: var(--rounded-lg) !important;
+    overflow: hidden;
+
+    a {
+      background: var(--surface-glass-strong) !important;
+      color: var(--color-text) !important;
+      border: none !important;
+      width: 36px !important;
+      height: 36px !important;
+      line-height: 36px !important;
+    }
+  }
 }

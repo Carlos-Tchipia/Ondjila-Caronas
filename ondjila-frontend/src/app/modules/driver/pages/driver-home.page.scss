@@ -1,0 +1,124 @@
+.driver-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+}
+
+.toggles {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--rounded-full);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  cursor: pointer;
+
+  &--online {
+    background: #ecfdf5;
+    color: var(--brand-700);
+  }
+
+  &--pool {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--space-5);
+  margin: var(--space-5) 0;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card h2,
+.heatmap-card h2 {
+  margin-bottom: var(--space-3);
+}
+
+.legend {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+
+  .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+
+    &--green {
+      background: var(--brand-600);
+    }
+
+    &--blue {
+      background: var(--accent-600);
+    }
+  }
+}
+
+.bar-stack {
+  display: flex;
+  flex-direction: column-reverse;
+  flex: 1;
+  width: 100%;
+  min-height: 120px;
+}
+
+.bar--muted {
+  opacity: 0.4;
+}
+
+.bar--today span {
+  color: var(--brand-700);
+  font-weight: 800;
+}
+
+.heatmap-placeholder {
+  height: 180px;
+  border-radius: var(--rounded-lg);
+  background: linear-gradient(160deg, #1e293b 0%, #0f172a 60%, #ea580c 100%);
+  margin: var(--space-3) 0;
+}
+
+.demand-pill {
+  background: rgba(15, 23, 42, 0.85);
+  color: white;
+  padding: 10px 14px;
+  border-radius: var(--rounded-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.trips-table-card {
+  margin-bottom: var(--space-6);
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+
+    a {
+      color: var(--brand-700);
+      font-weight: 700;
+      text-decoration: none;
+    }
+  }
+}

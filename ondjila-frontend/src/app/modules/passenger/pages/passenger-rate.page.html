@@ -1,0 +1,22 @@
+<app-shell-page title="Avaliar viagem" subtitle="A tua opinião melhora a comunidade Ondjila." backLink="/passenger/trips">
+  <div class="shell-card rate-card">
+    <div class="rate-card__driver">JM</div>
+    <h2>João Motorista</h2>
+    <p>Toyota Corolla · LD-00-11-AA</p>
+    <div class="rate-stars">
+      @for (s of [1,2,3,4,5]; track s) {
+        <button type="button" class="star" [class.active]="stars() >= s" (click)="setStars(s)">★</button>
+      }
+    </div>
+    <textarea
+      rows="4"
+      placeholder="Comentário opcional..."
+      [value]="comment()"
+      (input)="comment.set($any($event.target).value)"
+    ></textarea>
+    <button type="button" class="btn btn--primary full-width" [disabled]="stars() === 0" (click)="submit()">
+      Enviar avaliação
+    </button>
+  </div>
+</app-shell-page>
+<app-bottom-nav [items]="nav" />

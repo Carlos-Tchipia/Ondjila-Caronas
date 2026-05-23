@@ -5,15 +5,18 @@ import { DriverRidesApiService } from '../../../core/services/rides/driver-rides
 import { DriverRide } from '../../../core/services/rides/ride-api.types';
 import { WalletApiService } from '../../../core/services/wallet/wallet-api.service';
 import { MapPanel } from '../../../shared/components/map-panel/map-panel';
-
+import { BottomNav } from '../../../shared/components/bottom-nav/bottom-nav';
+import { DRIVER_NAV } from '../../../core/navigation/passenger-nav';
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
-  imports: [MapPanel, CommonModule],
+  imports: [MapPanel, CommonModule, BottomNav],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit, OnDestroy {
+  readonly navItems = DRIVER_NAV;
+
   @ViewChild('mapPanel') mapPanel!: MapPanel;
 
   readonly isOnline = signal(false);
@@ -33,28 +36,58 @@ export class Dashboard implements OnInit, OnDestroy {
     private readonly walletApi: WalletApiService
   ) {}
 
+  private locationInterval?: ReturnType<typeof setInterval>;
+
   ngOnInit(): void {
     this.checkCurrentRide();
     this.fetchWalletBalance();
 
     this.pollInterval = setInterval(() => {
-      if (this.isOnline() && !this.activeRide()) {
+      if (this.activeRide()) {
+        this.checkCurrentRide();
+      } else if (this.isOnline()) {
         this.loadPools();
       }
     }, environment.pollingFallbackMs);
   }
 
   ngOnDestroy(): void {
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval);
-    }
-    if (this.noticeTimeout) {
-      clearTimeout(this.noticeTimeout);
-    }
+    if (this.pollInterval) clearInterval(this.pollInterval);
+    if (this.locationInterval) clearInterval(this.locationInterval);
+    if (this.noticeTimeout) clearTimeout(this.noticeTimeout);
+    this.mapPanel?.stopDriverSimulation();
   }
 
   toggleOnline(): void {
-    this.isOnline.update((value) => !value);
+    this.isOnline.update((value) => {
+      const next = !value;
+      if (next) {
+        this.startLocationBroadcast();
+        this.loadPools();
+      } else {
+        this.stopLocationBroadcast();
+      }
+      return next;
+    });
+  }
+
+  private startLocationBroadcast(): void {
+    this.stopLocationBroadcast();
+    if (!('geolocation' in navigator)) return;
+    const tick = () => {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        this.driverRidesApi.updateLocation(pos.coords.latitude, pos.coords.longitude).subscribe();
+      });
+    };
+    tick();
+    this.locationInterval = setInterval(tick, environment.pollingFallbackMs);
+  }
+
+  private stopLocationBroadcast(): void {
+    if (this.locationInterval) {
+      clearInterval(this.locationInterval);
+      this.locationInterval = undefined;
+    }
   }
 
   fetchWalletBalance(): void {
@@ -70,14 +103,10 @@ export class Dashboard implements OnInit, OnDestroy {
         this.activeRide.set(ride);
 
         if (ride) {
-          setTimeout(() => {
-            this.mapPanel.drawRoute(
-              ride.origin_lng,
-              ride.origin_lat,
-              ride.destination_lng,
-              ride.destination_lat
-            );
-          }, 500);
+          setTimeout(() => this.drawRideOnMap(ride), 500);
+          if (ride.status === 'in_progress') {
+            this.mapPanel?.simulateDriverAlongRoute(120);
+          }
         }
       },
     });
@@ -95,9 +124,23 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
+  private drawRideOnMap(ride: DriverRide): void {
+    if (!this.mapPanel) return;
+    const waypoints = ride.route?.waypoints;
+    if (waypoints?.length) {
+      this.mapPanel.drawPoolRoute(waypoints);
+      return;
+    }
+    this.mapPanel.drawRoute(
+      ride.origin_lng,
+      ride.origin_lat,
+      ride.destination_lng,
+      ride.destination_lat
+    );
+  }
+
   acceptPool(pool: DriverRide): void {
     this.acceptingId.set(pool.id);
-    this.mapPanel.drawRoute(pool.origin_lng, pool.origin_lat, pool.destination_lng, pool.destination_lat);
 
     this.driverRidesApi.acceptPool(pool.id).subscribe({
       next: () => {

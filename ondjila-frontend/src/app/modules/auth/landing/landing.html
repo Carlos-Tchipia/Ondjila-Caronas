@@ -1,57 +1,121 @@
-<section class="hero">
-  <!-- Camada 1: Video realista / 3D ao fundo (preparado) -->
-  <div class="hero__video-bg">
-    <!-- Aqui entrará a tag <video autoplay loop muted> quando gerarmos o asset -->
-  </div>
+<div class="landing">
+  <section class="hero">
+    <div class="hero__media" role="img" aria-label="Luanda ao entardecer"></div>
+    <div class="hero__overlay"></div>
 
-  <!-- Camada 2: Overlay escuro para legibilidade -->
-  <div class="hero__overlay"></div>
+    <app-navbar variant="hero"></app-navbar>
 
-  <!-- Camada 3: Carro em Destaque (direita) -->
-  <div class="hero__car">
-    <!-- Imagem placeholder que será trocada pelo carro realista -->
-    <div class="hero__car-placeholder">
-       🚗 [Espaço para Carro Mercedes 3D/Realista]
-    </div>
-    <div class="hero__car-glow"></div>
-  </div>
-
-  <!-- Camada 4: Navbar glassmorphism -->
-  <app-navbar></app-navbar>
-
-  <!-- Camada 5: Copy e CTA (esquerda) -->
-  <div class="hero__content">
-    <span class="hero__location-label">Luanda · Angola</span>
-    <h1 class="hero__headline">A Tua Carona<br>em Luanda.</h1>
-    <p class="hero__subtitle">Seguro, rápido e sem complicações. Uma experiência premium de mobilidade.</p>
-    <div class="hero__ctas">
-      <button class="btn btn--primary btn--large">Pedir Carona Agora →</button>
-      <button class="btn btn--ghost btn--large">Saber mais</button>
-    </div>
-
-    <!-- Barra de pedido rápido (glassmorphism) -->
-    <div class="hero__quick-search">
-      <div class="quick-search__field">
-        <span class="icon">📍</span>
-        <input placeholder="Ponto de partida" />
+    <div class="hero__inner">
+      <div class="hero__copy animate-in">
+        <h1 class="hero__headline">A Tua Carona<br />em Luanda.</h1>
+        <p class="hero__subtitle">
+          A forma mais rápida e segura de te moveres pela cidade. Motoristas verificados,
+          preços transparentes e chegada em minutos.
+        </p>
+        <a routerLink="/register" class="hero__cta">
+          Pedir Agora
+          <span class="hero__cta-arrow" aria-hidden="true">→</span>
+        </a>
       </div>
-      <div class="quick-search__arrow">→</div>
-      <div class="quick-search__field">
-        <span class="icon">🎯</span>
-        <input placeholder="Destino" />
-      </div>
-      <button class="btn btn--primary">→</button>
     </div>
-  </div>
 
-  <!-- Camada 6: Stats rodapé hero -->
-  <div class="hero__stats">
-    <div class="stat"><span class="stat__number">12500</span><span>+ Viagens</span></div>
-    <div class="stat__divider"></div>
-    <div class="stat"><span class="stat__number">850</span><span>+ Motoristas</span></div>
-    <div class="stat__divider"></div>
-    <div class="stat"><span class="stat__number">4.9</span><span>★ Avaliação</span></div>
-    <div class="stat__divider"></div>
-    <div class="stat"><span class="stat__number">47</span><span> Bairros</span></div>
-  </div>
-</section>
+    <div class="hero__booking animate-in">
+      <form class="booking-bar" (submit)="$event.preventDefault()">
+        <label class="booking-bar__field">
+          <span class="booking-bar__icon booking-bar__icon--origin" aria-hidden="true"></span>
+          <span class="booking-bar__text">
+            <span class="booking-bar__label">Local de partida</span>
+            <input type="text" placeholder="Onde estás agora?" readonly />
+          </span>
+        </label>
+
+        <div class="booking-bar__divider" aria-hidden="true"></div>
+
+        <label class="booking-bar__field">
+          <span class="booking-bar__icon booking-bar__icon--dest" aria-hidden="true"></span>
+          <span class="booking-bar__text">
+            <span class="booking-bar__label">Destino</span>
+            <input type="text" placeholder="Para onde vamos?" readonly />
+          </span>
+        </label>
+
+        <a routerLink="/register" class="booking-bar__submit">Ver Preços</a>
+      </form>
+    </div>
+  </section>
+
+  <section class="features" id="como-funciona">
+    <div class="features__grid">
+      <div class="features__visual animate-in">
+        <img
+          src="/images/filas-luanda.png"
+          alt="Filas de passageiros e candongueiros ao entardecer em Luanda"
+          loading="lazy"
+          class="features__image"
+        />
+      </div>
+
+      <div class="features__content animate-in">
+        <span class="features__eyebrow">Porque escolher</span>
+        <h2 class="features__title">Evita filas e esperas intermináveis.</h2>
+        <p class="features__body">
+          Com a Ondjila, pedes a tua carona em segundos e és recolhido no ponto exacto.
+          Pool inteligente, rotas optimizadas e pagamento digital — mobilidade urbana sem stress.
+        </p>
+
+        <ul class="features__list">
+          <li>
+            <span class="features__check" aria-hidden="true"></span>
+            Tempo de espera médio de 5 minutos
+          </li>
+          <li>
+            <span class="features__check" aria-hidden="true"></span>
+            Motoristas verificados e avaliados
+          </li>
+          <li>
+            <span class="features__check" aria-hidden="true"></span>
+            Preços claros antes de confirmares
+          </li>
+          <li>
+            <span class="features__check" aria-hidden="true"></span>
+            Carteira digital integrada
+          </li>
+        </ul>
+
+        <a routerLink="/register" class="btn btn--primary btn--large">Começar agora</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust" id="seguranca">
+    <div class="trust__inner">
+      <div class="trust__item">
+        <span class="trust__value">12.5k+</span>
+        <span class="trust__label">Viagens realizadas</span>
+      </div>
+      <div class="trust__item">
+        <span class="trust__value">850+</span>
+        <span class="trust__label">Motoristas activos</span>
+      </div>
+      <div class="trust__item">
+        <span class="trust__value">4.9</span>
+        <span class="trust__label">Avaliação média</span>
+      </div>
+      <div class="trust__item">
+        <span class="trust__value">47</span>
+        <span class="trust__label">Bairros cobertos</span>
+      </div>
+    </div>
+  </section>
+
+  <footer class="landing-footer" id="precos">
+    <div class="landing-footer__inner">
+      <span class="navbar__logo-mark" aria-hidden="true"></span>
+      <p>© {{ year }} Ondjila · Mobilidade em Luanda</p>
+      <div class="landing-footer__links">
+        <a routerLink="/register/driver">Ser motorista</a>
+        <a routerLink="/login">Entrar</a>
+      </div>
+    </div>
+  </footer>
+</div>

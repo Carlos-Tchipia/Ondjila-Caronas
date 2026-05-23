@@ -1,0 +1,70 @@
+<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Olá, Motorista">
+  <header class="earnings-topbar" appTopbar>
+    <div>
+      <h1>Histórico e Ganhos</h1>
+      <p>Acompanhe seu desempenho financeiro detalhado.</p>
+    </div>
+    <div class="export-btns">
+      <button type="button" class="btn btn--ghost">📄 Baixar Relatório PDF</button>
+      <button type="button" class="btn btn--ghost">⬇ Exportar CSV</button>
+    </div>
+  </header>
+
+  <div class="summary-row">
+    <section class="ui-card balance-summary">
+      <span class="kpi-label">Saldo disponível</span>
+      <p class="big-balance">452.800,00 <small>Kz</small></p>
+      <button type="button" class="btn btn--primary">Levantar Ganhos</button>
+    </section>
+    <section class="ui-card ui-card--blue pool-summary">
+      <span class="kpi-label">Total ganhos pool</span>
+      <p class="pool-value">128.450,00 Kz</p>
+      <p class="pool-trend">+12% vs. semana passada</p>
+      <div class="pool-bar"><span style="width: 64%"></span></div>
+    </section>
+  </div>
+
+  <section class="ui-card table-section">
+    <div class="table-toolbar">
+      <div class="segmented">
+        <button type="button" [class.active]="period() === 'dia'" (click)="period.set('dia')">Dia</button>
+        <button type="button" [class.active]="period() === 'semana'" (click)="period.set('semana')">Semana</button>
+        <button type="button" [class.active]="period() === 'mes'" (click)="period.set('mes')">Mês</button>
+      </div>
+      <select aria-label="Serviço">
+        <option>Todos os Serviços</option>
+        <option>Individual</option>
+        <option>Pool</option>
+      </select>
+      <button type="button" class="btn btn--ghost" aria-label="Filtros">⚙</button>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Data/Hora</th>
+          <th>Serviço</th>
+          <th>Total Bruto</th>
+          <th>Comissão</th>
+          <th>Ganhos Líquidos</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (tx of transactions; track tx.dt) {
+          <tr>
+            <td>{{ tx.dt }}</td>
+            <td><span class="pill" [class.pill--blue]="tx.pool">{{ tx.service }}</span></td>
+            <td>{{ tx.gross }}</td>
+            <td class="fee">{{ tx.fee }}</td>
+            <td><strong>{{ tx.net }}</strong></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <p class="more-link"><a href="#">Ver mais transações</a></p>
+  </section>
+
+  <footer class="app-page-footer" appFooter>
+    <span>Ondjila © 2026</span>
+    <span><a href="#">Privacidade</a><a href="#">Termos</a><a href="#">Ajuda</a></span>
+  </footer>
+</app-sidebar-layout>

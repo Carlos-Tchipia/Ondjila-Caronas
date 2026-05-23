@@ -22,7 +22,15 @@ try {
         throw new Exception("Pool Group não encontrado ou já iniciado.");
     }
 
-    $stmt2 = $conn->prepare("UPDATE rides SET status = 'in_progress', pool_status = 'in_progress', started_at = NOW() WHERE pool_group_id = ?");
+    $conn->prepare("
+        UPDATE rides SET pool_status = 'boarding', accepted_at = COALESCE(accepted_at, NOW())
+        WHERE pool_group_id = ? AND status = 'accepted'
+    ")->execute([$data['pool_group_id']]);
+
+    $stmt2 = $conn->prepare("
+        UPDATE rides SET status = 'in_progress', pool_status = 'in_progress', started_at = NOW()
+        WHERE pool_group_id = ?
+    ");
     $stmt2->execute([$data['pool_group_id']]);
 
     $conn->commit();

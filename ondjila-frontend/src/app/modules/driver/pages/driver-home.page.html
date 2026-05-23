@@ -1,0 +1,102 @@
+<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Olá, Motorista">
+  <header class="driver-topbar" appTopbar>
+    <div>
+      <h1>Olá, Motorista</h1>
+      <p>Bem-vindo de volta ao seu painel.</p>
+    </div>
+    <div class="toggles">
+      <label class="toggle toggle--online">
+        <input type="checkbox" [checked]="online()" (change)="online.set(!online())" />
+        <span>ONLINE</span>
+      </label>
+      <label class="toggle toggle--pool">
+        <input type="checkbox" [checked]="poolEnabled()" (change)="poolEnabled.set(!poolEnabled())" />
+        <span>Aceitar Viagens Pool</span>
+      </label>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Ganhos de Hoje</div>
+      <div class="kpi-value kpi-value--green">24.500 AOA</div>
+      <div class="kpi-trend">+12% vs ontem</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Viagens Realizadas</div>
+      <div class="kpi-value">14</div>
+      <div class="kpi-trend">Meta diária: 20</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avaliação Média</div>
+      <div class="kpi-value">4.9 ★</div>
+      <div class="kpi-trend">Últimas 50 viagens</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Horas Online</div>
+      <div class="kpi-value">06:45</div>
+      <div class="kpi-trend">Pausa recomendada em 1h</div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <section class="ui-card chart-card">
+      <h2>Ganhos da Semana</h2>
+      <div class="legend">
+        <span><i class="dot dot--green"></i> Individual</span>
+        <span><i class="dot dot--blue"></i> Pool</span>
+      </div>
+      <div class="bar-chart">
+        @for (b of weekBars; track b.day) {
+          <div class="bar" [class.bar--muted]="b.muted" [class.bar--today]="b.today">
+            <div class="bar-stack">
+              <div class="bar-solo" [style.height.%]="b.solo"></div>
+              <div class="bar-pool" [style.height.%]="b.pool"></div>
+            </div>
+            <span>{{ b.today ? 'HOJE' : b.day }}</span>
+          </div>
+        }
+      </div>
+    </section>
+    <section class="ui-card heatmap-card">
+      <h2>Heatmap de Procura</h2>
+      <div class="heatmap-placeholder" role="img" aria-label="Mapa de Luanda"></div>
+      <div class="demand-pill">🔥 Alta Demanda: Talatona — Ganhos x1.5</div>
+    </section>
+  </div>
+
+  <section class="ui-card trips-table-card">
+    <div class="trips-table-card__head">
+      <h2>Viagens Recentes</h2>
+      <a routerLink="/driver/earnings">Ver tudo</a>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th>Tipo</th>
+          <th>Passageiro</th>
+          <th>Destino</th>
+          <th>Ganhos</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of recentTrips; track t.time) {
+          <tr>
+            <td>{{ t.time }}</td>
+            <td>
+              <span class="pill" [class.pill--blue]="t.type.includes('Pool')">{{ t.type }}</span>
+            </td>
+            <td>{{ t.passenger }}</td>
+            <td>{{ t.dest }}</td>
+            <td><strong>{{ t.earn }}</strong></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <footer class="app-page-footer" appFooter>
+    <span>Ondjila © 2026 Ondjila Mobility.</span>
+  </footer>
+</app-sidebar-layout>

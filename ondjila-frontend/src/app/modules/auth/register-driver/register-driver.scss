@@ -1,0 +1,50 @@
+.driver-register-card {
+  max-width: 560px;
+}
+
+.form-section {
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  h3 {
+    font-size: var(--text-base);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+    color: var(--color-text);
+  }
+}
+
+.section-hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checkbox-row label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+
+  input {
+    width: auto;
+    accent-color: var(--brand-600);
+  }
+}

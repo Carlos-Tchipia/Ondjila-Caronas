@@ -1,0 +1,11 @@
+@use '../../../../styles/sidebar-layout';
+
+:host {
+  display: block;
+}
+
+@media (max-width: 960px) {
+  .app-content {
+    padding-bottom: 72px;
+  }
+}

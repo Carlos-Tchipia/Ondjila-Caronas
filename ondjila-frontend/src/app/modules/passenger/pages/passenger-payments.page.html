@@ -1,0 +1,81 @@
+<app-sidebar-layout
+  [brand]="brand"
+  [menu]="menu"
+  [cta]="cta"
+  userGreeting="Olá, Passageiro"
+>
+  <header class="page-topbar" appTopbar>
+    <div>
+      <h1>Pagamentos</h1>
+      <p>Gere os teus métodos de pagamento e saldo</p>
+    </div>
+  </header>
+
+  <div class="payments-grid">
+    <section class="ui-card ui-card--gradient-green balance-card">
+      <span class="balance-card__label">Saldo atual</span>
+      <p class="balance-card__amount">{{ balance() | number:'1.0-0' }} <small>AOA</small></p>
+      <div class="balance-card__actions">
+        <button type="button" class="btn btn--primary">+ Carregar Saldo</button>
+        <button type="button" class="btn btn--ghost">Levantar</button>
+      </div>
+    </section>
+
+    <section class="ui-card promos-card">
+      <h2>Promoções</h2>
+      <p class="muted">Aplica códigos de desconto</p>
+      <div class="promo-input">
+        <input type="text" placeholder="Código PR" />
+        <button type="button" class="btn btn--primary">Aplicar</button>
+      </div>
+      <div class="voucher voucher--active">
+        <strong>Voucher Boas-vindas</strong>
+        <span>-10% na 1ª viagem</span>
+      </div>
+      <div class="voucher voucher--locked">
+        <strong>Desconto VIP</strong>
+        <span>🔒 Desbloqueia com 10 viagens</span>
+      </div>
+    </section>
+
+    <section class="ui-card methods-card">
+      <h2>Métodos de Pagamento</h2>
+      <label class="pay-method pay-method--selected">
+        <span class="pay-method__icon">🏦</span>
+        <span>
+          <strong>Multicaixa Express</strong>
+          <small>•••• 4821</small>
+        </span>
+        <span class="pay-method__check">✓</span>
+      </label>
+      <label class="pay-method">
+        <span class="pay-method__icon">💵</span>
+        <span><strong>Dinheiro</strong></span>
+        <span class="pay-method__radio"></span>
+      </label>
+      <button type="button" class="add-card">+ Adicionar novo cartão</button>
+    </section>
+
+    <section class="ui-card history-card">
+      <div class="history-card__head">
+        <h2>Histórico de Transações</h2>
+        <a routerLink="/passenger/trips">Ver tudo</a>
+      </div>
+      <ul class="tx-list">
+        <li><span class="tx-icon">🚗</span><span><strong>Viagem Ondjila Premium</strong><small>Hoje, 14:20</small></span><strong class="neg">- 3.200 AOA</strong></li>
+        <li><span class="tx-icon">💳</span><span><strong>Carregamento de saldo</strong><small>Ontem, 09:15</small></span><strong class="pos">+ 10.000 AOA</strong></li>
+        <li><span class="tx-icon">🚗</span><span><strong>Viagem Pool</strong><small>12 Mai, 18:40</small></span><strong class="neg">- 680 AOA</strong></li>
+        <li><span class="tx-icon">🎁</span><span><strong>Bónus promoção</strong><small>10 Mai</small></span><strong class="pos">+ 500 AOA</strong></li>
+      </ul>
+    </section>
+  </div>
+
+  <footer class="app-page-footer" appFooter>
+    <span><strong style="color: var(--brand-700)">Ondjila</strong> © 2026 Ondjila Mobility.</span>
+    <span>
+      <a href="#">Privacidade</a>
+      <a href="#">Termos</a>
+      <a routerLink="/passenger/support">Ajuda</a>
+    </span>
+  </footer>
+</app-sidebar-layout>

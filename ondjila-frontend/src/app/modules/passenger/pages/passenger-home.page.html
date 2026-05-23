@@ -1,0 +1,35 @@
+<app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreeting="Olá, Passageiro">
+  <header class="page-topbar" appTopbar>
+    <div>
+      <h1>Dashboard</h1>
+      <p>Resumo das suas viagens e atalhos rápidos</p>
+    </div>
+    <a routerLink="/passenger/dashboard" class="btn btn--primary">Abrir mapa</a>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Viagens este mês</div>
+      <div class="kpi-value">12</div>
+      <div class="kpi-trend">+3 vs mês anterior</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Saldo</div>
+      <div class="kpi-value kpi-value--green">15.400 AOA</div>
+      <a routerLink="/passenger/payments" class="kpi-trend">Gerir pagamentos →</a>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avaliação média</div>
+      <div class="kpi-value">4.9 ★</div>
+    </div>
+  </div>
+
+  <section class="ui-card quick-actions">
+    <h2>Começar viagem</h2>
+    <p>Escolha Individual ou Pool antes de pedir no mapa.</p>
+    <div class="quick-actions__btns">
+      <a routerLink="/passenger/choose-ride" class="btn btn--primary">Escolher modo</a>
+      <a routerLink="/passenger/dashboard" class="btn btn--ghost">Pedir no mapa</a>
+    </div>
+  </section>
+</app-sidebar-layout>

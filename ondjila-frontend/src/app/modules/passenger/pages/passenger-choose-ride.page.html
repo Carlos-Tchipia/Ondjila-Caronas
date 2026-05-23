@@ -1,0 +1,83 @@
+<div class="choose-page">
+  <app-navbar variant="light"></app-navbar>
+
+  <main class="choose-main">
+    <header class="choose-header">
+      <h1>Escolha como quer viajar</h1>
+      <p>Selecione o modo que melhor se adapta à sua rotina e orçamento hoje.</p>
+    </header>
+
+    <div class="ride-cards">
+      <article class="ride-card ride-card--solo">
+        <div class="ride-card__top">
+          <span class="ride-card__icon">🚗</span>
+          <div class="ride-card__price">
+            <strong>1.200 AOA</strong>
+            <small>Preço fixo</small>
+          </div>
+        </div>
+        <h2>Viagem Individual</h2>
+        <p>Viagem privada e direta para o seu destino. Sem paragens intermédias.</p>
+        <ul>
+          <li>100% de privacidade garantida.</li>
+          <li>Rota mais rápida disponível.</li>
+          <li>Escolha a sua música e AC.</li>
+        </ul>
+        <div class="ride-card__visual ride-card__visual--car" role="img" aria-label="Interior de viatura"></div>
+        <button type="button" class="btn btn--primary btn--block" (click)="chooseIndividual()">
+          Confirmar Individual
+        </button>
+      </article>
+
+      <article class="ride-card ride-card--pool">
+        <div class="ride-card__top">
+          <span class="ride-card__icon ride-card__icon--blue">👥</span>
+          <div class="ride-card__price">
+            <span class="save-badge">POUPA 520 AOA</span>
+            <strong>680 AOA</strong>
+            <small>Mais económico</small>
+          </div>
+        </div>
+        <h2>Viagem Partilhada (Pool)</h2>
+        <p>Partilhe a viagem com outros passageiros na mesma direção. Sustentável e acessível.</p>
+        <p class="eco">🌿 Opção Mais Sustentável</p>
+        <ul>
+          <li>Máximo de 2 paragens extra.</li>
+          <li>Conheça pessoas da sua zona.</li>
+        </ul>
+        <div class="ride-card__visual ride-card__visual--pool" role="img" aria-label="Passageiros em shuttle"></div>
+        <button type="button" class="btn btn--pool btn--block" (click)="choosePool()">
+          Escolher Pool
+        </button>
+      </article>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-card trust-card--map">
+        <div class="trust-card__art"></div>
+        <div>
+          <h3>Compromisso com o Tempo</h3>
+          <p>Algoritmos de IA garantem que, mesmo em Pool, o atraso não excede 8 minutos.</p>
+        </div>
+      </div>
+      <div class="trust-card trust-card--safe">
+        <span>🛡</span>
+        <h3>Segurança Ondjila</h3>
+        <p>Todos os motoristas passam por verificação rigorosa de antecedentes.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="choose-footer">
+    <div>
+      <strong>Ondjila Mobility</strong>
+      <p>© 2026 Ondjila Mobility. Todos os direitos reservados.</p>
+    </div>
+    <nav>
+      <a href="#">Privacidade</a>
+      <a href="#">Termos</a>
+      <a routerLink="/passenger/support">Ajuda</a>
+      <a href="#">Contacto</a>
+    </nav>
+  </footer>
+</div>

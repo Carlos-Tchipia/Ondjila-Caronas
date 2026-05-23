@@ -29,4 +29,11 @@ export class DriverRidesApiService {
   completeRide(poolGroupId: number) {
     return this.api.post<ApiResponse<null>>(ApiEndpoints.driver.completeRide, { pool_group_id: poolGroupId });
   }
+
+  updateLocation(lat: number, lng: number) {
+    return this.api.post<ApiResponse<{ lat: number; lng: number }>>(ApiEndpoints.driver.updateLocation, {
+      lat,
+      lng,
+    });
+  }
 }

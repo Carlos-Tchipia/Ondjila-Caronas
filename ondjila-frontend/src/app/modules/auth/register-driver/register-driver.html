@@ -1,0 +1,150 @@
+<div class="auth-container">
+  <div class="auth-card driver-register-card">
+    <div class="auth-header">
+      <a routerLink="/" class="back-link">← Voltar</a>
+      <h2>Registo de motorista</h2>
+      <p>Completa o teu perfil e documentação para conduzir na Ondjila.</p>
+    </div>
+
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="form-alert">{{ errorMessage() }}</div>
+      }
+
+      <section class="form-section">
+        <h3>Conta</h3>
+
+        <div class="form-group">
+          <label for="driver-name">Nome completo</label>
+          <input id="driver-name" type="text" formControlName="name" autocomplete="name" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="field-error">Insere o teu nome completo.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="driver-email">Email</label>
+          <input id="driver-email" type="email" formControlName="email" autocomplete="email" />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <span class="field-error">Insere um email válido.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="driver-phone">Telefone</label>
+          <input id="driver-phone" type="tel" formControlName="phone" autocomplete="tel" />
+          @if (form.controls.phone.touched && form.controls.phone.invalid) {
+            <span class="field-error">Insere um número válido.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="driver-password">Password</label>
+          <input id="driver-password" type="password" formControlName="password" autocomplete="new-password" />
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+            <span class="field-error">Mínimo de 8 caracteres.</span>
+          }
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3>Veículo e licença</h3>
+
+        <div class="form-group">
+          <label for="driver-license">N.º carta de condução</label>
+          <input id="driver-license" type="text" formControlName="license_number" />
+        </div>
+
+        <div class="form-group">
+          <label for="driver-plate">Matrícula</label>
+          <input id="driver-plate" type="text" formControlName="vehicle_plate" />
+        </div>
+
+        <div class="form-group">
+          <label for="driver-type">Tipo de veículo</label>
+          <select id="driver-type" formControlName="vehicle_type">
+            <option value="economy">Economy</option>
+            <option value="comfort">Comfort</option>
+            <option value="xl">XL</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="driver-brand">Marca</label>
+            <input id="driver-brand" type="text" formControlName="vehicle_brand" />
+          </div>
+          <div class="form-group">
+            <label for="driver-model">Modelo</label>
+            <input id="driver-model" type="text" formControlName="vehicle_model" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="driver-year">Ano</label>
+            <input id="driver-year" type="number" formControlName="vehicle_year" min="1990" max="2099" />
+          </div>
+          <div class="form-group">
+            <label for="driver-color">Cor</label>
+            <input id="driver-color" type="text" formControlName="vehicle_color" />
+          </div>
+        </div>
+
+        <div class="form-group checkbox-row">
+          <label>
+            <input type="checkbox" formControlName="pool_enabled" />
+            Aceito caronas partilhadas (pool)
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3>Documentos</h3>
+        <p class="section-hint">JPG, PNG, WEBP ou PDF — máximo 5MB cada.</p>
+
+        <div class="form-group">
+          <label for="doc-front">Carta de condução (frente)</label>
+          <input id="doc-front" type="file" accept="image/*,.pdf" (change)="onDocumentSelected('doc_license_front', $event)" />
+          @if (docErrors()['doc_license_front']) {
+            <span class="field-error">{{ docErrors()['doc_license_front'] }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="doc-back">Carta de condução (verso)</label>
+          <input id="doc-back" type="file" accept="image/*,.pdf" (change)="onDocumentSelected('doc_license_back', $event)" />
+          @if (docErrors()['doc_license_back']) {
+            <span class="field-error">{{ docErrors()['doc_license_back'] }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="doc-insurance">Seguro</label>
+          <input id="doc-insurance" type="file" accept="image/*,.pdf" (change)="onDocumentSelected('doc_insurance', $event)" />
+          @if (docErrors()['doc_insurance']) {
+            <span class="field-error">{{ docErrors()['doc_insurance'] }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="doc-id">Bilhete de identidade</label>
+          <input id="doc-id" type="file" accept="image/*,.pdf" (change)="onDocumentSelected('doc_id_card', $event)" />
+          @if (docErrors()['doc_id_card']) {
+            <span class="field-error">{{ docErrors()['doc_id_card'] }}</span>
+          }
+        </div>
+      </section>
+
+      <button type="submit" class="btn btn--primary btn--large full-width" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'A enviar...' : 'Registar como motorista' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Já tens conta? <a routerLink="/login">Entrar</a>
+      <br /><br />
+      <a routerLink="/register" class="muted-link">Registar apenas como passageiro</a>
+    </div>
+  </div>
+</div>
