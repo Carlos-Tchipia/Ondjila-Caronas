@@ -6,6 +6,10 @@ import { RegisterDriver } from './modules/auth/register-driver/register-driver';
 import { Dashboard as PassengerDashboard } from './modules/passenger/dashboard/dashboard';
 import { Dashboard as DriverDashboard } from './modules/driver/dashboard/dashboard';
 import { PassengerTripsPage } from './modules/passenger/pages/passenger-trips.page';
+import { PassengerRidesPage } from './modules/passenger/pages/passenger-rides.page';
+import { PassengerSharedRidesPage } from './modules/passenger/pages/passenger-shared-rides.page';
+import { PassengerTrackingPage } from './modules/passenger/pages/passenger-tracking.page';
+import { PassengerHistoryPage } from './modules/passenger/pages/passenger-history.page';
 import { PassengerProfilePage } from './modules/passenger/pages/passenger-profile.page';
 import { PassengerMatchPage } from './modules/passenger/pages/passenger-match.page';
 import { PassengerNotificationsPage } from './modules/passenger/pages/passenger-notifications.page';
@@ -14,6 +18,7 @@ import { PassengerChatPage } from './modules/passenger/pages/passenger-chat.page
 import { PassengerRatePage } from './modules/passenger/pages/passenger-rate.page';
 import { PassengerHomePage } from './modules/passenger/pages/passenger-home.page';
 import { PassengerPaymentsPage } from './modules/passenger/pages/passenger-payments.page';
+import { PassengerWalletPage } from './modules/passenger/pages/passenger-wallet.page';
 import { PassengerChooseRidePage } from './modules/passenger/pages/passenger-choose-ride.page';
 import { PassengerSupportPage } from './modules/passenger/pages/passenger-support.page';
 import { PassengerSecurityPage } from './modules/passenger/pages/passenger-security.page';
@@ -21,6 +26,7 @@ import { DriverProfilePage } from './modules/driver/pages/driver-profile.page';
 import { DriverHomePage } from './modules/driver/pages/driver-home.page';
 import { DriverEarningsPage } from './modules/driver/pages/driver-earnings.page';
 import { DriverPaymentsPage } from './modules/driver/pages/driver-payments.page';
+import { DriverWalletPage } from './modules/driver/pages/driver-wallet.page';
 import { DriverSupportPage } from './modules/driver/pages/driver-support.page';
 import { DriverSecurityPage } from './modules/driver/pages/driver-security.page';
 import { AdminOverviewPage } from './modules/admin/pages/admin-overview.page';
@@ -41,11 +47,15 @@ export const routes: Routes = [
 
   { path: 'passenger/home', component: PassengerHomePage, canActivate: [authGuard] },
   { path: 'passenger/dashboard', component: PassengerDashboard, canActivate: [authGuard] },
+  { path: 'passenger/rides', component: PassengerRidesPage, canActivate: [authGuard] },
+  { path: 'passenger/shared-rides', component: PassengerSharedRidesPage, canActivate: [authGuard] },
+  { path: 'passenger/tracking', component: PassengerTrackingPage, canActivate: [authGuard] },
+  { path: 'passenger/history', component: PassengerHistoryPage, canActivate: [authGuard] },
   { path: 'passenger/choose-ride', component: PassengerChooseRidePage, canActivate: [authGuard] },
   { path: 'passenger/match', component: PassengerMatchPage, canActivate: [authGuard] },
   { path: 'passenger/trips', component: PassengerTripsPage, canActivate: [authGuard] },
   { path: 'passenger/payments', component: PassengerPaymentsPage, canActivate: [authGuard] },
-  { path: 'passenger/wallet', redirectTo: 'passenger/payments', pathMatch: 'full' },
+  { path: 'passenger/wallet', component: PassengerWalletPage, canActivate: [authGuard] },
   { path: 'passenger/security', component: PassengerSecurityPage, canActivate: [authGuard] },
   { path: 'passenger/support', component: PassengerSupportPage, canActivate: [authGuard] },
   { path: 'passenger/profile', component: PassengerProfilePage, canActivate: [authGuard] },
@@ -59,7 +69,7 @@ export const routes: Routes = [
   { path: 'driver/dashboard', redirectTo: 'driver/live', pathMatch: 'full' },
   { path: 'driver/earnings', component: DriverEarningsPage, canActivate: [authGuard, driverGuard] },
   { path: 'driver/payments', component: DriverPaymentsPage, canActivate: [authGuard, driverGuard] },
-  { path: 'driver/wallet', redirectTo: 'driver/payments', pathMatch: 'full' },
+  { path: 'driver/wallet', component: DriverWalletPage, canActivate: [authGuard, driverGuard] },
   { path: 'driver/security', component: DriverSecurityPage, canActivate: [authGuard, driverGuard] },
   { path: 'driver/support', component: DriverSupportPage, canActivate: [authGuard, driverGuard] },
   { path: 'driver/profile', component: DriverProfilePage, canActivate: [authGuard, driverGuard] },
@@ -89,4 +99,5 @@ export const routes: Routes = [
     canActivate: [authGuard, adminGuard],
     data: { titleKey: 'nav.payments', descriptionKey: 'admin.paymentsPageDesc' },
   },
+  { path: '**', redirectTo: '' },
 ];

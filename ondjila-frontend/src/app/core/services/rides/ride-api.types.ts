@@ -57,4 +57,13 @@ export interface PoolRequest {
   destination_address?: string;
 }
 
+export interface IndividualRideRequest extends PoolRequest {}
+
+export interface IndividualRideRequestResult {
+  ride_id: number;
+  ride_type: 'individual';
+  fare_estimate: number;
+  distance_km: number;
+}
+
 export type { PoolRequestResult };

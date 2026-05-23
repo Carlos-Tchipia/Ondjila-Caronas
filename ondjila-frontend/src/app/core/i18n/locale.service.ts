@@ -31,7 +31,7 @@ export class LocaleService {
 
     if (savedTheme === 'light' || savedTheme === 'dark') {
       this.theme.set(savedTheme);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    } else if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
       this.theme.set('dark');
     }
 

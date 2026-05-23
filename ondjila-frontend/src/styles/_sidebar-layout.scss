@@ -98,6 +98,19 @@
     color: var(--color-text-secondary);
     transition: background var(--duration-fast), color var(--duration-fast);
 
+    span {
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--color-surface-dim), transparent 10%);
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
     &:hover {
       background: rgba(5, 150, 105, 0.08);
       color: var(--brand-700);
@@ -107,6 +120,10 @@
       background: var(--brand-600);
       color: white;
       box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+
+      span {
+        background: rgba(255, 255, 255, 0.18);
+      }
     }
   }
 
@@ -362,23 +379,39 @@
   z-index: 50;
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
-  padding: 8px;
-  justify-content: space-around;
+  padding: 8px 10px calc(8px + var(--safe-bottom));
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
 
   @media (max-width: 960px) {
     display: flex;
   }
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   a {
+    min-width: 86px;
     text-decoration: none;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--color-text-muted);
     text-align: center;
-    padding: 6px;
+    padding: 7px 8px;
+    border-radius: var(--rounded-lg);
+
+    span {
+      display: block;
+      margin: 0 auto 2px;
+      font-size: 12px;
+      font-weight: 800;
+    }
 
     &.active {
       color: var(--brand-700);
+      background: var(--brand-50);
     }
   }
 }

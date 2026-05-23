@@ -14,13 +14,15 @@
   <aside class="request-panel">
     <div class="panel-handle" aria-hidden="true"></div>
     @if (activeRide(); as ride) {
-      <h3>{{ 'passenger.sharedTrip' | translate }}</h3>
+      <h3>{{ (ride.ride_type === 'pool' ? 'passenger.sharedTrip' : 'passenger.soloTrip') | translate }}</h3>
 
-      <app-pool-status-tracker
-        [state]="uiState(ride)"
-        [passengerCount]="ride.passenger_count ?? ride.pool?.passenger_count ?? 1"
-        [maxPassengers]="ride.max_passengers ?? ride.pool?.max_passengers ?? 3"
-      />
+      @if (ride.ride_type === 'pool') {
+        <app-pool-status-tracker
+          [state]="uiState(ride)"
+          [passengerCount]="ride.passenger_count ?? ride.pool?.passenger_count ?? 1"
+          [maxPassengers]="ride.max_passengers ?? ride.pool?.max_passengers ?? 3"
+        />
+      }
 
       <div class="active-ride-card">
         <div class="status-badge" [class.in-progress]="ride.status === 'in_progress'">
@@ -67,7 +69,7 @@
         }
       </div>
     } @else {
-      <h3>{{ 'passenger.dashboardTitle' | translate }}</h3>
+      <h3>{{ (rideMode() === 'individual' ? 'passenger.soloTrip' : 'passenger.sharedTrip') | translate }}</h3>
 
       <div class="search-box">
         <div class="input-group">
@@ -99,7 +101,7 @@
           (click)="selectedType.set('economy')"
         >
           <span class="vehicle-mark">E</span>
-          <span class="v-name">{{ 'passenger.economyPool' | translate }}</span>
+          <span class="v-name">{{ (rideMode() === 'individual' ? 'passenger.economyRide' : 'passenger.economyPool') | translate }}</span>
         </button>
         <button
           type="button"
@@ -108,14 +110,18 @@
           (click)="selectedType.set('comfort')"
         >
           <span class="vehicle-mark">C</span>
-          <span class="v-name">{{ 'passenger.comfortPool' | translate }}</span>
+          <span class="v-name">{{ (rideMode() === 'individual' ? 'passenger.comfortRide' : 'passenger.comfortPool') | translate }}</span>
         </button>
       </div>
 
-      <p class="pool-hint">{{ 'passenger.poolHint' | translate }}</p>
+      <p class="pool-hint">{{ (rideMode() === 'individual' ? 'passenger.individualHint' : 'passenger.poolHint') | translate }}</p>
 
-      <button class="btn btn--primary btn--large full-width" (click)="requestPool()" [disabled]="!destLat || isRequesting()">
-        {{ isRequesting() ? ('passenger.requestingPool' | translate) : ('passenger.requestPool' | translate) }}
+      <button class="btn btn--primary btn--large full-width" (click)="requestSelectedRide()" [disabled]="!destLat || isRequesting()">
+        @if (rideMode() === 'individual') {
+          {{ isRequesting() ? ('passenger.requestingIndividual' | translate) : ('passenger.requestIndividual' | translate) }}
+        } @else {
+          {{ isRequesting() ? ('passenger.requestingPool' | translate) : ('passenger.requestPool' | translate) }}
+        }
       </button>
     }
   </aside>

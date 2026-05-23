@@ -1,13 +1,16 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 
-import { Map } from './map';
+import { MapService } from './map.service';
 
-describe('Map', () => {
-  let service: Map;
+describe('MapService', () => {
+  let service: MapService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Map);
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient()],
+    });
+    service = TestBed.inject(MapService);
   });
 
   it('should be created', () => {

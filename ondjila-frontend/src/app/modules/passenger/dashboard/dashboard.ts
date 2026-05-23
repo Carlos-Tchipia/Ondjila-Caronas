@@ -9,7 +9,7 @@ import { MapService } from '../../../core/services/map/map.service';
 import { MapPanel } from '../../../shared/components/map-panel/map-panel';
 import { BottomNav } from '../../../shared/components/bottom-nav/bottom-nav';
 import { PASSENGER_NAV } from '../../../core/navigation/passenger-nav';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PoolMatchState } from '../../../core/models/pool-match.state';
 import { MapAppHeader } from '../../../shared/components/map-app-header/map-app-header';
 import { PoolStatusTracker } from '../../../shared/components/pool-status-tracker/pool-status-tracker';
@@ -44,6 +44,7 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly suggestions = signal<AddressSuggestion[]>([]);
   readonly destLabel = signal('');
   readonly selectedType = signal<'economy' | 'comfort'>('economy');
+  readonly rideMode = signal<'individual' | 'pool'>('pool');
   readonly isRequesting = signal(false);
   readonly isCancelling = signal(false);
   readonly activeRide = signal<PassengerRide | null>(null);
@@ -61,10 +62,13 @@ export class Dashboard implements OnInit, OnDestroy {
     private readonly passengerRidesApi: PassengerRidesApiService,
     private readonly walletApi: WalletApiService,
     private readonly router: Router,
+    private readonly route: ActivatedRoute,
     private readonly translate: TranslateService
   ) {}
 
   ngOnInit(): void {
+    const mode = this.route.snapshot.queryParamMap.get('mode');
+    this.rideMode.set(mode === 'individual' ? 'individual' : 'pool');
     this.originAddress.set(this.translate.t('passenger.locating'));
     this.getLocation();
     this.checkCurrentRide();
@@ -167,6 +171,17 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   getStatusText(ride: PassengerRide): string {
+    if (ride.ride_type !== 'pool') {
+      const individualKeys: Record<string, string> = {
+        pending: 'ride.waitingDriver',
+        accepted: 'ride.driverEnRoute',
+        in_progress: 'ride.tripInProgress',
+        completed: 'ride.statusCompleted',
+        cancelled: 'ride.statusCancelled',
+      };
+      return this.translate.t(individualKeys[ride.status] ?? 'ride.statusProcessing');
+    }
+
     const state = this.uiState(ride);
     const keys: Record<PoolUiState, string> = {
       searching_passengers: 'ride.statusSearching',
@@ -261,6 +276,47 @@ export class Dashboard implements OnInit, OnDestroy {
         );
       },
     });
+  }
+
+  requestIndividual(): void {
+    if (!this.destLat || !this.destLng) return;
+
+    this.isRequesting.set(true);
+
+    const payload: PoolRequest = {
+      origin_lat: this.originLat(),
+      origin_lng: this.originLng(),
+      dest_lat: this.destLat,
+      dest_lng: this.destLng,
+      vehicle_type: this.selectedType(),
+      origin_address: this.originAddress(),
+      destination_address: this.destLabel() || this.translate.t('passenger.destination'),
+    };
+
+    this.passengerRidesApi.requestIndividual(payload).subscribe({
+      next: () => {
+        this.isRequesting.set(false);
+        this.checkCurrentRide();
+        this.showNotice('success', this.translate.t('ride.individualRequestRegistered'));
+      },
+      error: (err) => {
+        this.isRequesting.set(false);
+        this.showNotice(
+          'error',
+          this.translate.t('errors.requestRide', {
+            message: err.error?.message || this.translate.t('errors.generic'),
+          })
+        );
+      },
+    });
+  }
+
+  requestSelectedRide(): void {
+    if (this.rideMode() === 'individual') {
+      this.requestIndividual();
+      return;
+    }
+    this.requestPool();
   }
 
   cancelRide(): void {
