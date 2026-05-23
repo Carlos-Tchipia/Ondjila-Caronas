@@ -29,9 +29,16 @@
     bottom: 0;
     top: auto;
     width: 100%;
-    max-height: 72vh;
+    max-height: min(78vh, 680px);
     border-radius: var(--rounded-2xl) var(--rounded-2xl) 0 0;
-    padding-bottom: calc(var(--space-6) + var(--bottom-nav-height) + var(--safe-bottom));
-    animation: sheet-up var(--duration-normal) var(--ease-out);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: calc(var(--space-8) + var(--bottom-nav-height) + var(--safe-bottom));
+    scrollbar-width: none;
+    animation: sheet-up var(--duration-slow) var(--ease-out);
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }

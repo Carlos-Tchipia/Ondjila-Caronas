@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SidebarLayout } from '../../../shared/layouts/sidebar-layout/sidebar-layout';
 import { AdminTopbar } from '../../../shared/components/admin-topbar/admin-topbar';
 import { ADMIN_SIDEBAR_CTA, ADMIN_SIDEBAR_MENU } from '../../../core/navigation/admin-sidebar.nav';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AdminActivity, AdminDistrict, AdminKpi, AdminOverview } from '../../../core/services/admin/admin.types';
+import { AdminApiService } from '../../../core/services/admin/admin-api.service';
 
 @Component({
   selector: 'app-admin-overview',
@@ -12,22 +14,39 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
   templateUrl: './admin-overview.page.html',
   styleUrl: './admin-overview.page.scss',
 })
-export class AdminOverviewPage {
+export class AdminOverviewPage implements OnInit {
   readonly menu = ADMIN_SIDEBAR_MENU;
   readonly cta = ADMIN_SIDEBAR_CTA;
   readonly brand = { titleKey: 'admin.brand', subtitleKey: 'admin.subtitle' };
+  readonly loading = signal(true);
+  readonly kpis = signal<AdminKpi[]>([]);
+  readonly fleet = signal<AdminOverview['fleet']>({ individual: 0, pool: 0 });
+  readonly zones = signal<AdminDistrict[]>([]);
+  readonly activity = signal<AdminActivity[]>([]);
 
-  readonly kpis = [
-    { labelKey: 'admin.tripsToday', value: '1.432', trend: '+12.5%', color: 'green' },
-    { labelKey: 'admin.revenueToday', value: '4.2M Kz', trend: '+8.2%', color: 'blue' },
-    { labelKey: 'admin.driversOnline', value: '284', trend: '-2.4%', color: 'green', down: true },
-    { labelKey: 'admin.newUsers', value: '56', trend: '+15.0%', color: 'pink' },
-  ];
+  constructor(private readonly adminApi: AdminApiService) {}
 
-  readonly activity = [
-    { id: '#92841', type: 'Individual', driver: 'João M.', passenger: 'Ana S.', statusKey: 'admin.completed', value: '3.400 Kz', ok: true },
-    { id: '#92840', type: 'Pool', driver: 'Miguel T.', passenger: 'Carlos P.', statusKey: 'admin.inProgress', value: '1.850 Kz', progress: true },
-    { id: '#92839', type: 'Individual', driver: '—', passenger: 'Sofia L.', statusKey: 'admin.cancelled', value: '0 Kz', cancel: true },
-  ];
+  ngOnInit(): void {
+    this.adminApi.overview().subscribe({
+      next: (res) => {
+        const data = res.data;
+        this.kpis.set(data?.kpis ?? []);
+        this.fleet.set(data?.fleet ?? { individual: 0, pool: 0 });
+        this.zones.set(data?.zones ?? []);
+        this.activity.set(data?.activity ?? []);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
+  }
+
+  fleetTotal(): number {
+    const current = this.fleet();
+    return current.individual + current.pool;
+  }
+
+  fleetPct(type: 'individual' | 'pool'): number {
+    const total = this.fleetTotal();
+    return total > 0 ? Math.round((this.fleet()[type] / total) * 100) : 0;
+  }
 }
-

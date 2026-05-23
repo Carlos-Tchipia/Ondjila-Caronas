@@ -1,8 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { SidebarLayout } from '../../../shared/layouts/sidebar-layout/sidebar-layout';
 import { AdminTopbar } from '../../../shared/components/admin-topbar/admin-topbar';
 import { ADMIN_SIDEBAR_CTA, ADMIN_SIDEBAR_MENU } from '../../../core/navigation/admin-sidebar.nav';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AdminDriver, AdminDriversResponse } from '../../../core/services/admin/admin.types';
+import { AdminApiService } from '../../../core/services/admin/admin-api.service';
 
 @Component({
   selector: 'app-admin-drivers',
@@ -11,17 +13,49 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
   templateUrl: './admin-drivers.page.html',
   styleUrl: './admin-drivers.page.scss',
 })
-export class AdminDriversPage {
+export class AdminDriversPage implements OnInit {
   readonly menu = ADMIN_SIDEBAR_MENU;
   readonly cta = ADMIN_SIDEBAR_CTA;
   readonly brand = { titleKey: 'admin.brand', subtitleKey: 'admin.subtitle' };
   readonly tab = signal<'pending' | 'approved' | 'rejected'>('pending');
+  readonly search = signal('');
+  readonly loading = signal(true);
+  readonly summary = signal<AdminDriversResponse['summary']>({
+    pending: 0,
+    approved: 0,
+    rejected: 0,
+    online: 0,
+    total: 0,
+  });
+  readonly drivers = signal<AdminDriver[]>([]);
+  readonly filteredDrivers = computed(() => {
+    const term = this.search().trim().toLowerCase();
+    return this.drivers().filter((driver) => {
+      const matchesStatus = driver.approval_status === this.tab();
+      const searchable = `${driver.name} ${driver.email} ${driver.plate} ${driver.vehicle}`.toLowerCase();
+      return matchesStatus && (!term || searchable.includes(term));
+    });
+  });
+  readonly approvalRate = computed(() => {
+    const summary = this.summary();
+    return summary.total > 0 ? Math.round((summary.approved / summary.total) * 100) : 0;
+  });
 
-  readonly drivers = [
-    { initials: 'AL', color: '#059669', name: 'António Lopes', id: '#92812', plate: 'LD-45-AB', vehicle: 'Toyota Corolla 2023', date: '20 Mai 2026', docs: 3, docsTotal: 4 },
-    { initials: 'MC', color: '#2563eb', name: 'Maria Costa', id: '#92811', plate: 'LD-12-CD', vehicle: 'Hyundai Accent 2022', date: '19 Mai 2026', docs: 4, docsTotal: 4 },
-    { initials: 'PS', color: '#7c3aed', name: 'Paulo Silva', id: '#92810', plate: 'LD-88-EF', vehicle: 'Nissan Almera 2021', date: '18 Mai 2026', docs: 2, docsTotal: 4 },
-    { initials: 'RK', color: '#ea580c', name: 'Rui Kiala', id: '#92809', plate: 'LD-33-GH', vehicle: 'Kia Rio 2020', date: '17 Mai 2026', docs: 4, docsTotal: 4 },
-  ];
+  constructor(private readonly adminApi: AdminApiService) {}
+
+  ngOnInit(): void {
+    this.adminApi.drivers().subscribe({
+      next: (res) => {
+        this.summary.set(res.data?.summary ?? this.summary());
+        this.drivers.set(res.data?.drivers ?? []);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
+  }
+
+  avatarColor(index: number): string {
+    const colors = ['#059669', '#2563eb', '#7c3aed', '#ea580c', '#0f766e'];
+    return colors[index % colors.length];
+  }
 }
-

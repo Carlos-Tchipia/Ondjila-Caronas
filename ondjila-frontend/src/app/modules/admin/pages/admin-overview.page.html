@@ -8,13 +8,19 @@
   <app-admin-topbar appTopbar />
 
   <div class="kpi-grid admin-kpis">
-    @for (k of kpis; track k.labelKey) {
-      <div class="kpi-card kpi-card--chart" [class]="'kpi-card--' + k.color">
-        <div class="kpi-label">{{ k.labelKey | translate }}</div>
-        <div class="kpi-value">{{ k.value }}</div>
-        <div class="kpi-trend" [class.down]="k.down">{{ k.trend }}</div>
-        <div class="mini-chart" aria-hidden="true"></div>
-      </div>
+    @if (loading()) {
+      @for (_ of [1, 2, 3, 4]; track _) {
+        <div class="kpi-card kpi-card--chart skeleton-card"></div>
+      }
+    } @else {
+      @for (k of kpis(); track k.key) {
+        <div class="kpi-card kpi-card--chart" [class]="'kpi-card--' + k.color">
+          <div class="kpi-label">{{ k.labelKey | translate }}</div>
+          <div class="kpi-value">{{ k.formatted }}</div>
+          <div class="kpi-trend" [class.down]="k.trend.startsWith('-')">{{ k.trend }}</div>
+          <div class="mini-chart" aria-hidden="true"></div>
+        </div>
+      }
     }
   </div>
 
@@ -22,15 +28,32 @@
     <section class="ui-card">
       <h2>{{ 'admin.fleetPerformance' | translate }}</h2>
       <p class="muted">{{ 'admin.fleet24h' | translate }}</p>
-      <div class="line-chart-placeholder" role="img" [attr.aria-label]="'admin.fleetChartAria' | translate"></div>
+      <div class="fleet-bars" role="img" [attr.aria-label]="'admin.fleetChartAria' | translate">
+        <span class="fleet-bars__individual" [style.width.%]="fleetPct('individual')"></span>
+        <span class="fleet-bars__pool" [style.width.%]="fleetPct('pool')"></span>
+      </div>
       <div class="legend">
-        <span><i class="dot dot--green"></i> {{ 'common.individual' | translate }}</span>
-        <span><i class="dot dot--blue"></i> {{ 'common.pool' | translate }}</span>
+        <span><i class="dot dot--green"></i> {{ 'common.individual' | translate }}: {{ fleet().individual }}</span>
+        <span><i class="dot dot--blue"></i> {{ 'common.pool' | translate }}: {{ fleet().pool }}</span>
       </div>
     </section>
     <section class="ui-card zones-card">
       <h2>{{ 'admin.activeZones' | translate }}</h2>
-      <div class="zones-map" role="img" [attr.aria-label]="'admin.zonesMapAria' | translate"></div>
+      @if (zones().length) {
+        <ul class="zones-list">
+          @for (z of zones(); track z.name) {
+            <li>
+              <div class="zones-list__head">
+                <strong>{{ z.name }}</strong>
+                <span>{{ z.tripsLabel }}</span>
+              </div>
+              <div class="zones-list__bar"><span [style.width.%]="z.pct"></span></div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="empty-state">{{ 'admin.noRealData' | translate }}</p>
+      }
     </section>
   </div>
 
@@ -51,7 +74,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (a of activity; track a.id) {
+        @for (a of activity(); track a.id) {
           <tr>
             <td>{{ a.id }}</td>
             <td><span class="pill" [class.pill--blue]="a.type === 'Pool'">{{ a.type }}</span></td>
@@ -59,14 +82,18 @@
             <td>{{ a.passenger }}</td>
             <td>
               @if (a.ok) {
-                <span class="status status--ok">✓ {{ a.statusKey | translate }}</span>
+                <span class="status status--ok">{{ a.statusKey | translate }}</span>
               } @else if (a.progress) {
-                <span class="status status--progress">↻ {{ a.statusKey | translate }}</span>
+                <span class="status status--progress">{{ a.statusKey | translate }}</span>
               } @else {
-                <span class="status status--cancel">✕ {{ a.statusKey | translate }}</span>
+                <span class="status status--cancel">{{ a.statusKey | translate }}</span>
               }
             </td>
             <td><strong>{{ a.value }}</strong></td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="empty-table">{{ 'admin.noRealData' | translate }}</td>
           </tr>
         }
       </tbody>

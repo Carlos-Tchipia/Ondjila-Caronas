@@ -1,14 +1,9 @@
 @use '../../../../styles/dashboard';
 
-.cancel-btn {
-  margin-top: var(--space-2);
-}
-
 .pool-hint {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   margin: 0 0 var(--space-4);
-  line-height: 1.5;
 }
 
 .fare-row {
@@ -46,7 +41,6 @@
 .fare-preview__head {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
 
   strong {
     color: var(--brand-700);
@@ -69,15 +63,10 @@
 .fare-reasons li {
   align-items: center;
   display: flex;
-  gap: var(--space-2);
   justify-content: space-between;
 }
 
 .fare-reasons strong {
   color: var(--brand-700);
   flex: 0 0 auto;
-}
-
-.fare-reasons--compact {
-  margin: -4px 0 var(--space-3);
 }

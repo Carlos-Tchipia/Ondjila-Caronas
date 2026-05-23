@@ -1,38 +1,64 @@
 <app-sidebar-layout [brand]="brand" [menu]="menu" [cta]="cta" userGreetingKey="common.adminGreeting" userLocationKey="admin.subtitle">
   <app-admin-topbar appTopbar />
 
-  <header class="page-intro">
-    <h1>{{ 'admin.reportsTitle' | translate }}</h1>
+  <header class="page-intro reports-intro">
+    <div>
+      <h1>{{ 'admin.reportsTitle' | translate }}</h1>
+      @if (report()) {
+        <p>
+          {{ 'admin.reportRange' | translate: { start: report()!.range.start_date, end: report()!.range.end_date, days: report()!.range.days } }}
+        </p>
+      }
+    </div>
+    <form class="report-filter" (ngSubmit)="generateReport()">
+      <label>
+        <span>{{ 'admin.startDate' | translate }}</span>
+        <input type="date" [ngModel]="startDate()" (ngModelChange)="startDate.set($event)" name="startDate" />
+      </label>
+      <label>
+        <span>{{ 'admin.endDate' | translate }}</span>
+        <input type="date" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)" name="endDate" />
+      </label>
+      <button type="submit" class="btn btn--primary" [disabled]="loading()">{{ 'admin.generateReport' | translate }}</button>
+      <button type="button" class="btn btn--ghost" (click)="downloadPdf()" [disabled]="downloadingPdf()">
+        {{ 'admin.exportPdf' | translate }}
+      </button>
+      <button type="button" class="btn btn--ghost" (click)="downloadCsv()" [disabled]="!report()">{{ 'admin.exportCsv' | translate }}</button>
+    </form>
   </header>
 
   <div class="metrics-row">
-    @for (m of metrics; track m.labelKey) {
+    @for (m of report()?.metrics ?? []; track m.key) {
       <div class="ui-card metric-card" [class.metric-card--highlight]="m.highlight">
         <span class="kpi-label">{{ m.labelKey | translate }}</span>
-        <p class="metric-value">{{ m.value }}</p>
+        <p class="metric-value">{{ m.formatted }}</p>
         <span class="kpi-trend">{{ m.trend }}</span>
       </div>
+    } @empty {
+      @for (_ of [1, 2, 3]; track _) {
+        <div class="ui-card metric-card skeleton-card"></div>
+      }
     }
   </div>
 
   <h2 class="section-accent">{{ 'admin.poolAnalysis' | translate }}</h2>
   <div class="pool-analysis">
     <div class="ui-card co2-card">
-      <span class="co2-icon">🌿</span>
-      <p class="co2-value">482 Ton</p>
+      <span class="co2-icon">CO2</span>
+      <p class="co2-value">{{ report()?.totals?.co2_saved_ton ?? 0 }} Ton</p>
       <p>{{ 'admin.co2Saved' | translate }}</p>
-      <small>{{ 'admin.constantGrowth' | translate }}</small>
+      <small>{{ 'admin.completedRides' | translate }}: {{ report()?.totals?.completed_rides ?? 0 }}</small>
     </div>
     <div class="ui-card adoption-card">
       <div class="adoption-head">
         <h3>{{ 'admin.adoptionRate' | translate }}</h3>
-        <span class="pill pill--blue">64% {{ 'admin.adoptionAvg' | translate }}</span>
+        <span class="pill pill--blue">{{ report()?.totals?.pool_adoption_pct ?? 0 }}% {{ 'admin.adoptionAvg' | translate }}</span>
       </div>
       <div class="bar-chart adoption-bars">
-        @for (h of adoptionBars; track $index) {
+        @for (bar of report()?.adoption ?? []; track bar.day) {
           <div class="bar">
-            <div class="bar-fill" [style.height.%]="h" [class.bar-fill--active]="$index === 4 || $index === 6"></div>
-            <span>{{ days[$index] }}</span>
+            <div class="bar-fill" [style.height.%]="bar.pct" [class.bar-fill--active]="bar.pct > 0"></div>
+            <span>{{ bar.day }}</span>
           </div>
         }
       </div>
@@ -43,26 +69,32 @@
     <section class="ui-card">
       <h3>{{ 'admin.topDistricts' | translate }}</h3>
       <ul class="bairro-list">
-        @for (b of bairros; track b.name) {
+        @for (b of report()?.top_districts ?? []; track b.name) {
           <li>
-            <div class="bairro-head"><strong>{{ b.name }}</strong><span>{{ b.trips }}</span></div>
+            <div class="bairro-head"><strong>{{ b.name }}</strong><span>{{ b.tripsLabel }}</span></div>
             <div class="bairro-bar"><span [style.width.%]="b.pct"></span></div>
           </li>
+        } @empty {
+          <li class="empty-state">{{ 'admin.noRealData' | translate }}</li>
         }
       </ul>
     </section>
     <section class="ui-card satisfaction-card">
       <h3>{{ 'admin.satisfaction' | translate }}</h3>
-      <p class="score">4.8 <span>★★★★★</span></p>
-      <blockquote class="feedback">
-        <p>{{ 'admin.feedbackQuote' | translate }}</p>
-        <footer>{{ 'admin.feedbackAuthor' | translate }}</footer>
-      </blockquote>
+      <p class="score">{{ report()?.totals?.average_rating ?? 0 }} <span>avg</span></p>
+      <div class="report-totals">
+        <p><strong>{{ report()?.totals?.total_rides ?? 0 }}</strong> {{ 'admin.totalRides' | translate }}</p>
+        <p><strong>{{ report()?.totals?.individual_rides ?? 0 }}</strong> {{ 'common.individual' | translate }}</p>
+        <p><strong>{{ report()?.totals?.pool_rides ?? 0 }}</strong> {{ 'common.pool' | translate }}</p>
+      </div>
     </section>
   </div>
 
   <div class="report-actions">
-    <button type="button" class="btn btn--ghost">📄 {{ 'admin.exportFinancial' | translate }}</button>
-    <button type="button" class="btn btn--primary">{{ 'admin.fullReport' | translate }}</button>
+    <button type="button" class="btn btn--ghost" (click)="downloadPdf()" [disabled]="downloadingPdf()">
+      {{ 'admin.exportPdf' | translate }}
+    </button>
+    <button type="button" class="btn btn--ghost" (click)="downloadCsv()" [disabled]="!report()">{{ 'admin.exportCsv' | translate }}</button>
+    <button type="button" class="btn btn--primary" (click)="generateReport()" [disabled]="loading()">{{ 'admin.generateReport' | translate }}</button>
   </div>
 </app-sidebar-layout>

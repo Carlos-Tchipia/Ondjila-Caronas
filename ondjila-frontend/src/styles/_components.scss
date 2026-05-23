@@ -15,6 +15,7 @@
 
   &:hover {
     box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
   }
 }
 
@@ -34,6 +35,28 @@
   transition: transform var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) var(--ease-out),
     background var(--duration-fast) var(--ease-out);
+  position: relative;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 48%);
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    pointer-events: none;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+
+    &::after {
+      opacity: 1;
+    }
+  }
 
   &:active:not(:disabled) {
     transform: scale(0.98);
@@ -51,7 +74,7 @@
     box-shadow: var(--shadow-glow);
 
     &:hover:not(:disabled) {
-      box-shadow: var(--shadow-lg);
+      box-shadow: var(--shadow-interactive);
       filter: brightness(1.03);
     }
   }
@@ -131,6 +154,29 @@
   }
 }
 
+.ui-card input,
+.ui-card select,
+.ui-card textarea,
+.admin-topbar__search,
+.help-hero input,
+.promo-input input,
+.chat-input input {
+  border: 1px solid var(--color-border);
+  border-radius: var(--rounded-default);
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary), transparent 84%);
+    outline: none;
+  }
+}
+
 .field-error {
   display: block;
   margin-top: var(--space-2);
@@ -186,12 +232,30 @@
   background: linear-gradient(
     90deg,
     var(--color-surface-dim) 25%,
-    #e8eef4 50%,
+    color-mix(in srgb, var(--color-surface-dim), white 55%) 50%,
     var(--color-surface-dim) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.2s ease infinite;
   border-radius: var(--rounded-default);
+}
+
+.skeleton-stack {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.skeleton-line {
+  @extend .skeleton;
+  height: 14px;
+
+  &--short {
+    width: 48%;
+  }
+
+  &--medium {
+    width: 72%;
+  }
 }
 
 /* Toast */
@@ -294,8 +358,8 @@
       box-shadow var(--duration-fast) var(--ease-out);
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-interactive);
     }
   }
 

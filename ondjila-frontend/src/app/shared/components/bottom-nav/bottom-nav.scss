@@ -6,12 +6,12 @@
   bottom: calc(var(--space-3) + var(--safe-bottom));
   z-index: var(--z-sheet);
   height: var(--bottom-nav-height);
-  padding: var(--space-2);
+  padding: 7px;
   background: var(--surface-glass-strong);
-  backdrop-filter: blur(24px);
-  border: 1px solid var(--color-border);
+  backdrop-filter: blur(26px) saturate(1.25);
+  border: 1px solid var(--color-glass-border);
   border-radius: var(--rounded-2xl);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-bottom-nav);
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: var(--space-1);
 
@@ -28,19 +28,59 @@
     text-decoration: none;
     color: var(--color-text-muted);
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     border-radius: var(--rounded-lg);
-    padding: var(--space-2);
-    transition: color var(--duration-fast), background var(--duration-fast);
+    min-width: 0;
+    padding: 7px 4px;
+    position: relative;
+    transition:
+      color var(--duration-fast),
+      background var(--duration-fast),
+      transform var(--duration-fast) var(--ease-out);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 5px;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--rounded-full);
+      background: color-mix(in srgb, var(--brand-600), transparent 88%);
+      opacity: 0;
+      transform: scale(0.72);
+      transition:
+        opacity var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
+    }
+
+    &:active {
+      transform: translateY(1px) scale(0.98);
+    }
 
     &.active {
       color: var(--brand-700);
-      background: var(--brand-50);
+      background: color-mix(in srgb, var(--brand-50), transparent 25%);
+
+      &::before {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
   }
 
   &__icon {
+    position: relative;
+    z-index: 1;
     font-size: 18px;
     line-height: 1;
+  }
+
+  &__label {
+    max-width: 100%;
+    overflow: hidden;
+    position: relative;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    z-index: 1;
   }
 }

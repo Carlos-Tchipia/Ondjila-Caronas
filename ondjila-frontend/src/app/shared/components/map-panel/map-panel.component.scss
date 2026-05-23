@@ -21,6 +21,18 @@
     font-family: var(--font-family-body);
   }
 
+  .leaflet-tile {
+    transition: opacity var(--duration-slow) var(--ease-out), filter var(--duration-slow) var(--ease-out);
+  }
+
+  .leaflet-marker-icon {
+    transition: filter var(--duration-fast) var(--ease-out);
+
+    &:hover {
+      filter: drop-shadow(0 14px 24px rgba(15, 23, 42, 0.22));
+    }
+  }
+
   .map-pin__wrap {
     display: flex;
     align-items: center;
@@ -163,6 +175,14 @@
       color: var(--color-text) !important;
       border: none !important;
       backdrop-filter: blur(18px);
+      transition:
+        background var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
+
+      &:hover {
+        background: var(--brand-50) !important;
+        transform: scale(1.03);
+      }
     }
   }
 

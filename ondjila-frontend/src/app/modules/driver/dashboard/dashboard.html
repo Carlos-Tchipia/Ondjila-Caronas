@@ -72,7 +72,16 @@
         </div>
       } @else {
         @if (loading()) {
-          <div class="empty-state">{{ 'driver.searchingPools' | translate }}</div>
+          <div class="pool-card skeleton-stack" aria-hidden="true">
+            <span class="skeleton-line skeleton-line--short"></span>
+            <span class="skeleton-line"></span>
+            <span class="skeleton-line skeleton-line--medium"></span>
+          </div>
+          <div class="pool-card skeleton-stack" aria-hidden="true">
+            <span class="skeleton-line skeleton-line--short"></span>
+            <span class="skeleton-line"></span>
+            <span class="skeleton-line skeleton-line--medium"></span>
+          </div>
         }
 
         <div class="pools-list">

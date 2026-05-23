@@ -1,0 +1,8 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+:host ::ng-deep router-outlet + * {
+  animation: page-enter var(--duration-page) var(--ease-out) both;
+}

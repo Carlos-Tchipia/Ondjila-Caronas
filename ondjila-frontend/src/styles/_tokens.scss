@@ -88,6 +88,8 @@
   --shadow-lg: 0 16px 48px rgba(15, 23, 42, 0.12);
   --shadow-xl: 0 24px 64px rgba(15, 23, 42, 0.14);
   --shadow-glow: 0 0 0 1px rgba(5, 150, 105, 0.15), 0 8px 32px rgba(5, 150, 105, 0.2);
+  --shadow-interactive: 0 18px 42px rgba(15, 23, 42, 0.14);
+  --shadow-bottom-nav: 0 18px 56px rgba(15, 23, 42, 0.2);
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -95,6 +97,7 @@
   --duration-fast: 150ms;
   --duration-normal: 280ms;
   --duration-slow: 420ms;
+  --duration-page: 520ms;
 
   /* Layout */
   --header-height: 4rem;
@@ -153,6 +156,8 @@
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
   --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.55);
   --shadow-glow: 0 0 0 1px rgba(52, 211, 153, 0.2), 0 8px 32px rgba(16, 185, 129, 0.25);
+  --shadow-interactive: 0 18px 42px rgba(0, 0, 0, 0.55);
+  --shadow-bottom-nav: 0 18px 56px rgba(0, 0, 0, 0.58);
 
   --color-sidebar-bg: #0f1419;
   --color-main-bg: #121a26;

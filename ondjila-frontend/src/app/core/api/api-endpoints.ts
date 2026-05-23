@@ -17,6 +17,11 @@ export const ApiEndpoints = {
   },
   admin: {
     pricing: '/api/admin/pricing.php',
+    overview: '/api/admin/overview.php',
+    reports: '/api/admin/reports.php',
+    reportsPdf: '/api/admin/reports-pdf.php',
+    drivers: '/api/admin/drivers.php',
+    section: '/api/admin/section.php',
   },
   pool: {
     details: '/api/pool/details.php',

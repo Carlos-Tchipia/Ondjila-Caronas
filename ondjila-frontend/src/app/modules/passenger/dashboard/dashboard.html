@@ -149,8 +149,10 @@
           </ul>
         </section>
       } @else if (isPricing()) {
-        <section class="fare-preview fare-preview--loading">
-          {{ 'pricing.calculating' | translate }}
+        <section class="fare-preview skeleton-stack" [attr.aria-label]="'pricing.calculating' | translate">
+          <span class="skeleton-line skeleton-line--short"></span>
+          <span class="skeleton-line"></span>
+          <span class="skeleton-line skeleton-line--medium"></span>
         </section>
       }
 

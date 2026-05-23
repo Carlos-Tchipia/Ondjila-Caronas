@@ -59,6 +59,18 @@
   }
 }
 
+.real-summary {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+
+  strong {
+    color: var(--color-text);
+  }
+}
+
 .table-wrap {
   margin: 0 var(--space-6) var(--space-5);
 }
@@ -109,6 +121,12 @@
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   margin-top: var(--space-4);
+}
+
+.empty-table {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--space-6);
 }
 
 .pagination {

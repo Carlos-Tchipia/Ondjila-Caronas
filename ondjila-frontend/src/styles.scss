@@ -57,3 +57,16 @@ a {
 img {
   max-width: 100%;
 }
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary), transparent 62%);
+  outline-offset: 3px;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}

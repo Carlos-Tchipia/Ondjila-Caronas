@@ -7,15 +7,28 @@
   </header>
 
   <div class="tabs">
-    <button type="button" class="active" (click)="tab.set('pending')">{{ 'admin.pending' | translate }} <span class="badge">12</span></button>
-    <button type="button" (click)="tab.set('approved')">{{ 'admin.approved' | translate }}</button>
-    <button type="button" (click)="tab.set('rejected')">{{ 'admin.rejected' | translate }}</button>
+    <button type="button" [class.active]="tab() === 'pending'" (click)="tab.set('pending')">
+      {{ 'admin.pending' | translate }} <span class="badge">{{ summary().pending }}</span>
+    </button>
+    <button type="button" [class.active]="tab() === 'approved'" (click)="tab.set('approved')">
+      {{ 'admin.approved' | translate }} <span class="badge">{{ summary().approved }}</span>
+    </button>
+    <button type="button" [class.active]="tab() === 'rejected'" (click)="tab.set('rejected')">
+      {{ 'admin.rejected' | translate }} <span class="badge">{{ summary().rejected }}</span>
+    </button>
   </div>
 
   <section class="ui-card filters-card">
-    <input type="search" [placeholder]="'admin.filterDrivers' | translate" />
-    <select><option>{{ 'admin.allVehicles' | translate }}</option></select>
-    <button type="button" class="btn btn--ghost">{{ 'admin.advancedFilters' | translate }}</button>
+    <input
+      type="search"
+      [value]="search()"
+      (input)="search.set($any($event.target).value)"
+      [placeholder]="'admin.filterDrivers' | translate"
+    />
+    <div class="real-summary">
+      <span>{{ 'admin.driversOnline' | translate }}: <strong>{{ summary().online }}</strong></span>
+      <span>{{ 'admin.totalDrivers' | translate }}: <strong>{{ summary().total }}</strong></span>
+    </div>
   </section>
 
   <section class="ui-card table-wrap">
@@ -27,16 +40,16 @@
           <th>{{ 'admin.vehicle' | translate }}</th>
           <th>{{ 'admin.submitted' | translate }}</th>
           <th>{{ 'admin.docStatus' | translate }}</th>
-          <th>{{ 'admin.action' | translate }}</th>
+          <th>{{ 'admin.state' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (d of drivers; track d.id) {
+        @for (d of filteredDrivers(); track d.id; let i = $index) {
           <tr>
             <td>
               <div class="driver-cell">
-                <span class="driver-avatar" [style.background]="d.color">{{ d.initials }}</span>
-                <span><strong>{{ d.name }}</strong><small>{{ d.id }}</small></span>
+                <span class="driver-avatar" [style.background]="avatarColor(i)">{{ d.initials }}</span>
+                <span><strong>{{ d.name }}</strong><small>{{ d.display_id }} - {{ d.email }}</small></span>
               </div>
             </td>
             <td>{{ d.plate }}</td>
@@ -48,31 +61,31 @@
               </div>
               <small>{{ d.docs }}/{{ d.docsTotal }}</small>
             </td>
-            <td><button type="button" class="btn btn--primary btn--sm">{{ 'admin.analyze' | translate }}</button></td>
+            <td>
+              <span class="pill" [class.pill--green]="d.is_available">{{ d.approval_status }}</span>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="empty-table">{{ loading() ? ('common.loading' | translate) : ('admin.noRealData' | translate) }}</td>
           </tr>
         }
       </tbody>
     </table>
-    <p class="table-footer">{{ 'admin.showingDrivers' | translate: { shown: '4', total: '12' } }}</p>
-    <div class="pagination">
-      <button type="button">‹</button>
-      <button type="button" class="active">1</button>
-      <button type="button">2</button>
-      <button type="button">3</button>
-      <button type="button">›</button>
-    </div>
+    <p class="table-footer">
+      {{ 'admin.showingDrivers' | translate: { shown: filteredDrivers().length, total: summary().total } }}
+    </p>
   </section>
 
   <div class="bottom-widgets">
     <div class="ui-card widget widget--blue">
       <p class="widget__label">{{ 'admin.approvalRate' | translate }}</p>
-      <p class="widget__value">84%</p>
-      <p class="widget__sub">{{ 'admin.vsLastWeekAdmin' | translate }}</p>
+      <p class="widget__value">{{ approvalRate() }}%</p>
+      <p class="widget__sub">{{ 'admin.realDataFromDatabase' | translate }}</p>
     </div>
     <div class="ui-card widget widget--guide">
       <h3>{{ 'admin.validationTutorial' | translate }}</h3>
       <p>{{ 'admin.tutorialBody' | translate }}</p>
-      <button type="button" class="btn btn--ghost">{{ 'admin.startGuide' | translate }}</button>
     </div>
   </div>
 </app-sidebar-layout>

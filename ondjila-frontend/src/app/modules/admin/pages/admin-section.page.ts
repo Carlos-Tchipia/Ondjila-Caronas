@@ -4,6 +4,8 @@ import { SidebarLayout } from '../../../shared/layouts/sidebar-layout/sidebar-la
 import { AdminTopbar } from '../../../shared/components/admin-topbar/admin-topbar';
 import { ADMIN_SIDEBAR_CTA, ADMIN_SIDEBAR_MENU } from '../../../core/navigation/admin-sidebar.nav';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AdminApiService } from '../../../core/services/admin/admin-api.service';
+import { AdminSectionMetric, AdminSectionRow } from '../../../core/services/admin/admin.types';
 
 @Component({
   selector: 'app-admin-section',
@@ -42,7 +44,6 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
             <h2>{{ title() | translate }}</h2>
             <p>{{ 'admin.sectionWorkbench' | translate }}</p>
           </div>
-          <button type="button" class="btn btn--ghost">{{ 'common.export' | translate }}</button>
         </div>
 
         <table class="data-table responsive-table">
@@ -51,7 +52,6 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
               <th>{{ 'admin.item' | translate }}</th>
               <th>{{ 'admin.state' | translate }}</th>
               <th>{{ 'admin.value' | translate }}</th>
-              <th>{{ 'admin.action' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -60,7 +60,10 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
                 <td>{{ row.name }}</td>
                 <td><span class="pill pill--green">{{ row.status }}</span></td>
                 <td><strong>{{ row.value }}</strong></td>
-                <td><button type="button" class="btn btn--ghost btn--sm">{{ 'admin.analyze' | translate }}</button></td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="empty-table">{{ loading() ? ('common.loading' | translate) : ('admin.noRealData' | translate) }}</td>
               </tr>
             }
           </tbody>
@@ -92,6 +95,12 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
       font-size: var(--text-sm);
     }
 
+    .empty-table {
+      text-align: center;
+      color: var(--color-text-muted);
+      padding: var(--space-6);
+    }
+
     @media (max-width: 720px) {
       .admin-workbench {
         overflow-x: auto;
@@ -105,10 +114,14 @@ export class AdminSectionPage implements OnInit {
   readonly menu = ADMIN_SIDEBAR_MENU;
   readonly cta = ADMIN_SIDEBAR_CTA;
   readonly brand = { titleKey: 'admin.brand', subtitleKey: 'admin.subtitle' };
-  readonly metrics = signal<{ labelKey: string; value: string; trend: string; good?: boolean }[]>([]);
-  readonly rows = signal<{ name: string; status: string; value: string }[]>([]);
+  readonly loading = signal(true);
+  readonly metrics = signal<AdminSectionMetric[]>([]);
+  readonly rows = signal<AdminSectionRow[]>([]);
 
-  constructor(private readonly route: ActivatedRoute) {}
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly adminApi: AdminApiService,
+  ) {}
 
   ngOnInit(): void {
     const data = this.route.snapshot.data;
@@ -117,43 +130,32 @@ export class AdminSectionPage implements OnInit {
     this.title.set(titleKey || 'admin.sectionDefault');
     this.description.set(descriptionKey || 'admin.sectionDefaultDesc');
 
+    const section = this.sectionKey(titleKey);
+    if (!section) {
+      this.loading.set(false);
+      return;
+    }
+
+    this.adminApi.section(section).subscribe({
+      next: (res) => {
+        this.metrics.set(res.data?.metrics ?? []);
+        this.rows.set(res.data?.rows ?? []);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
+  }
+
+  private sectionKey(titleKey: string): 'users' | 'rides' | 'payments' | null {
     if (titleKey === 'nav.users') {
-      this.metrics.set([
-        { labelKey: 'admin.newUsers', value: '128', trend: '+18%', good: true },
-        { labelKey: 'admin.tripsToday', value: '642', trend: '+9%' },
-        { labelKey: 'admin.satisfaction', value: '94%', trend: 'AVG', good: true },
-      ]);
-      this.rows.set([
-        { name: 'Ana Ferreira', status: 'Activo', value: '24 viagens' },
-        { name: 'Mateus Kiala', status: 'Activo', value: '12 viagens' },
-        { name: 'Sofia Manuel', status: 'Novo', value: '2 viagens' },
-      ]);
-      return;
+      return 'users';
     }
-
     if (titleKey === 'nav.rides') {
-      this.metrics.set([
-        { labelKey: 'admin.tripsToday', value: '642', trend: '+12%', good: true },
-        { labelKey: 'admin.poolAnalysis', value: '38%', trend: 'Pool mix' },
-        { labelKey: 'admin.revenueToday', value: '1.9M Kz', trend: '+7%', good: true },
-      ]);
-      this.rows.set([
-        { name: '#OD-2042 - Talatona', status: 'Em Curso', value: '4.200 Kz' },
-        { name: '#OD-2041 - Mutamba', status: 'Concluida', value: '2.850 Kz' },
-        { name: '#OD-2040 - Kilamba Pool', status: 'Activo', value: '5.100 Kz' },
-      ]);
-      return;
+      return 'rides';
     }
-
-    this.metrics.set([
-      { labelKey: 'admin.grossRevenue', value: '14.8M Kz', trend: '+11%', good: true },
-      { labelKey: 'admin.commissions', value: '2.4M Kz', trend: '+6%' },
-      { labelKey: 'admin.netProfit', value: '7.2M Kz', trend: '+8%', good: true },
-    ]);
-    this.rows.set([
-      { name: 'Wallet Pool Settlement', status: 'Completo', value: '820.000 Kz' },
-      { name: 'Multicaixa Reconciliation', status: 'Pendente', value: '240.000 Kz' },
-      { name: 'Driver Payout Batch', status: 'Agendado', value: '1.1M Kz' },
-    ]);
+    if (titleKey === 'nav.payments') {
+      return 'payments';
+    }
+    return null;
   }
 }
