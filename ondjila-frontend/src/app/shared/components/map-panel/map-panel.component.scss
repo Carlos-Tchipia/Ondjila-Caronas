@@ -12,10 +12,15 @@
 }
 
 :host.map-panel--warm .map-container {
-  filter: sepia(0.12) saturate(1.15) contrast(1.02);
+  filter: saturate(1.12) contrast(1.03);
 }
 
 :host ::ng-deep {
+  .leaflet-container {
+    background: var(--color-map-bg);
+    font-family: var(--font-family-body);
+  }
+
   .map-pin__wrap {
     display: flex;
     align-items: center;
@@ -24,9 +29,18 @@
     height: 36px;
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
-    background: var(--pin-color);
-    border: 3px solid white;
-    box-shadow: var(--shadow-md);
+    background: var(--pin-color, var(--brand-600));
+    border: 3px solid rgba(255, 255, 255, 0.95);
+    box-shadow:
+      0 14px 28px rgba(15, 23, 42, 0.24),
+      0 0 0 8px rgba(16, 185, 129, 0.12);
+  }
+
+  .map-pin--dest .map-pin__wrap {
+    --pin-color: #ef4444;
+    box-shadow:
+      0 14px 28px rgba(15, 23, 42, 0.24),
+      0 0 0 8px rgba(239, 68, 68, 0.13);
   }
 
   .map-pin__dot {
@@ -38,58 +52,148 @@
   }
 
   .map-pin--vehicle .map-pin__wrap {
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     transform: none;
-    background: white;
-    animation: pulse-soft 2s ease infinite;
+    background: linear-gradient(135deg, #ffffff, #e0f2fe);
+    border-color: rgba(255, 255, 255, 0.9);
+    animation: car-breathe 1.8s ease-in-out infinite;
   }
 
   .map-pin--passenger .map-pin__wrap {
     border-radius: 50%;
     transform: none;
-    background: #2563eb;
-    --pin-color: #2563eb;
+    background: linear-gradient(135deg, #2563eb, #38bdf8);
+    box-shadow:
+      0 12px 26px rgba(37, 99, 235, 0.28),
+      0 0 0 8px rgba(37, 99, 235, 0.1);
   }
 
   .map-pin__passenger {
     color: white;
     font-weight: 800;
     font-size: 12px;
-    transform: none;
-  }
-
-  :global(.route-line-animated) {
-    animation: route-dash 1.2s linear infinite;
-  }
-
-  @keyframes route-dash {
-    to {
-      stroke-dashoffset: -26;
-    }
   }
 
   .map-pin__car {
-    font-size: 18px;
-    line-height: 1;
+    position: relative;
+    width: 21px;
+    height: 13px;
+    border-radius: 7px 9px 9px 7px;
+    background: linear-gradient(135deg, var(--brand-600), #22c55e);
+    box-shadow: 0 0 18px rgba(16, 185, 129, 0.5);
+  }
+
+  .map-pin__car::before,
+  .map-pin__car::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    width: 4px;
+    height: 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .map-pin__car::before {
+    left: 4px;
+  }
+
+  .map-pin__car::after {
+    right: 4px;
+  }
+
+  .map-pin__car i {
+    position: absolute;
+    right: -5px;
+    top: 4px;
+    width: 6px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(167, 243, 208, 0.9);
+    box-shadow: 0 0 10px rgba(167, 243, 208, 0.85);
+  }
+
+  .traffic-pulse {
+    pointer-events: none;
+  }
+
+  .traffic-pulse span {
+    display: block;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--traffic-color);
+    box-shadow: 0 0 0 0 var(--traffic-glow);
+    animation: traffic-pulse 2.4s ease-out infinite;
+  }
+
+  .traffic-pulse--low {
+    --traffic-color: rgba(16, 185, 129, 0.75);
+    --traffic-glow: rgba(16, 185, 129, 0.25);
+  }
+
+  .traffic-pulse--mid {
+    --traffic-color: rgba(245, 158, 11, 0.78);
+    --traffic-glow: rgba(245, 158, 11, 0.28);
+  }
+
+  .traffic-pulse--high {
+    --traffic-color: rgba(239, 68, 68, 0.8);
+    --traffic-glow: rgba(239, 68, 68, 0.3);
   }
 
   .route-line-animated {
-    filter: drop-shadow(0 2px 8px rgba(5, 150, 105, 0.4));
+    animation: route-dash 1.2s linear infinite;
+    filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.45));
   }
 
   .leaflet-control-zoom {
     border: none !important;
-    box-shadow: var(--shadow-md) !important;
     border-radius: var(--rounded-lg) !important;
+    box-shadow: var(--shadow-lg) !important;
     overflow: hidden;
 
     a {
+      width: 38px !important;
+      height: 38px !important;
+      line-height: 38px !important;
       background: var(--surface-glass-strong) !important;
       color: var(--color-text) !important;
       border: none !important;
-      width: 36px !important;
-      height: 36px !important;
-      line-height: 36px !important;
+      backdrop-filter: blur(18px);
     }
+  }
+
+  .leaflet-control-attribution {
+    border-radius: 999px 0 0 0;
+    background: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: blur(12px);
+    font-size: 10px;
+  }
+}
+
+@keyframes route-dash {
+  to {
+    stroke-dashoffset: -26;
+  }
+}
+
+@keyframes traffic-pulse {
+  70% {
+    box-shadow: 0 0 0 22px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes car-breathe {
+  50% {
+    transform: scale(1.07);
+    box-shadow:
+      0 14px 28px rgba(15, 23, 42, 0.24),
+      0 0 0 10px rgba(16, 185, 129, 0.12);
   }
 }

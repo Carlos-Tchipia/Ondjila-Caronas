@@ -84,6 +84,12 @@ export const pt = {
     feature2: 'Motoristas verificados e avaliados',
     feature3: 'Preços claros antes de confirmares',
     feature4: 'Carteira digital integrada',
+    liveMapEyebrow: 'Mapa em tempo real',
+    liveMapTitle: 'Rotas vivas, carros em movimento e cobertura inteligente.',
+    liveMapBody:
+      'Acompanha a frota em Luanda com pins personalizados, zonas de transito e rotas animadas em tempo real.',
+    liveEta: 'Chegada estimada',
+    livePool: 'Pool activo',
     startNow: 'Começar agora',
     trustTrips: 'Viagens realizadas',
     trustDrivers: 'Motoristas activos',

@@ -41,6 +41,26 @@
     </div>
   </section>
 
+  <section class="live-map-showcase" id="mapa">
+    <div class="live-map-showcase__copy animate-in">
+      <span>{{ 'landing.liveMapEyebrow' | translate }}</span>
+      <h2>{{ 'landing.liveMapTitle' | translate }}</h2>
+      <p>{{ 'landing.liveMapBody' | translate }}</p>
+    </div>
+
+    <div class="live-map-showcase__stage animate-in">
+      <app-map-panel mapId="landing-live-map" [showcase]="true" [warmTone]="true" />
+      <div class="live-map-card live-map-card--eta">
+        <span>{{ 'landing.liveEta' | translate }}</span>
+        <strong>4 min</strong>
+      </div>
+      <div class="live-map-card live-map-card--pool">
+        <span>{{ 'landing.livePool' | translate }}</span>
+        <strong>3/3 {{ 'common.shared' | translate }}</strong>
+      </div>
+    </div>
+  </section>
+
   <section class="features" id="como-funciona">
     <div class="features__grid">
       <div class="features__visual animate-in">

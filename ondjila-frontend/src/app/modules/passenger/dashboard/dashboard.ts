@@ -201,7 +201,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
   onSearchDest(event: Event): void {
     const query = (event.target as HTMLInputElement).value.trim();
-    if (query.length > 3) {
+    if (query.length >= 2) {
       this.mapService.searchAddress(query).subscribe((res) =>
         this.suggestions.set(res as AddressSuggestion[])
       );

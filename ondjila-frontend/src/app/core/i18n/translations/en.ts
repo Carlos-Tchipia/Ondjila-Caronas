@@ -87,6 +87,12 @@ export const en: DeepStringTree<typeof pt> = {
     feature2: 'Verified and rated drivers',
     feature3: 'Clear prices before you confirm',
     feature4: 'Integrated digital wallet',
+    liveMapEyebrow: 'Real-time map',
+    liveMapTitle: 'Live routes, moving cars, and intelligent coverage.',
+    liveMapBody:
+      'Track the Luanda fleet with custom pins, traffic zones, and animated real-time routes.',
+    liveEta: 'Estimated arrival',
+    livePool: 'Active pool',
     startNow: 'Get started',
     trustTrips: 'Trips completed',
     trustDrivers: 'Active drivers',

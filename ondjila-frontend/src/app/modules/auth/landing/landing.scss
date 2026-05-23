@@ -245,6 +245,98 @@
 }
 
 /* ─── Features (white section) ─── */
+.live-map-showcase {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: center;
+  padding: clamp(4rem, 8vw, 6rem) clamp(1.5rem, 5vw, 3rem);
+  background: var(--color-bg);
+
+  @media (max-width: 920px) {
+    grid-template-columns: 1fr;
+  }
+
+  &__copy {
+    max-width: 520px;
+
+    span {
+      display: inline-flex;
+      margin-bottom: 1rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      background: var(--brand-50);
+      color: var(--brand-700);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.08;
+      margin-bottom: 1rem;
+      color: var(--color-text);
+    }
+
+    p {
+      color: var(--color-text-muted);
+      font-size: 1.0625rem;
+      line-height: 1.7;
+    }
+  }
+
+  &__stage {
+    position: relative;
+    min-height: 480px;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xl);
+    background: var(--color-map-bg);
+
+    @media (max-width: 620px) {
+      min-height: 380px;
+      border-radius: 1rem;
+    }
+  }
+}
+
+.live-map-card {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-lg);
+
+  span {
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  strong {
+    color: var(--color-text);
+    font-size: 1.15rem;
+  }
+
+  &--eta {
+    top: 1.25rem;
+    left: 1.25rem;
+  }
+
+  &--pool {
+    right: 1.25rem;
+    bottom: 1.25rem;
+  }
+}
+
 .features {
   padding: clamp(4rem, 10vw, 7rem) clamp(1.5rem, 5vw, 3rem);
   background: var(--color-bg);
