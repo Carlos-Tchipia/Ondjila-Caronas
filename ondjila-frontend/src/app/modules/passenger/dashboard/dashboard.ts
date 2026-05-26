@@ -18,7 +18,7 @@ import { PoolUiState } from '../../../core/models/pool.types';
 import { TranslateService } from '../../../core/i18n/translate.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { PricingApiService } from '../../../core/services/pricing/pricing-api.service';
-import { PricingQuote } from '../../../core/services/pricing/pricing.types';
+import { PricingQuote, PricingQuoteCatalog } from '../../../core/services/pricing/pricing.types';
 
 interface AddressSuggestion {
   place_id: number | string;
@@ -49,10 +49,12 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly rideMode = signal<'individual' | 'pool'>('pool');
   readonly isRequesting = signal(false);
   readonly isCancelling = signal(false);
+  readonly payingMethod = signal<'wallet' | 'multicaixa' | 'cash' | null>(null);
   readonly activeRide = signal<PassengerRide | null>(null);
   readonly walletBalance = signal(0);
   readonly notice = signal<{ kind: 'success' | 'error'; text: string } | null>(null);
   readonly pricingQuote = signal<PricingQuote | null>(null);
+  readonly pricingQuotes = signal<PricingQuoteCatalog | null>(null);
   readonly isPricing = signal(false);
 
   destLat?: number;
@@ -128,7 +130,7 @@ export class Dashboard implements OnInit, OnDestroy {
         const previousRide = this.activeRide();
         const newRide = res.data?.ride || null;
 
-        if (previousRide && !newRide && previousRide.status === 'in_progress') {
+        if (previousRide && !newRide && ['accepted', 'in_progress'].includes(previousRide.status)) {
           this.showNotice('success', this.translate.t('ride.tripDoneThanks'));
         }
 
@@ -204,6 +206,40 @@ export class Dashboard implements OnInit, OnDestroy {
     return ride.status === 'pending' || ride.status === 'accepted';
   }
 
+  needsPayment(ride: PassengerRide): boolean {
+    return ride.status === 'completed' && !ride.is_paid;
+  }
+
+  canPayWithWallet(ride: PassengerRide): boolean {
+    return this.walletBalance() >= Number(ride.fare_final || 0);
+  }
+
+  payRide(ride: PassengerRide, method: 'wallet' | 'multicaixa' | 'cash'): void {
+    if (method === 'wallet' && !this.canPayWithWallet(ride)) {
+      this.showNotice('error', 'Saldo insuficiente na carteira. Escolha transferência ou cash.');
+      return;
+    }
+
+    this.payingMethod.set(method);
+    this.passengerRidesApi.payRide(ride.id, method).subscribe({
+      next: (res) => {
+        this.payingMethod.set(null);
+        if (res.data?.wallet_balance != null) {
+          this.walletBalance.set(Number(res.data.wallet_balance));
+        } else {
+          this.fetchWalletBalance();
+        }
+        this.activeRide.set(null);
+        this.mapPanel?.stopDriverSimulation();
+        this.showNotice('success', 'Pagamento registado. Obrigado por viajar com a Ondjila.');
+      },
+      error: (err) => {
+        this.payingMethod.set(null);
+        this.showNotice('error', err.error?.message || this.translate.t('errors.generic'));
+      },
+    });
+  }
+
   onSearchDest(event: Event): void {
     const query = (event.target as HTMLInputElement).value.trim();
     if (query.length >= 2) {
@@ -226,12 +262,40 @@ export class Dashboard implements OnInit, OnDestroy {
 
   selectVehicle(type: 'economy' | 'comfort'): void {
     this.selectedType.set(type);
+    const catalog = this.pricingQuotes();
+    if (catalog?.[type]) {
+      this.pricingQuote.set(catalog[type]);
+      return;
+    }
     this.updateFareQuote();
+  }
+
+  selectVehicleAndContinue(type: 'economy' | 'comfort'): void {
+    this.selectVehicle(type);
+
+    if (!this.isRideReadyToRequest(type)) {
+      return;
+    }
+
+    this.requestSelectedRide();
+  }
+
+  private isRideReadyToRequest(type: 'economy' | 'comfort'): boolean {
+    const quote = this.pricingQuote();
+    return Boolean(
+      this.destLat &&
+        this.destLng &&
+        quote &&
+        quote.vehicle_type === type &&
+        !this.isPricing() &&
+        !this.isRequesting()
+    );
   }
 
   updateFareQuote(): void {
     if (!this.destLat || !this.destLng) {
       this.pricingQuote.set(null);
+      this.pricingQuotes.set(null);
       return;
     }
 
@@ -246,11 +310,13 @@ export class Dashboard implements OnInit, OnDestroy {
     }).subscribe({
       next: (res) => {
         this.isPricing.set(false);
+        this.pricingQuotes.set(res.data?.quotes ?? null);
         this.pricingQuote.set(res.data?.quote ?? null);
       },
       error: () => {
         this.isPricing.set(false);
         this.pricingQuote.set(null);
+        this.pricingQuotes.set(null);
       },
     });
   }
@@ -268,6 +334,7 @@ export class Dashboard implements OnInit, OnDestroy {
       vehicle_type: this.selectedType(),
       origin_address: this.originAddress(),
       destination_address: this.destLabel() || this.translate.t('passenger.destination'),
+      pricing_quote_id: this.pricingQuote()?.quote_id ?? null,
     };
 
     this.passengerRidesApi.requestPool(payload).subscribe({
@@ -331,6 +398,7 @@ export class Dashboard implements OnInit, OnDestroy {
       vehicle_type: this.selectedType(),
       origin_address: this.originAddress(),
       destination_address: this.destLabel() || this.translate.t('passenger.destination'),
+      pricing_quote_id: this.pricingQuote()?.quote_id ?? null,
     };
 
     this.passengerRidesApi.requestIndividual(payload).subscribe({
@@ -385,6 +453,10 @@ export class Dashboard implements OnInit, OnDestroy {
 
   formatAoa(value?: number): string {
     return `${Math.round(value ?? 0).toLocaleString('pt-AO')} AOA`;
+  }
+
+  categoryQuote(type: 'economy' | 'comfort'): PricingQuote | null {
+    return this.pricingQuotes()?.[type] ?? null;
   }
 
   multiplierImpact(value?: number): string {

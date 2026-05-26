@@ -9,6 +9,7 @@ import { BottomNav } from '../../../shared/components/bottom-nav/bottom-nav';
 import { DRIVER_NAV } from '../../../core/navigation/passenger-nav';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslateService } from '../../../core/i18n/translate.service';
+import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
@@ -118,9 +119,15 @@ export class Dashboard implements OnInit, OnDestroy {
   loadPools(): void {
     this.loading.set(true);
 
-    this.driverRidesApi.getAvailablePools().subscribe({
+    forkJoin({
+      rides: this.driverRidesApi.getAvailableRides(),
+      pools: this.driverRidesApi.getAvailablePools(),
+    }).subscribe({
       next: (res) => {
-        this.availablePools.set(res.data?.pools || []);
+        this.availablePools.set([
+          ...(res.rides.data?.rides || []),
+          ...(res.pools.data?.pools || []),
+        ]);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -142,10 +149,14 @@ export class Dashboard implements OnInit, OnDestroy {
     );
   }
 
-  acceptPool(pool: DriverRide): void {
-    this.acceptingId.set(pool.id);
+  acceptRequest(ride: DriverRide): void {
+    this.acceptingId.set(ride.id);
 
-    this.driverRidesApi.acceptPool(pool.id).subscribe({
+    const request = ride.ride_type === 'individual'
+      ? this.driverRidesApi.acceptRide(ride.id)
+      : this.driverRidesApi.acceptPool(ride.id);
+
+    request.subscribe({
       next: () => {
         this.acceptingId.set(null);
         this.checkCurrentRide();
@@ -162,13 +173,29 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
+  isReadyToStart(ride: DriverRide): boolean {
+    return ride.status === 'active' || ride.status === 'accepted';
+  }
+
+  isTripInProgress(ride: DriverRide): boolean {
+    return ride.status === 'in_progress';
+  }
+
+  requestLabel(ride: DriverRide): string {
+    return ride.ride_type === 'individual' ? 'Corrida individual' : 'Grupo';
+  }
+
+  requestTrackId(ride: DriverRide): string {
+    return `${ride.ride_type ?? 'pool'}-${ride.id}`;
+  }
+
   startRide(): void {
     const ride = this.activeRide();
     if (!ride) return;
 
     this.processing.set(true);
 
-    this.driverRidesApi.startRide(ride.id).subscribe({
+    this.driverRidesApi.startRide(ride).subscribe({
       next: () => {
         this.processing.set(false);
         this.checkCurrentRide();
@@ -191,7 +218,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
     this.processing.set(true);
 
-    this.driverRidesApi.completeRide(ride.id).subscribe({
+    this.driverRidesApi.completeRide(ride).subscribe({
       next: () => {
         this.processing.set(false);
         this.activeRide.set(null);

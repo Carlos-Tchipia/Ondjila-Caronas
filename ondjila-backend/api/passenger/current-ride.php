@@ -16,22 +16,38 @@ $query = "
            r.origin_address, r.origin_lat, r.origin_lng,
            r.destination_address, r.destination_lat, r.destination_lng,
            r.fare_final, r.fare_original, r.pickup_order, r.pool_discount_pct,
-           r.distance_km, r.duration_minutes, r.surge_multiplier, r.fare_breakdown,
-           pg.status as pool_group_status, pg.route_data, pg.driver_id, pg.current_count, pg.max_passengers,
+           r.payment_method, r.is_paid,
+           r.distance_km, r.duration_minutes,
+           pg.status as pool_group_status, pg.route_data,
+           COALESCE(pg.driver_id, r.driver_id) as driver_id,
+           pg.current_count, pg.max_passengers,
            d.vehicle_brand, d.vehicle_model, d.vehicle_plate, d.vehicle_color,
            d.current_lat as driver_lat, d.current_lng as driver_lng,
            u.name as driver_name, u.avatar_url as driver_avatar
     FROM rides r
     LEFT JOIN pool_groups pg ON r.pool_group_id = pg.id
-    LEFT JOIN drivers d ON pg.driver_id = d.id
+    LEFT JOIN drivers d ON d.id = COALESCE(pg.driver_id, r.driver_id)
     LEFT JOIN users u ON d.user_id = u.id
-    WHERE r.passenger_id = ? AND r.status IN ('pending', 'accepted', 'in_progress')
+    WHERE r.passenger_id = ?
+      AND (
+        r.status IN ('pending', 'accepted', 'in_progress')
+        OR (r.status = 'completed' AND r.is_paid = 0)
+      )
+      AND (
+        r.status <> 'pending'
+        OR r.created_at >= COALESCE((
+            SELECT MAX(done.completed_at)
+            FROM rides done
+            WHERE done.passenger_id = ?
+              AND done.status = 'completed'
+        ), '1970-01-01')
+      )
     ORDER BY r.created_at DESC
     LIMIT 1
 ";
 
 $stmt = $conn->prepare($query);
-$stmt->execute([$payload->sub]);
+$stmt->execute([$payload->sub, $payload->sub]);
 $currentRide = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$currentRide) {
@@ -56,7 +72,7 @@ $ride = [
     'pool_group_id' => $currentRide['pool_group_id'] ? (int) $currentRide['pool_group_id'] : null,
     'pool_status' => $currentRide['pool_status'],
     'pool_group_status' => $currentRide['pool_group_status'],
-    'ui_state' => $poolDetails['ui_state'] ?? 'searching_passengers',
+    'ui_state' => $currentRide['ride_type'] === 'pool' ? ($poolDetails['ui_state'] ?? 'searching_passengers') : null,
     'origin_address' => $currentRide['origin_address'],
     'origin_lat' => (float) $currentRide['origin_lat'],
     'origin_lng' => (float) $currentRide['origin_lng'],
@@ -65,10 +81,10 @@ $ride = [
     'destination_lng' => (float) $currentRide['destination_lng'],
     'fare_final' => (float) $currentRide['fare_final'],
     'fare_original' => (float) $currentRide['fare_original'],
+    'payment_method' => $currentRide['payment_method'],
+    'is_paid' => (bool) $currentRide['is_paid'],
     'distance_km' => (float) $currentRide['distance_km'],
     'duration_minutes' => $currentRide['duration_minutes'] ? (int) $currentRide['duration_minutes'] : null,
-    'surge_multiplier' => $currentRide['surge_multiplier'] ? (float) $currentRide['surge_multiplier'] : 1.0,
-    'fare_breakdown' => $currentRide['fare_breakdown'] ? json_decode($currentRide['fare_breakdown'], true) : null,
     'savings' => max(0, (float) $currentRide['fare_original'] - (float) $currentRide['fare_final']),
     'pickup_order' => (int) $currentRide['pickup_order'],
     'driver_id' => $currentRide['driver_id'],

@@ -108,6 +108,85 @@ class DynamicPricingService
         $stmt->execute([$rideId, $quoteId]);
     }
 
+    public static function usableQuote(PDO $conn, int $quoteId, int $passengerId, string $vehicleType, string $rideType, array $input): ?array
+    {
+        PricingSchemaHelper::ensure($conn);
+
+        $stmt = $conn->prepare("
+            SELECT *
+            FROM pricing_quotes
+            WHERE id = ?
+              AND passenger_id = ?
+              AND vehicle_type = ?
+              AND ride_type = ?
+              AND ABS(origin_lat - ?) < 0.0002
+              AND ABS(origin_lng - ?) < 0.0002
+              AND ABS(destination_lat - ?) < 0.0002
+              AND ABS(destination_lng - ?) < 0.0002
+              AND created_at >= DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+            LIMIT 1
+        ");
+        $stmt->execute([
+            $quoteId,
+            $passengerId,
+            $vehicleType,
+            $rideType,
+            (float) $input['origin_lat'],
+            (float) $input['origin_lng'],
+            (float) $input['dest_lat'],
+            (float) $input['dest_lng'],
+        ]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return null;
+        }
+
+        return [
+            'quote_id' => (int) $row['id'],
+            'ride_type' => $row['ride_type'],
+            'vehicle_type' => $row['vehicle_type'],
+            'region' => $row['region'],
+            'distance_km' => (float) $row['distance_km'],
+            'duration_minutes' => (int) $row['duration_minutes'],
+            'stopped_minutes' => (int) ((json_decode($row['factors'] ?? '{}', true)['traffic']['stopped_minutes'] ?? 0)),
+            'average_speed_kmh' => (float) ((json_decode($row['factors'] ?? '{}', true)['traffic']['average_speed_kmh'] ?? 0)),
+            'base_fare' => (float) $row['base_fare'],
+            'final_fare' => (float) $row['final_fare'],
+            'surge_multiplier' => (float) $row['surge_multiplier'],
+            'multipliers' => json_decode($row['multipliers'] ?? '{}', true) ?: [],
+            'factors' => json_decode($row['factors'] ?? '{}', true) ?: [],
+            'reasons' => json_decode($row['reasons'] ?? '[]', true) ?: [],
+            'transparent_summary' => [
+                'formula' => '(base + distancia + tempo) x multiplicador + taxas controladas',
+                'base_component' => (float) $row['base_fare'],
+                'multiplier_component' => (float) $row['surge_multiplier'],
+                'extras_total' => 0,
+                'final_fare' => (float) $row['final_fare'],
+            ],
+        ];
+    }
+
+    public static function publicQuote(array $quote): array
+    {
+        $vehicleType = $quote['vehicle_type'];
+        return [
+            'quote_id' => $quote['quote_id'],
+            'ride_type' => $quote['ride_type'],
+            'vehicle_type' => $vehicleType,
+            'label_key' => $vehicleType === 'comfort' ? 'passenger.comfortRide' : 'passenger.economyRide',
+            'description_key' => $vehicleType === 'comfort' ? 'passenger.comfortDescription' : 'passenger.economyDescription',
+            'features_keys' => $vehicleType === 'comfort'
+                ? ['passenger.comfortFeatureSpace', 'passenger.comfortFeatureRating', 'passenger.comfortFeatureAc']
+                : ['passenger.economyFeaturePrice', 'passenger.economyFeatureDaily', 'passenger.economyFeatureSimple'],
+            'final_fare' => $quote['final_fare'],
+            'formatted_fare' => number_format(round((float) $quote['final_fare']), 0, ',', '.') . ' AOA',
+            'distance_km' => $quote['distance_km'],
+            'duration_minutes' => $quote['duration_minutes'],
+            'price_lock_minutes' => 10,
+        ];
+    }
+
     public static function metrics(PDO $conn): array
     {
         PricingSchemaHelper::ensure($conn);

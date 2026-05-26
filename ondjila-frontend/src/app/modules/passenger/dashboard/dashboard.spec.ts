@@ -22,6 +22,8 @@ describe('Dashboard', () => {
           useValue: {
             getCurrentRide: () => of({ data: { ride: null } }),
             requestPool: () => of({ data: undefined }),
+            requestIndividual: () => of({ data: undefined }),
+            payRide: () => of({ data: { wallet_balance: 0 } }),
             cancelPool: () => of({ data: null }),
           },
         },

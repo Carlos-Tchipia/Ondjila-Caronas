@@ -22,9 +22,23 @@ if (!empty($errors)) {
 }
 
 $conn = Database::getInstance()->getConnection();
-$quote = DynamicPricingService::quote($conn, [
-    ...$data,
-    'ride_type' => $data['ride_type'] ?? 'individual',
-], (int) $payload->sub, true);
+$rideType = $data['ride_type'] ?? 'individual';
+$categories = ['economy', 'comfort'];
+$quotes = [];
 
-Response::success(['quote' => $quote], 'Tarifa dinamica calculada');
+foreach ($categories as $category) {
+    $quote = DynamicPricingService::quote($conn, [
+        ...$data,
+        'vehicle_type' => $category,
+        'ride_type' => $rideType,
+    ], (int) $payload->sub, true);
+
+    $quotes[$category] = DynamicPricingService::publicQuote($quote);
+}
+
+$selected = $data['vehicle_type'];
+
+Response::success([
+    'quote' => $quotes[$selected] ?? $quotes['economy'],
+    'quotes' => $quotes,
+], 'Preco fechado calculado');

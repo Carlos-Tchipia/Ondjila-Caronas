@@ -18,16 +18,30 @@ export class DriverRidesApiService {
     return this.api.get<ApiResponse<{ pools: DriverRide[] }>>(ApiEndpoints.driver.availablePools);
   }
 
+  getAvailableRides() {
+    return this.api.get<ApiResponse<{ rides: DriverRide[] }>>(ApiEndpoints.driver.availableRides);
+  }
+
+  acceptRide(rideId: number) {
+    return this.api.post<ApiResponse<null>>(ApiEndpoints.driver.acceptRide, { ride_id: rideId });
+  }
+
   acceptPool(poolGroupId: number) {
     return this.api.post<ApiResponse<null>>(ApiEndpoints.driver.acceptPool, { pool_group_id: poolGroupId });
   }
 
-  startRide(poolGroupId: number) {
-    return this.api.post<ApiResponse<null>>(ApiEndpoints.driver.startRide, { pool_group_id: poolGroupId });
+  startRide(ride: DriverRide) {
+    const body = ride.ride_type === 'individual'
+      ? { ride_id: ride.id }
+      : { pool_group_id: ride.id };
+    return this.api.post<ApiResponse<null>>(ApiEndpoints.driver.startRide, body);
   }
 
-  completeRide(poolGroupId: number) {
-    return this.api.post<ApiResponse<null>>(ApiEndpoints.driver.completeRide, { pool_group_id: poolGroupId });
+  completeRide(ride: DriverRide) {
+    const body = ride.ride_type === 'individual'
+      ? { ride_id: ride.id }
+      : { pool_group_id: ride.id };
+    return this.api.post<ApiResponse<null>>(ApiEndpoints.driver.completeRide, body);
   }
 
   updateLocation(lat: number, lng: number) {

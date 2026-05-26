@@ -29,26 +29,43 @@ $vehicleType = $data['vehicle_type'];
 
 $conn = Database::getInstance()->getConnection();
 
-$pricingQuote = DynamicPricingService::quote($conn, [
-    'origin_lat' => $data['origin_lat'],
-    'origin_lng' => $data['origin_lng'],
-    'dest_lat' => $data['dest_lat'],
-    'dest_lng' => $data['dest_lng'],
-    'vehicle_type' => $vehicleType,
-    'ride_type' => 'individual',
-], (int) $payload->sub, true);
+$conn->prepare("
+    UPDATE rides
+    SET status = 'cancelled',
+        cancelled_at = NOW(),
+        cancellation_reason = 'Substituída por novo pedido individual'
+    WHERE passenger_id = ?
+      AND ride_type = 'individual'
+      AND status = 'pending'
+      AND driver_id IS NULL
+")->execute([$payload->sub]);
+
+$pricingQuote = null;
+if (!empty($data['pricing_quote_id'])) {
+    $pricingQuote = DynamicPricingService::usableQuote(
+        $conn,
+        (int) $data['pricing_quote_id'],
+        (int) $payload->sub,
+        $vehicleType,
+        'individual',
+        $data
+    );
+}
+
+if (!$pricingQuote) {
+    $pricingQuote = DynamicPricingService::quote($conn, [
+        'origin_lat' => $data['origin_lat'],
+        'origin_lng' => $data['origin_lng'],
+        'dest_lat' => $data['dest_lat'],
+        'dest_lng' => $data['dest_lng'],
+        'vehicle_type' => $vehicleType,
+        'ride_type' => 'individual',
+    ], (int) $payload->sub, true);
+}
 $distanceKm = (float) $pricingQuote['distance_km'];
 $durationMinutes = (int) $pricingQuote['duration_minutes'];
 $fare = (float) $pricingQuote['final_fare'];
 $baseFare = (float) $pricingQuote['base_fare'];
-
-$stmtBalance = $conn->prepare('SELECT wallet_balance FROM users WHERE id = ?');
-$stmtBalance->execute([$payload->sub]);
-$balance = (float) $stmtBalance->fetchColumn();
-
-if ($balance < $fare * 0.5) {
-    Response::error('Saldo insuficiente na carteira virtual', 402);
-}
 
 $stmt = $conn->prepare("
     INSERT INTO rides (
@@ -57,14 +74,14 @@ $stmt = $conn->prepare("
         destination_address, destination_lat, destination_lng,
         vehicle_type, status,
         fare_estimate, fare_final, fare_original, distance_km, duration_minutes,
-        pricing_quote_id, surge_multiplier, fare_breakdown
+        pricing_quote_id, surge_multiplier, fare_breakdown, payment_method, is_paid
     ) VALUES (
         :pass_id, 'individual',
         :o_addr, :o_lat, :o_lng,
         :d_addr, :d_lat, :d_lng,
         :v_type, 'pending',
-        :fare, :fare, :base_fare, :dist_km, :duration_min,
-        :quote_id, :surge_multiplier, :fare_breakdown
+        :fare_estimate, :fare_final, :base_fare, :dist_km, :duration_min,
+        :quote_id, :surge_multiplier, :fare_breakdown, NULL, 0
     )
 ");
 
@@ -77,7 +94,8 @@ $stmt->execute([
     ':d_lat' => $data['dest_lat'],
     ':d_lng' => $data['dest_lng'],
     ':v_type' => $vehicleType,
-    ':fare' => $fare,
+    ':fare_estimate' => $fare,
+    ':fare_final' => $fare,
     ':base_fare' => $baseFare,
     ':dist_km' => $distanceKm,
     ':duration_min' => $durationMinutes,
@@ -97,5 +115,5 @@ Response::success([
     'fare_estimate' => $fare,
     'distance_km' => $distanceKm,
     'duration_minutes' => $durationMinutes,
-    'pricing' => $pricingQuote,
+    'pricing' => DynamicPricingService::publicQuote($pricingQuote),
 ], 'Pedido de viagem individual registado', 201);

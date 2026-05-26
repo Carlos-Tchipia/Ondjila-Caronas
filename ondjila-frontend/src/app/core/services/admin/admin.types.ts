@@ -80,11 +80,17 @@ export interface AdminDriver {
   docsTotal: number;
 }
 
+export interface AdminDriverDecisionResponse {
+  driver: AdminDriver;
+  summary: AdminDriversResponse['summary'];
+}
+
 export interface AdminDriversResponse {
   summary: {
     pending: number;
     approved: number;
     rejected: number;
+    suspended: number;
     online: number;
     total: number;
   };
@@ -107,4 +113,34 @@ export interface AdminSectionRow {
 export interface AdminSectionResponse {
   metrics: AdminSectionMetric[];
   rows: AdminSectionRow[];
+}
+
+export interface AdminLiveMapDriver {
+  id: number;
+  name: string;
+  vehicle: string;
+  vehicle_type: string;
+  plate: string;
+  is_available: boolean;
+  current_lat: number | null;
+  current_lng: number | null;
+}
+
+export interface AdminLiveMapRide {
+  id: number;
+  ride_type: 'individual' | 'pool' | string;
+  status: string;
+  origin_address: string;
+  destination_address: string;
+  origin_lat: number;
+  origin_lng: number;
+  destination_lat: number;
+  destination_lng: number;
+  driver_name: string | null;
+  passenger_name: string;
+}
+
+export interface AdminLiveMapResponse {
+  drivers: AdminLiveMapDriver[];
+  rides: AdminLiveMapRide[];
 }

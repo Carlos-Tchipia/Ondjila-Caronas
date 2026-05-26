@@ -5,9 +5,7 @@ require_once '../../helpers/Response.php';
 require_once '../../helpers/AuthHelper.php';
 
 $payload = AuthHelper::requireAuth();
-
 $data = json_decode(file_get_contents('php://input'), true);
-if (!isset($data['pool_group_id'])) Response::error('ID do Pool Group em falta', 422);
 
 $conn = Database::getInstance()->getConnection();
 $driverId = AuthHelper::requireApprovedDriver($conn, $payload);
@@ -15,6 +13,29 @@ $driverId = AuthHelper::requireApprovedDriver($conn, $payload);
 $conn->beginTransaction();
 
 try {
+    if (isset($data['ride_id'])) {
+        $stmt = $conn->prepare("
+            UPDATE rides
+            SET status = 'in_progress', started_at = NOW()
+            WHERE id = ?
+              AND driver_id = ?
+              AND ride_type = 'individual'
+              AND status = 'accepted'
+        ");
+        $stmt->execute([$data['ride_id'], $driverId]);
+
+        if ($stmt->rowCount() === 0) {
+            throw new Exception('Corrida individual não encontrada ou já iniciada.');
+        }
+
+        $conn->commit();
+        Response::success(null, 'Viagem iniciada com sucesso.', 200);
+    }
+
+    if (!isset($data['pool_group_id'])) {
+        Response::error('ID da viagem em falta', 422);
+    }
+
     $stmt1 = $conn->prepare("UPDATE pool_groups SET status = 'in_progress', started_at = NOW() WHERE id = ? AND driver_id = ? AND status = 'active'");
     $stmt1->execute([$data['pool_group_id'], $driverId]);
 

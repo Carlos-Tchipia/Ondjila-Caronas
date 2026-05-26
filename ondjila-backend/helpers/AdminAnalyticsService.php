@@ -120,6 +120,7 @@ class AdminAnalyticsService
             'pending' => (int) self::scalar($conn, "SELECT COUNT(*) FROM drivers WHERE approval_status = 'pending'"),
             'approved' => (int) self::scalar($conn, "SELECT COUNT(*) FROM drivers WHERE approval_status = 'approved'"),
             'rejected' => (int) self::scalar($conn, "SELECT COUNT(*) FROM drivers WHERE approval_status = 'rejected'"),
+            'suspended' => (int) self::scalar($conn, "SELECT COUNT(*) FROM drivers WHERE approval_status = 'suspended'"),
             'online' => (int) self::scalar($conn, "SELECT COUNT(*) FROM drivers WHERE approval_status = 'approved' AND is_available = 1"),
             'total' => (int) self::scalar($conn, 'SELECT COUNT(*) FROM drivers'),
         ];
@@ -267,6 +268,7 @@ class AdminAnalyticsService
             SELECT COALESCE(SUM(fare_final), 0)
             FROM rides
             WHERE status = 'completed'
+              AND is_paid = 1
               AND created_at BETWEEN ? AND ?
         ", [$start, $end]);
     }

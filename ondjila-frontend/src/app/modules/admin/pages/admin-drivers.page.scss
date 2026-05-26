@@ -59,6 +59,23 @@
   }
 }
 
+.admin-notice {
+  margin: 0 var(--space-6) var(--space-4);
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: var(--rounded-lg);
+  color: var(--brand-700);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  padding: var(--space-3) var(--space-4);
+
+  &--error {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #b91c1c;
+  }
+}
+
 .real-summary {
   display: flex;
   gap: var(--space-3);
@@ -115,6 +132,13 @@
 .btn--sm {
   padding: 8px 14px;
   font-size: var(--text-xs);
+}
+
+.actions-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 210px;
 }
 
 .table-footer {

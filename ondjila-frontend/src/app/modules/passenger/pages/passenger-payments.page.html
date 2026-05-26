@@ -12,48 +12,81 @@
   </header>
 
   <div class="payments-grid">
+    @if (notice(); as currentNotice) {
+      <div class="wallet-notice" [class.wallet-notice--error]="currentNotice.kind === 'error'">
+        {{ currentNotice.text }}
+      </div>
+    }
+
     <section class="ui-card ui-card--gradient-green balance-card">
       <span class="balance-card__label">{{ 'passenger.currentBalance' | translate }}</span>
       <p class="balance-card__amount">{{ balance() | number:'1.0-0' }} <small>AOA</small></p>
       <div class="balance-card__actions">
-        <button type="button" class="btn btn--primary">{{ 'passenger.topUp' | translate }}</button>
-        <button type="button" class="btn btn--ghost">{{ 'passenger.withdraw' | translate }}</button>
+        <button type="button" class="btn btn--primary" (click)="topUp()" [disabled]="isToppingUp()">
+          {{ isToppingUp() ? 'A carregar...' : ('passenger.topUp' | translate) }}
+        </button>
+        <button type="button" class="btn btn--ghost" disabled>{{ 'passenger.withdraw' | translate }}</button>
       </div>
     </section>
 
     <section class="ui-card promos-card">
-      <h2>{{ 'passenger.promos' | translate }}</h2>
-      <p class="muted">{{ 'passenger.promosSubtitle' | translate }}</p>
+      <h2>Carregar carteira</h2>
+      <p class="muted">Simule um carregamento por Multicaixa Express ou transferencia bancaria.</p>
+      <div class="quick-amounts">
+        @for (amount of [2000, 5000, 10000, 20000]; track amount) {
+          <button type="button" [class.selected]="topUpAmount() === amount" (click)="setTopUpAmount(amount)">
+            {{ amount | number:'1.0-0' }}
+          </button>
+        }
+      </div>
       <div class="promo-input">
-        <input type="text" [placeholder]="'passenger.promoPlaceholder' | translate" />
-        <button type="button" class="btn btn--primary">{{ 'common.apply' | translate }}</button>
+        <input
+          type="number"
+          min="100"
+          step="100"
+          [value]="topUpAmount()"
+          (input)="updateCustomAmount($event)"
+          placeholder="Valor em AOA"
+        />
+        <button type="button" class="btn btn--primary" (click)="topUp()" [disabled]="isToppingUp()">
+          Confirmar
+        </button>
       </div>
-      <div class="voucher voucher--active">
-        <strong>{{ 'passenger.voucherWelcome' | translate }}</strong>
-        <span>{{ 'passenger.voucherWelcomeOff' | translate }}</span>
-      </div>
-      <div class="voucher voucher--locked">
-        <strong>{{ 'passenger.voucherVip' | translate }}</strong>
-        <span>🔒 {{ 'passenger.voucherVipLocked' | translate }}</span>
+      <div class="topup-summary">
+        <strong>{{ topUpAmount() | number:'1.0-0' }} AOA</strong>
+        <span>{{ selectedMethod() === 'multicaixa' ? 'Multicaixa Express' : 'Transferencia bancaria' }}</span>
       </div>
     </section>
 
     <section class="ui-card methods-card">
       <h2>{{ 'passenger.paymentMethods' | translate }}</h2>
-      <label class="pay-method pay-method--selected">
-        <span class="pay-method__icon">🏦</span>
+      <button
+        type="button"
+        class="pay-method"
+        [class.pay-method--selected]="selectedMethod() === 'multicaixa'"
+        (click)="selectedMethod.set('multicaixa')"
+      >
+        <span class="pay-method__icon">Kz</span>
         <span>
           <strong>{{ 'passenger.multicaixaExpress' | translate }}</strong>
-          <small>•••• 4821</small>
+          <small>Pagamento simulado imediato</small>
         </span>
-        <span class="pay-method__check">✓</span>
-      </label>
-      <label class="pay-method">
-        <span class="pay-method__icon">💵</span>
-        <span><strong>{{ 'passenger.cash' | translate }}</strong></span>
-        <span class="pay-method__radio"></span>
-      </label>
-      <button type="button" class="add-card">{{ 'passenger.addCard' | translate }}</button>
+        <span class="pay-method__check">{{ selectedMethod() === 'multicaixa' ? 'OK' : '' }}</span>
+      </button>
+      <button
+        type="button"
+        class="pay-method"
+        [class.pay-method--selected]="selectedMethod() === 'bank_transfer'"
+        (click)="selectedMethod.set('bank_transfer')"
+      >
+        <span class="pay-method__icon">TR</span>
+        <span>
+          <strong>Transferencia bancaria</strong>
+          <small>Simulacao de comprovativo aprovado</small>
+        </span>
+        <span class="pay-method__check">{{ selectedMethod() === 'bank_transfer' ? 'OK' : '' }}</span>
+      </button>
+      <button type="button" class="add-card" disabled>{{ 'passenger.addCard' | translate }}</button>
     </section>
 
     <section class="ui-card history-card">
@@ -61,12 +94,26 @@
         <h2>{{ 'passenger.txHistory' | translate }}</h2>
         <a routerLink="/passenger/trips">{{ 'common.seeAll' | translate }}</a>
       </div>
-      <ul class="tx-list">
-        <li><span class="tx-icon">🚗</span><span><strong>{{ 'passenger.txPremium' | translate }}</strong><small>{{ 'passenger.txToday' | translate }}</small></span><strong class="neg">- 3.200 AOA</strong></li>
-        <li><span class="tx-icon">💳</span><span><strong>{{ 'passenger.txTopUp' | translate }}</strong><small>{{ 'passenger.txYesterday' | translate }}</small></span><strong class="pos">+ 10.000 AOA</strong></li>
-        <li><span class="tx-icon">🚗</span><span><strong>{{ 'passenger.txPool' | translate }}</strong><small>{{ 'passenger.txDateMay12' | translate }}</small></span><strong class="neg">- 680 AOA</strong></li>
-        <li><span class="tx-icon">🎁</span><span><strong>{{ 'passenger.txBonus' | translate }}</strong><small>{{ 'passenger.txDateMay10' | translate }}</small></span><strong class="pos">+ 500 AOA</strong></li>
-      </ul>
+      @if (transactions().length > 0) {
+        <ul class="tx-list">
+          @for (tx of transactions(); track tx.id) {
+            <li>
+              <span class="tx-icon">{{ txIcon(tx.type) }}</span>
+              <span>
+                <strong>{{ tx.description || tx.type }}</strong>
+                <small>{{ formatDate(tx.created_at) }}</small>
+              </span>
+              <strong [class.pos]="tx.amount > 0" [class.neg]="tx.amount < 0">
+                {{ tx.amount > 0 ? '+' : '' }}{{ tx.amount | number:'1.0-0' }} AOA
+              </strong>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="empty-history">
+          Ainda nao existem transacoes nesta carteira.
+        </div>
+      }
     </section>
   </div>
 

@@ -31,6 +31,13 @@ export class PassengerRidesApiService {
     );
   }
 
+  payRide(rideId: number, paymentMethod: 'wallet' | 'multicaixa' | 'cash') {
+    return this.api.post<ApiResponse<{ ride_id: number; payment_method: string; amount: number; wallet_balance: number }>>(
+      ApiEndpoints.passenger.payRide,
+      { ride_id: rideId, payment_method: paymentMethod }
+    );
+  }
+
   cancelPool() {
     return this.api.post<ApiResponse<null>>(ApiEndpoints.passenger.cancelPool, {});
   }

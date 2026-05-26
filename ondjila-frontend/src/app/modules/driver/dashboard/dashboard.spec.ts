@@ -21,7 +21,9 @@ describe('Dashboard', () => {
           provide: DriverRidesApiService,
           useValue: {
             getCurrentRide: () => of({ data: { ride: null } }),
+            getAvailableRides: () => of({ data: { rides: [] } }),
             getAvailablePools: () => of({ data: { pools: [] } }),
+            acceptRide: () => of({ data: null }),
             acceptPool: () => of({ data: null }),
             startRide: () => of({ data: null }),
             completeRide: () => of({ data: null }),

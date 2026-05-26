@@ -17,13 +17,16 @@ export class AdminDriversPage implements OnInit {
   readonly menu = ADMIN_SIDEBAR_MENU;
   readonly cta = ADMIN_SIDEBAR_CTA;
   readonly brand = { titleKey: 'admin.brand', subtitleKey: 'admin.subtitle' };
-  readonly tab = signal<'pending' | 'approved' | 'rejected'>('pending');
+  readonly tab = signal<'pending' | 'approved' | 'rejected' | 'suspended'>('pending');
   readonly search = signal('');
   readonly loading = signal(true);
+  readonly actionId = signal<number | null>(null);
+  readonly notice = signal<{ kind: 'success' | 'error'; text: string } | null>(null);
   readonly summary = signal<AdminDriversResponse['summary']>({
     pending: 0,
     approved: 0,
     rejected: 0,
+    suspended: 0,
     online: 0,
     total: 0,
   });
@@ -44,6 +47,11 @@ export class AdminDriversPage implements OnInit {
   constructor(private readonly adminApi: AdminApiService) {}
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    this.loading.set(true);
     this.adminApi.drivers().subscribe({
       next: (res) => {
         this.summary.set(res.data?.summary ?? this.summary());
@@ -52,6 +60,32 @@ export class AdminDriversPage implements OnInit {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  decide(driver: AdminDriver, action: 'approve' | 'reject' | 'suspend' | 'reactivate'): void {
+    this.actionId.set(driver.id);
+    this.adminApi.decideDriver(driver.id, action).subscribe({
+      next: (res) => {
+        const updated = res.data?.driver;
+        if (updated) {
+          this.drivers.update((drivers) => drivers.map((item) => item.id === updated.id ? updated : item));
+        }
+        if (res.data?.summary) {
+          this.summary.set(res.data.summary);
+        }
+        this.actionId.set(null);
+        this.showNotice('success', 'Estado do motorista atualizado.');
+      },
+      error: (err) => {
+        this.actionId.set(null);
+        this.showNotice('error', err.error?.message || 'Não foi possível atualizar o motorista.');
+      },
+    });
+  }
+
+  private showNotice(kind: 'success' | 'error', text: string): void {
+    this.notice.set({ kind, text });
+    setTimeout(() => this.notice.set(null), 3500);
   }
 
   avatarColor(index: number): string {

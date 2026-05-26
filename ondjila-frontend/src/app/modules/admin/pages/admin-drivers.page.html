@@ -6,6 +6,12 @@
     <p>{{ 'admin.driverValidationSub' | translate }}</p>
   </header>
 
+  @if (notice(); as currentNotice) {
+    <div class="admin-notice" [class.admin-notice--error]="currentNotice.kind === 'error'">
+      {{ currentNotice.text }}
+    </div>
+  }
+
   <div class="tabs">
     <button type="button" [class.active]="tab() === 'pending'" (click)="tab.set('pending')">
       {{ 'admin.pending' | translate }} <span class="badge">{{ summary().pending }}</span>
@@ -15,6 +21,9 @@
     </button>
     <button type="button" [class.active]="tab() === 'rejected'" (click)="tab.set('rejected')">
       {{ 'admin.rejected' | translate }} <span class="badge">{{ summary().rejected }}</span>
+    </button>
+    <button type="button" [class.active]="tab() === 'suspended'" (click)="tab.set('suspended')">
+      Suspensos <span class="badge">{{ summary().suspended }}</span>
     </button>
   </div>
 
@@ -41,6 +50,7 @@
           <th>{{ 'admin.submitted' | translate }}</th>
           <th>{{ 'admin.docStatus' | translate }}</th>
           <th>{{ 'admin.state' | translate }}</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -64,10 +74,34 @@
             <td>
               <span class="pill" [class.pill--green]="d.is_available">{{ d.approval_status }}</span>
             </td>
+            <td>
+              <div class="actions-cell">
+                @if (d.approval_status === 'pending' || d.approval_status === 'rejected') {
+                  <button type="button" class="btn btn--primary btn--sm" (click)="decide(d, 'approve')" [disabled]="actionId() === d.id">
+                    Aprovar
+                  </button>
+                }
+                @if (d.approval_status === 'pending') {
+                  <button type="button" class="btn btn--ghost btn--sm" (click)="decide(d, 'reject')" [disabled]="actionId() === d.id">
+                    Rejeitar
+                  </button>
+                }
+                @if (d.approval_status === 'approved') {
+                  <button type="button" class="btn btn--ghost btn--sm" (click)="decide(d, 'suspend')" [disabled]="actionId() === d.id">
+                    Suspender
+                  </button>
+                }
+                @if (d.approval_status === 'suspended') {
+                  <button type="button" class="btn btn--primary btn--sm" (click)="decide(d, 'reactivate')" [disabled]="actionId() === d.id">
+                    Reativar
+                  </button>
+                }
+              </div>
+            </td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="6" class="empty-table">{{ loading() ? ('common.loading' | translate) : ('admin.noRealData' | translate) }}</td>
+            <td colspan="7" class="empty-table">{{ loading() ? ('common.loading' | translate) : ('admin.noRealData' | translate) }}</td>
           </tr>
         }
       </tbody>

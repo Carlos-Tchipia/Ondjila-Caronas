@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiClient } from '../../api/api-client.service';
 import { ApiEndpoints } from '../../api/api-endpoints';
 import { ApiResponse } from '../../api/api-response';
-import { PricingControls, PricingMetrics, PricingQuote, PricingQuoteRequest } from './pricing.types';
+import { PricingControls, PricingMetrics, PricingQuote, PricingQuoteCatalog, PricingQuoteRequest } from './pricing.types';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +11,7 @@ export class PricingApiService {
   constructor(private readonly api: ApiClient) {}
 
   quote(payload: PricingQuoteRequest) {
-    return this.api.post<ApiResponse<{ quote: PricingQuote }>>(ApiEndpoints.pricing.quote, payload);
+    return this.api.post<ApiResponse<{ quote: PricingQuote; quotes: PricingQuoteCatalog }>>(ApiEndpoints.pricing.quote, payload);
   }
 
   adminDashboard() {

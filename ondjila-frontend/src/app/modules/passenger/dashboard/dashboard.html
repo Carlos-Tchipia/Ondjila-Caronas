@@ -35,20 +35,10 @@
           <div class="fare-row">
             <span>{{ 'ride.amount' | translate }}</span>
             <strong>{{ formatAoa(ride.fare_final) }}</strong>
-            @if (ride.surge_multiplier && ride.surge_multiplier > 1.01) {
-              <span class="savings-tag">{{ ride.surge_multiplier }}x</span>
-            }
             @if (ride.savings) {
               <span class="savings-tag">{{ 'ride.saveAmount' | translate: { amount: formatAoa(ride.savings) } }}</span>
             }
           </div>
-          @if (ride.fare_breakdown?.reasons?.length) {
-            <ul class="fare-reasons fare-reasons--compact">
-              @for (reason of ride.fare_breakdown?.reasons; track reason.code) {
-                <li><span>{{ reason.label }}</span><strong>{{ reason.impact }}</strong></li>
-              }
-            </ul>
-          }
         }
 
         @if (ride.driver_name) {
@@ -65,6 +55,44 @@
             <div class="spinner"></div>
             <p>{{ 'ride.waitingDriver' | translate }}</p>
           </div>
+        }
+
+        @if (needsPayment(ride)) {
+          <section class="payment-panel">
+            <div class="payment-panel__head">
+              <span>Pagamento pendente</span>
+              <strong>{{ formatAoa(ride.fare_final) }}</strong>
+            </div>
+            <div class="payment-methods">
+              <button
+                type="button"
+                class="payment-method"
+                (click)="payRide(ride, 'wallet')"
+                [disabled]="!canPayWithWallet(ride) || payingMethod() !== null"
+              >
+                <span>Carteira</span>
+                <small>{{ canPayWithWallet(ride) ? 'Pagar com saldo' : 'Saldo insuficiente' }}</small>
+              </button>
+              <button
+                type="button"
+                class="payment-method"
+                (click)="payRide(ride, 'multicaixa')"
+                [disabled]="payingMethod() !== null"
+              >
+                <span>Transferência</span>
+                <small>Simular pagamento bancário</small>
+              </button>
+              <button
+                type="button"
+                class="payment-method"
+                (click)="payRide(ride, 'cash')"
+                [disabled]="payingMethod() !== null"
+              >
+                <span>Cash</span>
+                <small>Confirmar dinheiro entregue</small>
+              </button>
+            </div>
+          </section>
         }
 
         @if (canCancelRide(ride)) {
@@ -108,45 +136,44 @@
           type="button"
           class="v-card"
           [class.selected]="selectedType() === 'economy'"
-          (click)="selectVehicle('economy')"
+          (click)="selectVehicleAndContinue('economy')"
         >
           <span class="vehicle-mark">E</span>
-          <span class="v-name">{{ (rideMode() === 'individual' ? 'passenger.economyRide' : 'passenger.economyPool') | translate }}</span>
+          <span class="v-card__body">
+            <span class="v-name">{{ (rideMode() === 'individual' ? 'passenger.economyRide' : 'passenger.economyPool') | translate }}</span>
+            <span class="v-desc">{{ 'passenger.economyDescription' | translate }}</span>
+            <span class="v-features">{{ 'passenger.economyFeaturePrice' | translate }} · {{ 'passenger.economyFeatureSimple' | translate }}</span>
+          </span>
+          <strong class="v-price">{{ categoryQuote('economy')?.formatted_fare ?? ('passenger.priceAfterDestination' | translate) }}</strong>
         </button>
         <button
           type="button"
           class="v-card"
           [class.selected]="selectedType() === 'comfort'"
-          (click)="selectVehicle('comfort')"
+          (click)="selectVehicleAndContinue('comfort')"
         >
           <span class="vehicle-mark">C</span>
-          <span class="v-name">{{ (rideMode() === 'individual' ? 'passenger.comfortRide' : 'passenger.comfortPool') | translate }}</span>
+          <span class="v-card__body">
+            <span class="v-name">{{ (rideMode() === 'individual' ? 'passenger.comfortRide' : 'passenger.comfortPool') | translate }}</span>
+            <span class="v-desc">{{ 'passenger.comfortDescription' | translate }}</span>
+            <span class="v-features">{{ 'passenger.comfortFeatureRating' | translate }} · {{ 'passenger.comfortFeatureAc' | translate }}</span>
+          </span>
+          <strong class="v-price">{{ categoryQuote('comfort')?.formatted_fare ?? ('passenger.priceAfterDestination' | translate) }}</strong>
         </button>
       </div>
 
       @if (pricingQuote(); as quote) {
         <section class="fare-preview">
           <div class="fare-preview__head">
-            <span>{{ 'pricing.estimatedFare' | translate }}</span>
-            <strong>{{ formatAoa(quote.final_fare) }}</strong>
+            <span>{{ 'pricing.closedFare' | translate }}</span>
+            <strong>{{ quote.formatted_fare }}</strong>
           </div>
           <div class="fare-preview__meta">
             <span>{{ quote.distance_km }} km</span>
             <span>{{ quote.duration_minutes }} min</span>
-            <span>{{ quote.surge_multiplier }}x</span>
-            <span>{{ quote.region }}</span>
+            <span>{{ 'pricing.lockedFor' | translate: { minutes: quote.price_lock_minutes } }}</span>
           </div>
-          <div class="fare-preview__formula">
-            {{ 'pricing.formula' | translate }}
-          </div>
-          <ul class="fare-reasons">
-            @for (reason of quote.reasons; track reason.code) {
-              <li>
-                <span>{{ reason.label }}</span>
-                <strong>{{ reason.impact }}</strong>
-              </li>
-            }
-          </ul>
+          <p class="fare-preview__assurance">{{ 'pricing.closedFareAssurance' | translate }}</p>
         </section>
       } @else if (isPricing()) {
         <section class="fare-preview skeleton-stack" [attr.aria-label]="'pricing.calculating' | translate">
@@ -158,7 +185,7 @@
 
       <p class="pool-hint">{{ (rideMode() === 'individual' ? 'passenger.individualHint' : 'passenger.poolHint') | translate }}</p>
 
-      <button class="btn btn--primary btn--large full-width" (click)="requestSelectedRide()" [disabled]="!destLat || isRequesting()">
+      <button class="btn btn--primary btn--large full-width" (click)="requestSelectedRide()" [disabled]="!destLat || !pricingQuote() || isPricing() || isRequesting()">
         @if (rideMode() === 'individual') {
           {{ isRequesting() ? ('passenger.requestingIndividual' | translate) : ('passenger.requestIndividual' | translate) }}
         } @else {

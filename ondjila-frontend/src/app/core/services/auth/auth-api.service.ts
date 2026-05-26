@@ -42,9 +42,17 @@ export class AuthApiService {
     return this.api.post<ApiResponse<AuthSession>>(ApiEndpoints.auth.register, payload);
   }
 
+  me() {
+    return this.api.get<ApiResponse<{ user: AuthUser }>>(ApiEndpoints.auth.me);
+  }
+
   storeSession(session: AuthSession): void {
     localStorage.setItem('token', session.access_token);
     localStorage.setItem('ondjila_user', JSON.stringify(session.user));
+  }
+
+  storeUser(user: AuthUser): void {
+    localStorage.setItem('ondjila_user', JSON.stringify(user));
   }
 
   dashboardRouteFor(user: AuthUser): string {

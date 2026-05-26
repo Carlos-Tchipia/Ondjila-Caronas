@@ -2,13 +2,17 @@ export const ApiEndpoints = {
   auth: {
     login: '/api/auth/login.php',
     register: '/api/auth/register.php',
+    me: '/api/auth/me.php',
   },
   wallet: {
     balance: '/api/wallet/balance.php',
+    topUp: '/api/wallet/top-up.php',
+    transactions: '/api/wallet/transactions.php',
   },
   passenger: {
     currentRide: '/api/passenger/current-ride.php',
     requestRide: '/api/passenger/request-ride.php',
+    payRide: '/api/passenger/pay-ride.php',
     requestPool: '/api/pool/request.php',
     cancelPool: '/api/pool/cancel.php',
   },
@@ -21,6 +25,8 @@ export const ApiEndpoints = {
     reports: '/api/admin/reports.php',
     reportsPdf: '/api/admin/reports-pdf.php',
     drivers: '/api/admin/drivers.php',
+    driverDecision: '/api/admin/driver-decision.php',
+    liveMap: '/api/admin/live-map.php',
     section: '/api/admin/section.php',
   },
   pool: {
@@ -30,7 +36,9 @@ export const ApiEndpoints = {
   driver: {
     register: '/api/drivers/register.php',
     currentRide: '/api/drivers/current-ride.php',
+    availableRides: '/api/drivers/available-rides.php',
     availablePools: '/api/drivers/available-pools.php',
+    acceptRide: '/api/drivers/accept-ride.php',
     acceptPool: '/api/drivers/accept-pool.php',
     startRide: '/api/drivers/start-ride.php',
     completeRide: '/api/drivers/complete-ride.php',

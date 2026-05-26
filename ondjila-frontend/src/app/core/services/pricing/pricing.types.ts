@@ -8,29 +8,19 @@ export interface PricingQuote {
   quote_id: number | null;
   ride_type: 'individual' | 'pool' | string;
   vehicle_type: 'economy' | 'comfort' | 'xl' | string;
-  region: string;
+  final_fare: number;
+  formatted_fare: string;
+  label_key: string;
+  description_key: string;
+  features_keys: string[];
   distance_km: number;
   duration_minutes: number;
-  stopped_minutes: number;
-  average_speed_kmh: number;
-  base_fare: number;
-  final_fare: number;
-  surge_multiplier: number;
-  multipliers: Record<string, number>;
-  factors: {
-    extras?: Record<string, number>;
-    traffic?: Record<string, unknown>;
-    weather?: Record<string, unknown>;
-    demand_supply?: Record<string, unknown>;
-  };
-  reasons: PricingReason[];
-  transparent_summary: {
-    formula: string;
-    base_component: number;
-    multiplier_component: number;
-    extras_total: number;
-    final_fare: number;
-  };
+  price_lock_minutes: number;
+}
+
+export interface PricingQuoteCatalog {
+  economy: PricingQuote;
+  comfort: PricingQuote;
 }
 
 export interface PricingQuoteRequest {

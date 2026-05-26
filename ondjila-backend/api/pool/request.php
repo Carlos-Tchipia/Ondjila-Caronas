@@ -33,25 +33,31 @@ $vehicleType = $data['vehicle_type'];
 
 $conn = Database::getInstance()->getConnection();
 
-$pricingQuote = DynamicPricingService::quote($conn, [
-    'origin_lat' => $data['origin_lat'],
-    'origin_lng' => $data['origin_lng'],
-    'dest_lat' => $data['dest_lat'],
-    'dest_lng' => $data['dest_lng'],
-    'vehicle_type' => $vehicleType,
-    'ride_type' => 'pool',
-], (int) $payload->sub, true);
+$pricingQuote = null;
+if (!empty($data['pricing_quote_id'])) {
+    $pricingQuote = DynamicPricingService::usableQuote(
+        $conn,
+        (int) $data['pricing_quote_id'],
+        (int) $payload->sub,
+        $vehicleType,
+        'pool',
+        $data
+    );
+}
+
+if (!$pricingQuote) {
+    $pricingQuote = DynamicPricingService::quote($conn, [
+        'origin_lat' => $data['origin_lat'],
+        'origin_lng' => $data['origin_lng'],
+        'dest_lat' => $data['dest_lat'],
+        'dest_lng' => $data['dest_lng'],
+        'vehicle_type' => $vehicleType,
+        'ride_type' => 'pool',
+    ], (int) $payload->sub, true);
+}
 $distanceKm = (float) $pricingQuote['distance_km'];
 $durationMinutes = (int) $pricingQuote['duration_minutes'];
 $soloFare = (float) $pricingQuote['final_fare'];
-
-$stmtBalance = $conn->prepare('SELECT wallet_balance FROM users WHERE id = ?');
-$stmtBalance->execute([$payload->sub]);
-$balance = (float) $stmtBalance->fetchColumn();
-
-if ($balance < $soloFare * 0.5) {
-    Response::error('Saldo insuficiente na carteira virtual', 402);
-}
 
 $matches = PoolMatchingHelper::findMatches(
     $conn,
@@ -79,14 +85,14 @@ try {
                 destination_address, destination_lat, destination_lng,
                 vehicle_type, status, pool_status,
                 fare_estimate, fare_final, fare_original, distance_km, duration_minutes,
-                pool_discount_pct, pricing_quote_id, surge_multiplier, fare_breakdown
+                pool_discount_pct, pricing_quote_id, surge_multiplier, fare_breakdown, payment_method, is_paid
             ) VALUES (
                 :pass_id, :pool_id, 'pool',
                 :o_addr, :o_lat, :o_lng,
                 :d_addr, :d_lat, :d_lng,
                 :v_type, 'pending', 'matched',
-                :fare_est, :fare_est, :fare_orig, :dist_km, :duration_min,
-                :disc, :quote_id, :surge_multiplier, :fare_breakdown
+                :fare_estimate, :fare_final, :fare_orig, :dist_km, :duration_min,
+                :disc, :quote_id, :surge_multiplier, :fare_breakdown, NULL, 0
             )
         ");
 
@@ -101,7 +107,8 @@ try {
             ':d_lat' => $data['dest_lat'],
             ':d_lng' => $data['dest_lng'],
             ':v_type' => $vehicleType,
-            ':fare_est' => $poolFareEstimate,
+            ':fare_estimate' => $poolFareEstimate,
+            ':fare_final' => $poolFareEstimate,
             ':fare_orig' => $soloFare,
             ':dist_km' => $distanceKm,
             ':duration_min' => $durationMinutes,
@@ -140,7 +147,7 @@ try {
             'scenario' => $scenario,
             'scenario_label' => PoolDetailsHelper::scenarioLabel($scenario),
             'pool_details' => $details,
-            'pricing' => $pricingQuote,
+            'pricing' => DynamicPricingService::publicQuote($pricingQuote),
         ], 'Match de carona encontrado!', 200);
     } else {
         $insertGroup = $conn->prepare("
@@ -159,14 +166,14 @@ try {
                 destination_address, destination_lat, destination_lng,
                 vehicle_type, status, pool_status,
                 fare_estimate, fare_final, fare_original, distance_km, duration_minutes,
-                pool_discount_pct, pickup_order, pricing_quote_id, surge_multiplier, fare_breakdown
+                pool_discount_pct, pickup_order, pricing_quote_id, surge_multiplier, fare_breakdown, payment_method, is_paid
             ) VALUES (
                 :pass_id, :pool_id, 'pool',
                 :o_addr, :o_lat, :o_lng,
                 :d_addr, :d_lat, :d_lng,
                 :v_type, 'pending', 'waiting_match',
-                :fare, :fare, :fare_orig, :dist_km, :duration_min,
-                :disc, 1, :quote_id, :surge_multiplier, :fare_breakdown
+                :fare_estimate, :fare_final, :fare_orig, :dist_km, :duration_min,
+                :disc, 1, :quote_id, :surge_multiplier, :fare_breakdown, NULL, 0
             )
         ");
 
@@ -180,7 +187,8 @@ try {
             ':d_lat' => $data['dest_lat'],
             ':d_lng' => $data['dest_lng'],
             ':v_type' => $vehicleType,
-            ':fare' => $soloFare,
+            ':fare_estimate' => $soloFare,
+            ':fare_final' => $soloFare,
             ':fare_orig' => $soloFare,
             ':dist_km' => $distanceKm,
             ':duration_min' => $durationMinutes,
@@ -222,7 +230,7 @@ try {
             'ui_state' => 'searching_passengers',
             'fare_individual' => $soloFare,
             'estimated_duration_min' => $routePayload['estimated_duration_min'] ?? null,
-            'pricing' => $pricingQuote,
+            'pricing' => DynamicPricingService::publicQuote($pricingQuote),
         ], 'A procurar parceiros de viagem...', 201);
     }
 } catch (Exception $e) {

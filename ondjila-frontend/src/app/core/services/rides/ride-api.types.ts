@@ -17,6 +17,8 @@ export interface PassengerRide {
   destination_lng?: number;
   fare_final?: number;
   fare_original?: number;
+  payment_method?: 'wallet' | 'multicaixa' | 'cash' | null;
+  is_paid?: boolean;
   distance_km?: number;
   duration_minutes?: number | null;
   surge_multiplier?: number;
@@ -40,7 +42,8 @@ export interface PassengerRide {
 
 export interface DriverRide {
   id: number;
-  status: 'forming' | 'active' | 'in_progress' | 'completed' | string;
+  ride_type?: 'individual' | 'pool';
+  status: 'pending' | 'accepted' | 'forming' | 'active' | 'in_progress' | 'completed' | string;
   current_count: number;
   max_passengers: number;
   origin_address: string;
@@ -49,6 +52,10 @@ export interface DriverRide {
   origin_lng: number;
   destination_lat: number;
   destination_lng: number;
+  distance_km?: number | null;
+  duration_minutes?: number | null;
+  fare_final?: number | null;
+  distance_to_pickup_km?: number | null;
   route?: PoolRouteData | null;
 }
 
@@ -60,6 +67,7 @@ export interface PoolRequest {
   vehicle_type: string;
   origin_address?: string;
   destination_address?: string;
+  pricing_quote_id?: number | null;
 }
 
 export interface IndividualRideRequest extends PoolRequest {}

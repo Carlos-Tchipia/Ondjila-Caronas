@@ -26,6 +26,18 @@ $query = "
 
 $stmt = $conn->prepare($query);
 $stmt->execute();
-$pools = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$pools = array_map(function (array $pool): array {
+    return [
+        ...$pool,
+        'id' => (int) $pool['id'],
+        'ride_type' => 'pool',
+        'current_count' => (int) $pool['current_count'],
+        'max_passengers' => (int) $pool['max_passengers'],
+        'origin_lat' => (float) $pool['origin_lat'],
+        'origin_lng' => (float) $pool['origin_lng'],
+        'destination_lat' => (float) $pool['destination_lat'],
+        'destination_lng' => (float) $pool['destination_lng'],
+    ];
+}, $stmt->fetchAll(PDO::FETCH_ASSOC));
 
 Response::success(['pools' => $pools], 'Pools disponíveis', 200);
