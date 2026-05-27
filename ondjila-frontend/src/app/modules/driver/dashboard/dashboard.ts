@@ -1,9 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
 import { DriverRidesApiService } from '../../../core/services/rides/driver-rides-api.service';
 import { DriverRide } from '../../../core/services/rides/ride-api.types';
 import { WalletApiService } from '../../../core/services/wallet/wallet-api.service';
+import { ChatApiService } from '../../../core/services/chat/chat-api.service';
+import { ChatMessage } from '../../../core/services/chat/chat.types';
 import { MapPanel } from '../../../shared/components/map-panel/map-panel';
 import { BottomNav } from '../../../shared/components/bottom-nav/bottom-nav';
 import { DRIVER_NAV } from '../../../core/navigation/passenger-nav';
@@ -13,7 +16,7 @@ import { catchError, forkJoin, of } from 'rxjs';
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
-  imports: [MapPanel, CommonModule, BottomNav, TranslatePipe],
+  imports: [MapPanel, CommonModule, BottomNav, TranslatePipe, FormsModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -30,15 +33,21 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly activeRide = signal<DriverRide | null>(null);
   readonly walletBalance = signal(0);
   readonly notice = signal<{ kind: 'success' | 'error'; text: string } | null>(null);
+  readonly chatMessages = signal<ChatMessage[]>([]);
+  readonly sendingChat = signal(false);
+  chatDraft = '';
 
   private pollInterval?: ReturnType<typeof setInterval>;
+  private chatInterval?: ReturnType<typeof setInterval>;
   private noticeTimeout?: ReturnType<typeof setTimeout>;
   private readonly fallbackDriverLocation = { lat: -8.8147, lng: 13.2302 };
   private hasLoadedRequests = false;
+  private isLoadingRequests = false;
 
   constructor(
     private readonly driverRidesApi: DriverRidesApiService,
     private readonly walletApi: WalletApiService,
+    private readonly chatApi: ChatApiService,
     private readonly translate: TranslateService
   ) {}
 
@@ -59,6 +68,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.pollInterval) clearInterval(this.pollInterval);
+    if (this.chatInterval) clearInterval(this.chatInterval);
     if (this.locationInterval) clearInterval(this.locationInterval);
     if (this.noticeTimeout) clearTimeout(this.noticeTimeout);
     this.mapPanel?.stopDriverSimulation();
@@ -91,15 +101,9 @@ export class Dashboard implements OnInit, OnDestroy {
 
   private startLocationBroadcast(): void {
     this.stopLocationBroadcast();
-    if (!('geolocation' in navigator)) {
-      this.showNotice('error', this.translate.t('driver.locationUnavailable'));
-      return;
-    }
 
     const tick = (): void => {
-      this.syncCurrentLocation().catch(() => {
-        this.showNotice('error', this.translate.t('driver.locationRequired'));
-      });
+      this.syncCurrentLocation().catch(() => undefined);
     };
 
     this.locationInterval = setInterval(tick, environment.pollingFallbackMs);
@@ -125,17 +129,69 @@ export class Dashboard implements OnInit, OnDestroy {
         this.activeRide.set(ride);
 
         if (ride) {
+          this.startChatPolling();
           setTimeout(() => this.drawRideOnMap(ride), 500);
           if (ride.status === 'in_progress') {
             this.mapPanel?.simulateDriverAlongRoute(120);
           }
+        } else {
+          this.stopChatPolling();
+          this.chatMessages.set([]);
         }
       },
     });
   }
 
+  private startChatPolling(): void {
+    if (this.chatInterval) return;
+    this.loadChat();
+    this.chatInterval = setInterval(() => this.loadChat(false), 3000);
+  }
+
+  private stopChatPolling(): void {
+    if (this.chatInterval) {
+      clearInterval(this.chatInterval);
+      this.chatInterval = undefined;
+    }
+  }
+
+  private loadChat(showErrors = true): void {
+    this.chatApi.messages(this.chatRideId()).subscribe({
+      next: (res) => this.chatMessages.set(res.data?.messages ?? []),
+      error: () => {
+        if (showErrors) this.chatMessages.set([]);
+      },
+    });
+  }
+
+  sendChat(): void {
+    const text = this.chatDraft.trim();
+    if (!text || this.sendingChat()) return;
+
+    this.sendingChat.set(true);
+    this.chatApi.send(text, this.chatRideId()).subscribe({
+      next: (res) => {
+        const message = res.data?.message;
+        if (message) {
+          this.chatMessages.update((messages) => [...messages, message]);
+        }
+        this.chatDraft = '';
+        this.sendingChat.set(false);
+      },
+      error: () => this.sendingChat.set(false),
+    });
+  }
+
+  private chatRideId(): number | undefined {
+    const ride = this.activeRide();
+    return ride?.ride_type === 'individual' ? ride.id : undefined;
+  }
+
   loadPools(showLoading = false): void {
     if (!this.isOnline()) return;
+    if (this.isLoadingRequests) return;
+
+    this.isLoadingRequests = true;
     if (showLoading || !this.hasLoadedRequests) {
       this.loading.set(true);
     }
@@ -155,20 +211,29 @@ export class Dashboard implements OnInit, OnDestroy {
       next: (res) => {
         const locationRequired =
           !!res.rides.data?.location_required || !!res.pools.data?.location_required;
+        if (locationRequired) {
+          this.hasLoadedRequests = true;
+          this.loading.set(false);
+          this.isLoadingRequests = false;
+          this.syncCurrentLocation()
+            .then(() => this.loadPools(false))
+            .catch(() => undefined);
+          return;
+        }
+
         this.availablePools.set([
           ...(res.rides.data?.rides || []),
           ...(res.pools.data?.pools || []),
         ]);
         this.hasLoadedRequests = true;
         this.loading.set(false);
+        this.isLoadingRequests = false;
 
-        if (locationRequired) {
-          this.showNotice('error', this.translate.t('driver.locationRequired'));
-        }
       },
       error: () => {
         this.hasLoadedRequests = true;
         this.loading.set(false);
+        this.isLoadingRequests = false;
       },
     });
   }
@@ -302,6 +367,8 @@ export class Dashboard implements OnInit, OnDestroy {
         this.processing.set(false);
         this.activeRide.set(null);
         this.availablePools.set([]);
+        this.stopChatPolling();
+        this.chatMessages.set([]);
         this.showNotice('success', this.translate.t('driver.tripCompleteSuccess'));
       },
       error: (err) => {

@@ -35,13 +35,16 @@ class FareCalculatorHelper
     }
 
     /**
-     * Desconto pool conforme número de passageiros (30%–50%).
+     * Desconto pool conservador por passageiro.
+     * 1-2 passageiros: sem desconto operacional; 3+ passageiros: partilha real.
      */
     public static function poolDiscountPct(int $passengerCount): float
     {
-        $count = max(1, min(4, $passengerCount));
-        $pct = POOL_DISCOUNT_MIN + (($count - 1) * 0.05);
-        return min(POOL_DISCOUNT_MAX, $pct);
+        return match (max(1, min(4, $passengerCount))) {
+            1, 2 => 0.0,
+            3 => 0.15,
+            default => 0.25,
+        };
     }
 
     /**

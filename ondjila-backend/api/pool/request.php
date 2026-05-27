@@ -76,7 +76,8 @@ try {
         $poolGroupId = (int) $best['id'];
         $scenario = $best['match_scenario'];
 
-        $poolFareEstimate = round($soloFare * (1 - FareCalculatorHelper::poolDiscountPct(2)), 2);
+        $estimatedCount = (int) $best['current_count'] + 1;
+        $poolFareEstimate = round($soloFare * (1 - FareCalculatorHelper::poolDiscountPct($estimatedCount)), 2);
 
         $insertRide = $conn->prepare("
             INSERT INTO rides (
@@ -133,6 +134,19 @@ try {
         ");
         $ridesStmt->execute([$poolGroupId]);
         $allRides = $ridesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $fareSplit = FareCalculatorHelper::splitPoolFares($vehicleType, $allRides, $scenario);
+        $updateFare = $conn->prepare("
+            UPDATE rides
+            SET fare_estimate = ?, fare_final = ?, pool_discount_pct = ?
+            WHERE id = ?
+        ");
+        foreach ($allRides as $idx => $ride) {
+            $fare = $fareSplit['fares'][$idx] ?? (float) $ride['fare_original'];
+            $updateFare->execute([$fare, $fare, $fareSplit['discount_pct'], $ride['id']]);
+            $allRides[$idx]['fare_final'] = $fare;
+            $allRides[$idx]['pool_discount_pct'] = $fareSplit['discount_pct'];
+        }
 
         $routePayload = PoolRouteHelper::buildRoutePayload($allRides, $scenario, $vehicleType);
         PoolRouteHelper::persistGroupRoute($conn, $poolGroupId, $routePayload);

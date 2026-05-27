@@ -5,16 +5,26 @@
   [badgeKey]="'passenger.chatBadge'"
 >
   <div class="shell-card chat-box">
-    @for (msg of messages(); track $index) {
-      <div class="chat-bubble" [class.chat-bubble--me]="msg.from === 'me'">
-        <p>{{ msg.textKey ? (msg.textKey | translate) : msg.text }}</p>
+    @if (loading()) {
+      <p class="empty-state">{{ 'common.loading' | translate }}</p>
+    } @else if (!ride()) {
+      <p class="empty-state">O chat fica disponivel quando o motorista aceitar a viagem.</p>
+    } @else {
+      @for (msg of messages(); track msg.id) {
+      <div class="chat-bubble" [class.chat-bubble--me]="msg.mine">
+        <p>{{ msg.message }}</p>
         <time>{{ msg.time }}</time>
       </div>
+      } @empty {
+        <p class="empty-state">Sem mensagens ainda. Envia a primeira mensagem ao motorista.</p>
+      }
     }
   </div>
   <div class="shell-card chat-compose">
-    <input type="text" [placeholder]="'passenger.chatPlaceholder' | translate" [(ngModel)]="draft" (keyup.enter)="send()" />
-    <button type="button" class="btn btn--primary" (click)="send()">{{ 'common.send' | translate }}</button>
+    <input type="text" [placeholder]="'passenger.chatPlaceholder' | translate" [(ngModel)]="draft" (keyup.enter)="send()" [disabled]="!ride() || sending()" />
+    <button type="button" class="btn btn--primary" (click)="send()" [disabled]="!ride() || sending()">
+      {{ sending() ? ('common.loading' | translate) : ('common.send' | translate) }}
+    </button>
   </div>
 </app-shell-page>
 <app-bottom-nav [items]="nav" />

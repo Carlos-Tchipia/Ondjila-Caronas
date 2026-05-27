@@ -21,6 +21,10 @@ export const ApiEndpoints = {
   pricing: {
     quote: '/api/pricing/quote.php',
   },
+  chat: {
+    messages: '/api/chat/messages.php',
+    send: '/api/chat/send.php',
+  },
   admin: {
     pricing: '/api/admin/pricing.php',
     overview: '/api/admin/overview.php',

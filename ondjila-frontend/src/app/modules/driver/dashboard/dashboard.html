@@ -62,6 +62,27 @@
             </button>
           }
         </div>
+
+        <div class="driver-chat">
+          <div class="driver-chat__head">
+            <strong>Chat</strong>
+            <span>Tempo real</span>
+          </div>
+          <div class="driver-chat__messages">
+            @for (msg of chatMessages(); track msg.id) {
+              <div class="driver-chat__bubble" [class.mine]="msg.mine">
+                <p>{{ msg.message }}</p>
+                <time>{{ msg.time }}</time>
+              </div>
+            } @empty {
+              <p class="empty-state">Sem mensagens ainda.</p>
+            }
+          </div>
+          <div class="driver-chat__compose">
+            <input type="text" placeholder="Mensagem ao passageiro" [(ngModel)]="chatDraft" (keyup.enter)="sendChat()" [disabled]="sendingChat()" />
+            <button type="button" class="btn btn--primary" (click)="sendChat()" [disabled]="sendingChat()">Enviar</button>
+          </div>
+        </div>
       </div>
     } @else {
       <h3>{{ 'driver.requestsNearMe' | translate }}</h3>

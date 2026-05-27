@@ -57,6 +57,74 @@
     </section>
   </div>
 
+  <div class="rankings-grid">
+    <section class="ui-card ranking-card">
+      <h2>Passageiros com mais viagens</h2>
+      <ul class="ranking-list">
+        @for (item of rankings().top_passengers; track item.id) {
+          <li>
+            <span class="ranking-list__pos">{{ $index + 1 }}</span>
+            <div>
+              <strong>{{ item.name }}</strong>
+              <small>{{ item.meta }}</small>
+            </div>
+            <b>{{ item.formatted }}</b>
+          </li>
+        } @empty {
+          <li class="ranking-list__empty">Sem dados reais neste mes.</li>
+        }
+      </ul>
+    </section>
+
+    <section class="ui-card ranking-card">
+      <h2>Motoristas que mais trabalharam</h2>
+      <ul class="ranking-list">
+        @for (item of rankings().top_drivers; track item.id) {
+          <li>
+            <span class="ranking-list__pos">{{ $index + 1 }}</span>
+            <div>
+              <strong>{{ item.name }}</strong>
+              <small>{{ item.meta }}</small>
+            </div>
+            <b>{{ item.formatted }}</b>
+          </li>
+        } @empty {
+          <li class="ranking-list__empty">Sem dados reais neste mes.</li>
+        }
+      </ul>
+    </section>
+
+    <section class="ui-card ranking-card">
+      <h2>Ganhos dos motoristas</h2>
+      <ul class="earnings-list">
+        @for (driver of rankings().driver_earnings; track driver.driver_id) {
+          <li>
+            <div>
+              <strong>{{ driver.name }}</strong>
+              <small>{{ driver.rides_today }} hoje / {{ driver.rides_month }} no mes</small>
+            </div>
+            <span>
+              <b>{{ driver.today_formatted }}</b>
+              <small>{{ driver.month_formatted }} no mes</small>
+            </span>
+          </li>
+        } @empty {
+          <li class="ranking-list__empty">Sem ganhos pagos neste mes.</li>
+        }
+      </ul>
+    </section>
+  </div>
+
+  <div class="health-row">
+    @for (item of rankings().business_health; track item.label) {
+      <section class="ui-card health-card">
+        <span>{{ item.label }}</span>
+        <strong>{{ item.value }}</strong>
+        <small>{{ item.meta }}</small>
+      </section>
+    }
+  </div>
+
   <section class="ui-card activity-card">
     <div class="activity-card__head">
       <h2>{{ 'admin.recentActivity' | translate }}</h2>

@@ -4,7 +4,7 @@ import { SidebarLayout } from '../../../shared/layouts/sidebar-layout/sidebar-la
 import { AdminTopbar } from '../../../shared/components/admin-topbar/admin-topbar';
 import { ADMIN_SIDEBAR_CTA, ADMIN_SIDEBAR_MENU } from '../../../core/navigation/admin-sidebar.nav';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
-import { AdminActivity, AdminDistrict, AdminKpi, AdminOverview } from '../../../core/services/admin/admin.types';
+import { AdminActivity, AdminDistrict, AdminKpi, AdminOverview, AdminRankings } from '../../../core/services/admin/admin.types';
 import { AdminApiService } from '../../../core/services/admin/admin-api.service';
 
 @Component({
@@ -22,6 +22,12 @@ export class AdminOverviewPage implements OnInit {
   readonly kpis = signal<AdminKpi[]>([]);
   readonly fleet = signal<AdminOverview['fleet']>({ individual: 0, pool: 0 });
   readonly zones = signal<AdminDistrict[]>([]);
+  readonly rankings = signal<AdminRankings>({
+    top_passengers: [],
+    top_drivers: [],
+    driver_earnings: [],
+    business_health: [],
+  });
   readonly activity = signal<AdminActivity[]>([]);
 
   constructor(private readonly adminApi: AdminApiService) {}
@@ -33,6 +39,12 @@ export class AdminOverviewPage implements OnInit {
         this.kpis.set(data?.kpis ?? []);
         this.fleet.set(data?.fleet ?? { individual: 0, pool: 0 });
         this.zones.set(data?.zones ?? []);
+        this.rankings.set(data?.rankings ?? {
+          top_passengers: [],
+          top_drivers: [],
+          driver_earnings: [],
+          business_health: [],
+        });
         this.activity.set(data?.activity ?? []);
         this.loading.set(false);
       },

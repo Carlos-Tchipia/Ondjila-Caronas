@@ -61,6 +61,7 @@ class AdminAnalyticsService
             ],
             'fleet' => self::fleetSeries($conn, 24),
             'zones' => self::topZones($conn, $todayStart, $todayEnd, 6),
+            'rankings' => self::operationalRankings($conn),
             'activity' => self::recentActivity($conn, 8),
         ];
     }
@@ -250,6 +251,156 @@ class AdminAnalyticsService
             [$start, $end] = [$end, $start];
         }
         return [$start->format('Y-m-d 00:00:00'), $end->format('Y-m-d 23:59:59')];
+    }
+
+    private static function operationalRankings(PDO $conn): array
+    {
+        $todayStart = date('Y-m-d 00:00:00');
+        $todayEnd = date('Y-m-d 23:59:59');
+        $monthStart = date('Y-m-01 00:00:00');
+        $totalMonth = self::countRides($conn, $monthStart, $todayEnd, false);
+        $completedMonth = self::countRides($conn, $monthStart, $todayEnd, true);
+        $cancelledMonth = (int) self::scalar($conn, "
+            SELECT COUNT(*)
+            FROM rides
+            WHERE status = 'cancelled'
+              AND created_at BETWEEN ? AND ?
+        ", [$monthStart, $todayEnd]);
+        $poolMonth = (int) self::scalar($conn, "
+            SELECT COUNT(*)
+            FROM rides
+            WHERE ride_type = 'pool'
+              AND created_at BETWEEN ? AND ?
+        ", [$monthStart, $todayEnd]);
+        $grossMonth = self::sumRevenue($conn, $monthStart, $todayEnd);
+
+        return [
+            'top_passengers' => self::topPassengers($conn, $monthStart, $todayEnd, 5),
+            'top_drivers' => self::topDrivers($conn, $monthStart, $todayEnd, 5),
+            'driver_earnings' => self::driverEarnings($conn, $todayStart, $todayEnd, $monthStart, 5),
+            'business_health' => [
+                [
+                    'label' => 'Ticket medio mensal',
+                    'value' => $completedMonth > 0 ? self::formatAoa($grossMonth / $completedMonth) : self::formatAoa(0),
+                    'meta' => 'corridas pagas',
+                ],
+                [
+                    'label' => 'Taxa de cancelamento',
+                    'value' => $totalMonth > 0 ? round(($cancelledMonth / $totalMonth) * 100, 1) . '%' : '0%',
+                    'meta' => 'este mes',
+                ],
+                [
+                    'label' => 'Adocao pool',
+                    'value' => $totalMonth > 0 ? round(($poolMonth / $totalMonth) * 100, 1) . '%' : '0%',
+                    'meta' => 'este mes',
+                ],
+            ],
+        ];
+    }
+
+    private static function topPassengers(PDO $conn, string $start, string $end, int $limit): array
+    {
+        $stmt = $conn->prepare("
+            SELECT u.id, u.name, COUNT(r.id) AS trips, COALESCE(SUM(r.fare_final), 0) AS spend
+            FROM users u
+            INNER JOIN rides r ON r.passenger_id = u.id
+            WHERE r.status = 'completed'
+              AND r.created_at BETWEEN ? AND ?
+            GROUP BY u.id, u.name
+            ORDER BY trips DESC, spend DESC
+            LIMIT ?
+        ");
+        $stmt->bindValue(1, $start);
+        $stmt->bindValue(2, $end);
+        $stmt->bindValue(3, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return array_map(static fn($row) => [
+            'id' => (int) $row['id'],
+            'name' => $row['name'] ?: 'Passageiro',
+            'total' => (int) $row['trips'],
+            'formatted' => number_format((int) $row['trips'], 0, ',', '.') . ' viagens',
+            'meta' => self::formatAoa((float) $row['spend']) . ' pagos',
+        ], $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    private static function topDrivers(PDO $conn, string $start, string $end, int $limit): array
+    {
+        $stmt = $conn->prepare("
+            SELECT d.id, u.name, COUNT(r.id) AS trips, COALESCE(SUM(r.fare_final), 0) AS revenue
+            FROM drivers d
+            INNER JOIN users u ON u.id = d.user_id
+            LEFT JOIN rides r ON r.driver_id = d.id
+                AND r.status = 'completed'
+                AND r.created_at BETWEEN ? AND ?
+            GROUP BY d.id, u.name
+            HAVING trips > 0
+            ORDER BY trips DESC, revenue DESC
+            LIMIT ?
+        ");
+        $stmt->bindValue(1, $start);
+        $stmt->bindValue(2, $end);
+        $stmt->bindValue(3, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return array_map(static fn($row) => [
+            'id' => (int) $row['id'],
+            'name' => $row['name'] ?: 'Motorista',
+            'total' => (int) $row['trips'],
+            'formatted' => number_format((int) $row['trips'], 0, ',', '.') . ' viagens',
+            'meta' => self::formatAoa((float) $row['revenue']) . ' faturados',
+        ], $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    private static function driverEarnings(PDO $conn, string $todayStart, string $todayEnd, string $monthStart, int $limit): array
+    {
+        $stmt = $conn->prepare("
+            SELECT d.id, u.name,
+                   COALESCE(SUM(CASE
+                       WHEN r.status = 'completed' AND r.is_paid = 1 AND r.created_at BETWEEN ? AND ?
+                       THEN r.fare_final ELSE 0 END), 0) AS today_gross,
+                   COALESCE(SUM(CASE
+                       WHEN r.status = 'completed' AND r.is_paid = 1 AND r.created_at BETWEEN ? AND ?
+                       THEN r.fare_final ELSE 0 END), 0) AS month_gross,
+                   COALESCE(SUM(CASE
+                       WHEN r.status = 'completed' AND r.created_at BETWEEN ? AND ?
+                       THEN 1 ELSE 0 END), 0) AS rides_today,
+                   COALESCE(SUM(CASE
+                       WHEN r.status = 'completed' AND r.created_at BETWEEN ? AND ?
+                       THEN 1 ELSE 0 END), 0) AS rides_month
+            FROM drivers d
+            INNER JOIN users u ON u.id = d.user_id
+            LEFT JOIN rides r ON r.driver_id = d.id
+            GROUP BY d.id, u.name
+            HAVING month_gross > 0 OR rides_month > 0
+            ORDER BY month_gross DESC, rides_month DESC
+            LIMIT ?
+        ");
+        $stmt->bindValue(1, $todayStart);
+        $stmt->bindValue(2, $todayEnd);
+        $stmt->bindValue(3, $monthStart);
+        $stmt->bindValue(4, $todayEnd);
+        $stmt->bindValue(5, $todayStart);
+        $stmt->bindValue(6, $todayEnd);
+        $stmt->bindValue(7, $monthStart);
+        $stmt->bindValue(8, $todayEnd);
+        $stmt->bindValue(9, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return array_map(static function ($row) {
+            $todayNet = (float) $row['today_gross'] * (1 - PLATFORM_COMMISSION);
+            $monthNet = (float) $row['month_gross'] * (1 - PLATFORM_COMMISSION);
+            return [
+                'driver_id' => (int) $row['id'],
+                'name' => $row['name'] ?: 'Motorista',
+                'today' => round($todayNet, 2),
+                'month' => round($monthNet, 2),
+                'rides_today' => (int) $row['rides_today'],
+                'rides_month' => (int) $row['rides_month'],
+                'today_formatted' => self::formatAoa($todayNet),
+                'month_formatted' => self::formatAoa($monthNet),
+            ];
+        }, $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     private static function countRides(PDO $conn, string $start, string $end, bool $completedOnly = false): int

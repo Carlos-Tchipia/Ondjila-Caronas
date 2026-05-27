@@ -24,7 +24,40 @@ export interface AdminOverview {
   kpis: AdminKpi[];
   fleet: { individual: number; pool: number };
   zones: AdminDistrict[];
+  rankings: AdminRankings;
   activity: AdminActivity[];
+}
+
+export interface AdminRankingItem {
+  id: number;
+  name: string;
+  total: number;
+  formatted: string;
+  meta: string;
+}
+
+export interface AdminDriverEarning {
+  driver_id: number;
+  name: string;
+  today: number;
+  month: number;
+  rides_today: number;
+  rides_month: number;
+  today_formatted: string;
+  month_formatted: string;
+}
+
+export interface AdminHealthItem {
+  label: string;
+  value: string;
+  meta: string;
+}
+
+export interface AdminRankings {
+  top_passengers: AdminRankingItem[];
+  top_drivers: AdminRankingItem[];
+  driver_earnings: AdminDriverEarning[];
+  business_health: AdminHealthItem[];
 }
 
 export interface AdminReportMetric {
