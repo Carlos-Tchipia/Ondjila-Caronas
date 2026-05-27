@@ -28,6 +28,7 @@ describe('Dashboard', () => {
             startRide: () => of({ data: null }),
             completeRide: () => of({ data: null }),
             updateLocation: () => of({ data: { lat: 0, lng: 0 } }),
+            updateAvailability: () => of({ data: { is_available: false } }),
           },
         },
         {

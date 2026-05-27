@@ -59,6 +59,18 @@ export interface DriverRide {
   route?: PoolRouteData | null;
 }
 
+export interface DriverAvailableRidesData {
+  rides: DriverRide[];
+  location_required?: boolean;
+  pickup_radius_km?: number;
+}
+
+export interface DriverAvailablePoolsData {
+  pools: DriverRide[];
+  location_required?: boolean;
+  pickup_radius_km?: number;
+}
+
 export interface PoolRequest {
   origin_lat: number;
   origin_lng: number;

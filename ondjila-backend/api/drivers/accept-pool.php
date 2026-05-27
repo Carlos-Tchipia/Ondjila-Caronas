@@ -5,6 +5,7 @@ require_once '../../helpers/Response.php';
 require_once '../../helpers/AuthHelper.php';
 require_once '../../helpers/PoolRouteHelper.php';
 require_once '../../helpers/PoolDetailsHelper.php';
+require_once '../../helpers/NearbyRideHelper.php';
 
 $payload = AuthHelper::requireAuth();
 
@@ -16,14 +17,55 @@ if (!isset($data['pool_group_id'])) {
 $conn = Database::getInstance()->getConnection();
 $driverId = AuthHelper::requireApprovedDriver($conn, $payload);
 
+$driverStmt = $conn->prepare('SELECT vehicle_type, current_lat, current_lng, updated_at FROM drivers WHERE id = ?');
+$driverStmt->execute([$driverId]);
+$driver = $driverStmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$driver) {
+    Response::error('Motorista não encontrado', 404);
+}
+
+$driverLocation = NearbyRideHelper::driverLocation($driver);
+if ($driverLocation === null) {
+    Response::error('Atualize a localização antes de aceitar pedidos.', 422);
+}
+
 $conn->beginTransaction();
 
 try {
-    $updateGroup = $conn->prepare("UPDATE pool_groups SET driver_id = ?, status = 'active' WHERE id = ? AND driver_id IS NULL AND status = 'forming'");
-    $updateGroup->execute([$driverId, $data['pool_group_id']]);
+    $poolStmt = $conn->prepare("
+        SELECT pg.id, r.origin_lat, r.origin_lng
+        FROM pool_groups pg
+        JOIN rides r ON r.pool_group_id = pg.id
+        WHERE pg.id = ?
+          AND pg.driver_id IS NULL
+          AND pg.status = 'forming'
+          AND pg.vehicle_type = ?
+          AND r.status = 'pending'
+        ORDER BY r.pickup_order ASC, r.id ASC
+        LIMIT 1
+        FOR UPDATE
+    ");
+    $poolStmt->execute([$data['pool_group_id'], $driver['vehicle_type']]);
+    $pool = $poolStmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$pool) {
+        throw new Exception('Pool já atribuído ou indisponível.');
+    }
+
+    if (!NearbyRideHelper::isWithinPickupRadius($driverLocation, $pool)) {
+        throw new Exception('Pool fora do raio de pedidos próximos.');
+    }
+
+    $updateGroup = $conn->prepare("
+        UPDATE pool_groups
+        SET driver_id = ?, status = 'active'
+        WHERE id = ? AND driver_id IS NULL AND status = 'forming' AND vehicle_type = ?
+    ");
+    $updateGroup->execute([$driverId, $data['pool_group_id'], $driver['vehicle_type']]);
 
     if ($updateGroup->rowCount() === 0) {
-        throw new Exception("Pool já atribuído ou indisponível.");
+        throw new Exception('Pool já atribuído ou indisponível.');
     }
 
     $updateRides = $conn->prepare("

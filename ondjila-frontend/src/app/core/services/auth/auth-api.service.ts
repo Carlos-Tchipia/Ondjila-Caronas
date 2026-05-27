@@ -28,6 +28,21 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetCode {
+  reset_code: string;
+  expires_in_minutes: number;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  code: string;
+  new_password: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -40,6 +55,17 @@ export class AuthApiService {
 
   register(payload: RegisterRequest) {
     return this.api.post<ApiResponse<AuthSession>>(ApiEndpoints.auth.register, payload);
+  }
+
+  requestPasswordReset(payload: PasswordResetRequest) {
+    return this.api.post<ApiResponse<PasswordResetCode>>(
+      ApiEndpoints.auth.requestPasswordReset,
+      payload
+    );
+  }
+
+  resetPassword(payload: ResetPasswordRequest) {
+    return this.api.post<ApiResponse<null>>(ApiEndpoints.auth.resetPassword, payload);
   }
 
   me() {

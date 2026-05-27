@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiClient } from '../../api/api-client.service';
 import { ApiEndpoints } from '../../api/api-endpoints';
 import { ApiResponse } from '../../api/api-response';
-import { DriverRide } from './ride-api.types';
+import { DriverAvailablePoolsData, DriverAvailableRidesData, DriverRide } from './ride-api.types';
 
 @Injectable({
   providedIn: 'root',
@@ -15,11 +15,11 @@ export class DriverRidesApiService {
   }
 
   getAvailablePools() {
-    return this.api.get<ApiResponse<{ pools: DriverRide[] }>>(ApiEndpoints.driver.availablePools);
+    return this.api.get<ApiResponse<DriverAvailablePoolsData>>(ApiEndpoints.driver.availablePools);
   }
 
   getAvailableRides() {
-    return this.api.get<ApiResponse<{ rides: DriverRide[] }>>(ApiEndpoints.driver.availableRides);
+    return this.api.get<ApiResponse<DriverAvailableRidesData>>(ApiEndpoints.driver.availableRides);
   }
 
   acceptRide(rideId: number) {
@@ -49,5 +49,12 @@ export class DriverRidesApiService {
       lat,
       lng,
     });
+  }
+
+  updateAvailability(isAvailable: boolean) {
+    return this.api.post<ApiResponse<{ is_available: boolean }>>(
+      ApiEndpoints.driver.updateAvailability,
+      { is_available: isAvailable }
+    );
   }
 }

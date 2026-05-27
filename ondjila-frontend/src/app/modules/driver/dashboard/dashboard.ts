@@ -9,7 +9,7 @@ import { BottomNav } from '../../../shared/components/bottom-nav/bottom-nav';
 import { DRIVER_NAV } from '../../../core/navigation/passenger-nav';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslateService } from '../../../core/i18n/translate.service';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
@@ -33,6 +33,8 @@ export class Dashboard implements OnInit, OnDestroy {
 
   private pollInterval?: ReturnType<typeof setInterval>;
   private noticeTimeout?: ReturnType<typeof setTimeout>;
+  private readonly fallbackDriverLocation = { lat: -8.8147, lng: 13.2302 };
+  private hasLoadedRequests = false;
 
   constructor(
     private readonly driverRidesApi: DriverRidesApiService,
@@ -50,7 +52,7 @@ export class Dashboard implements OnInit, OnDestroy {
       if (this.activeRide()) {
         this.checkCurrentRide();
       } else if (this.isOnline()) {
-        this.loadPools();
+        this.loadPools(false);
       }
     }, environment.pollingFallbackMs);
   }
@@ -63,27 +65,43 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   toggleOnline(): void {
-    this.isOnline.update((value) => {
-      const next = !value;
-      if (next) {
+    if (this.isOnline()) {
+      this.isOnline.set(false);
+      this.availablePools.set([]);
+      this.hasLoadedRequests = false;
+      this.stopLocationBroadcast();
+      this.driverRidesApi.updateAvailability(false).subscribe();
+      return;
+    }
+
+    this.loading.set(true);
+    this.syncCurrentLocation()
+      .then(() => {
+        this.isOnline.set(true);
         this.startLocationBroadcast();
-        this.loadPools();
-      } else {
+        this.loadPools(true);
+      })
+      .catch(() => {
+        this.loading.set(false);
+        this.isOnline.set(false);
         this.stopLocationBroadcast();
-      }
-      return next;
-    });
+        this.showNotice('error', this.translate.t('driver.locationRequired'));
+      });
   }
 
   private startLocationBroadcast(): void {
     this.stopLocationBroadcast();
-    if (!('geolocation' in navigator)) return;
-    const tick = () => {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        this.driverRidesApi.updateLocation(pos.coords.latitude, pos.coords.longitude).subscribe();
+    if (!('geolocation' in navigator)) {
+      this.showNotice('error', this.translate.t('driver.locationUnavailable'));
+      return;
+    }
+
+    const tick = (): void => {
+      this.syncCurrentLocation().catch(() => {
+        this.showNotice('error', this.translate.t('driver.locationRequired'));
       });
     };
-    tick();
+
     this.locationInterval = setInterval(tick, environment.pollingFallbackMs);
   }
 
@@ -116,21 +134,82 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
-  loadPools(): void {
-    this.loading.set(true);
+  loadPools(showLoading = false): void {
+    if (!this.isOnline()) return;
+    if (showLoading || !this.hasLoadedRequests) {
+      this.loading.set(true);
+    }
 
     forkJoin({
-      rides: this.driverRidesApi.getAvailableRides(),
-      pools: this.driverRidesApi.getAvailablePools(),
+      rides: this.driverRidesApi.getAvailableRides().pipe(
+        catchError(() =>
+          of({ success: false, data: { rides: [], location_required: false }, message: '' })
+        )
+      ),
+      pools: this.driverRidesApi.getAvailablePools().pipe(
+        catchError(() =>
+          of({ success: false, data: { pools: [], location_required: false }, message: '' })
+        )
+      ),
     }).subscribe({
       next: (res) => {
+        const locationRequired =
+          !!res.rides.data?.location_required || !!res.pools.data?.location_required;
         this.availablePools.set([
           ...(res.rides.data?.rides || []),
           ...(res.pools.data?.pools || []),
         ]);
+        this.hasLoadedRequests = true;
+        this.loading.set(false);
+
+        if (locationRequired) {
+          this.showNotice('error', this.translate.t('driver.locationRequired'));
+        }
+      },
+      error: () => {
+        this.hasLoadedRequests = true;
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+    });
+  }
+
+  private syncCurrentLocation(): Promise<void> {
+    if (!('geolocation' in navigator)) {
+      return this.useFallbackLocation();
+    }
+
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.driverRidesApi.updateLocation(pos.coords.latitude, pos.coords.longitude).subscribe({
+            next: () => resolve(),
+            error: reject,
+          });
+        },
+        () => {
+          this.useFallbackLocation().then(resolve).catch(reject);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 15000,
+          timeout: 10000,
+        }
+      );
+    });
+  }
+
+  private useFallbackLocation(): Promise<void> {
+    if (environment.production) {
+      return Promise.reject(new Error('Geolocation unavailable'));
+    }
+
+    return new Promise((resolve, reject) => {
+      this.driverRidesApi
+        .updateLocation(this.fallbackDriverLocation.lat, this.fallbackDriverLocation.lng)
+        .subscribe({
+          next: () => resolve(),
+          error: reject,
+        });
     });
   }
 

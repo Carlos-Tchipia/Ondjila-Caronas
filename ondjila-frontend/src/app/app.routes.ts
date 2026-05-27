@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Landing } from './modules/auth/landing/landing';
 import { Login } from './modules/auth/login/login';
+import { PasswordRecovery } from './modules/auth/password-recovery/password-recovery';
 import { Register } from './modules/auth/register/register';
 import { RegisterDriver } from './modules/auth/register-driver/register-driver';
 import { Dashboard as PassengerDashboard } from './modules/passenger/dashboard/dashboard';
@@ -43,6 +44,7 @@ import { adminGuard } from './core/guards/auth/admin-guard';
 export const routes: Routes = [
   { path: '', component: Landing },
   { path: 'login', component: Login },
+  { path: 'forgot-password', component: PasswordRecovery },
   { path: 'register', component: Register },
   { path: 'register/driver', component: RegisterDriver },
 

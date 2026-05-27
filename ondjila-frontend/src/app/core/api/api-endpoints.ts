@@ -3,6 +3,8 @@ export const ApiEndpoints = {
     login: '/api/auth/login.php',
     register: '/api/auth/register.php',
     me: '/api/auth/me.php',
+    requestPasswordReset: '/api/auth/request-password-reset.php',
+    resetPassword: '/api/auth/reset-password.php',
   },
   wallet: {
     balance: '/api/wallet/balance.php',
@@ -43,5 +45,6 @@ export const ApiEndpoints = {
     startRide: '/api/drivers/start-ride.php',
     completeRide: '/api/drivers/complete-ride.php',
     updateLocation: '/api/drivers/update-location.php',
+    updateAvailability: '/api/drivers/update-availability.php',
   },
 } as const;
